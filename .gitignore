@@ -183,3 +183,19 @@ docs/site
 
 # Claude Code
 .claude
+
+# Node.js dependencies and generated files
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Translation tool generated files
+translation-dictionary.json
+translation.log
+*.backup
+*_zh-tw.md
+test-*.md
+
+# Environment variables
+.env

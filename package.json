@@ -1,0 +1,27 @@
+{
+  "name": "adk-docs-translator",
+  "version": "1.0.0",
+  "description": "Automatic translation tool for ADK documentation using Azure OpenAI",
+  "main": "translate.js",
+  "scripts": {
+    "translate": "node translate.js",
+    "demo": "node demo-translation.js",
+    "test": "node test-translation.js"
+  },
+  "keywords": [
+    "translation",
+    "azure-openai",
+    "markdown",
+    "documentation",
+    "i18n"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "dotenv": "^16.3.1",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.3.10",
+    "openai": "^4.104.0"
+  }
+}

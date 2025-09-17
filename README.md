@@ -82,6 +82,26 @@ We welcome contributions from the community! Whether it's bug reports, feature
 requests, documentation improvements, or code contributions, please see our
 [**Contributing Guidelines**](./CONTRIBUTING.md) to get started.
 
+## 🌐 Translation Tool
+
+This repository includes an automatic translation tool for translating documentation from English to Traditional Chinese (zh-tw) using Azure OpenAI Service.
+
+### Features
+- Automatic scanning of all `*.md` files
+- Translation using Azure OpenAI GPT-4/5 models
+- Quality analysis and improvement
+- Shared translation dictionary for consistency
+- Specialized term handling
+- Environment variable configuration
+
+### Quick Start
+1. Install dependencies: `npm install`
+2. Set up configuration: `cp .env.example .env` and fill in your Azure OpenAI credentials
+3. Run translation: `npm run translate`
+4. Test with demo: `npm run demo`
+
+For detailed usage instructions, see [TRANSLATION_README.md](TRANSLATION_README.md).
+
 ## 📄 License
 
 This project is licensed under the Apache 2.0 License - see the
