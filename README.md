@@ -95,12 +95,13 @@ This repository includes an automatic translation tool for translating documenta
 - Environment variable configuration
 
 ### Quick Start
-1. Install dependencies: `npm install`
-2. Set up configuration: `cp .env.example .env` and fill in your Azure OpenAI credentials
-3. Run translation: `npm run translate`
-4. Test with demo: `npm run demo`
+1. Navigate to translation tool: `cd translation-tool`
+2. Install dependencies: `npm install`
+3. Set up configuration: `cp .env.example .env` and fill in your Azure OpenAI credentials
+4. Run translation: `npm run translate`
+5. Test with demo: `npm run demo`
 
-For detailed usage instructions, see [TRANSLATION_README.md](TRANSLATION_README.md).
+For detailed usage instructions, see [translation-tool/TRANSLATION_README.md](translation-tool/TRANSLATION_README.md).
 
 ## 📄 License
 

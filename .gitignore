@@ -191,11 +191,12 @@ yarn-debug.log*
 yarn-error.log*
 
 # Translation tool generated files
-translation-dictionary.json
-translation.log
-*.backup
-*_zh-tw.md
-test-*.md
+translation-tool/translation-dictionary.json
+translation-tool/translation.log
+translation-tool/*.backup
+translation-tool/*_zh-tw.md
+translation-tool/test-*.md
+translation-tool/node_modules/
 
 # Environment variables
 .env
