@@ -217,7 +217,26 @@ class AzureOpenAITranslator {
             return this.dictionary.applyDictionaryToText(translation);
             
         } catch (error) {
-            this.logger.error(`Translation failed: ${error.message}`);
+            // Log detailed debugging information including the full prompt (no redaction)
+            this.logger.error('Translation failed', {
+                errorName: error?.name,
+                errorMessage: error?.message,
+                status: error?.status || error?.statusCode || error?.response?.status,
+                code: error?.code,
+                type: error?.type,
+                responseData: error?.response?.data || error?.data,
+                headers: error?.response?.headers,
+                stack: error?.stack,
+                requestMeta: {
+                    model: this.config.deploymentName,
+                    apiVersion: this.config.apiVersion,
+                    endpoint: this.config.azureEndpoint,
+                    max_tokens: 4000,
+                    temperature: 0.3,
+                    promptLength: translationPrompt?.length
+                },
+                translationPrompt
+            });
             throw error;
         }
     }
@@ -227,10 +246,14 @@ class AzureOpenAITranslator {
 請分析以下翻譯的品質（1-10分）：
 
 原文：
+<original_text>
 ${originalText}
+</original_text>
 
 譯文：
+<translated_text>
 ${translatedText}
+</translated_text>
 
 請評估以下方面並給出總分：
 1. 準確性 (準確傳達原意)
@@ -264,7 +287,26 @@ ${translatedText}
             return this.parseQualityResponse(response.choices[0].message.content);
             
         } catch (error) {
-            this.logger.error(`Quality analysis failed: ${error.message}`);
+            // Log prompt and error details for debugging
+            this.logger.error('Quality analysis failed', {
+                errorName: error?.name,
+                errorMessage: error?.message,
+                status: error?.status || error?.statusCode || error?.response?.status,
+                code: error?.code,
+                type: error?.type,
+                responseData: error?.response?.data || error?.data,
+                headers: error?.response?.headers,
+                stack: error?.stack,
+                requestMeta: {
+                    model: this.config.deploymentName,
+                    apiVersion: this.config.apiVersion,
+                    endpoint: this.config.azureEndpoint,
+                    max_tokens: 1000,
+                    temperature: 0.1,
+                    promptLength: qualityPrompt?.length
+                },
+                qualityPrompt
+            });
             return { score: 5, analysis: '無法分析品質', suggestions: '請手動檢查翻譯' };
         }
     }
@@ -274,10 +316,14 @@ ${translatedText}
 請根據品質分析意見改進以下翻譯：
 
 原文：
+<original_text>
 ${originalText}
+</original_text>
 
 初始譯文：
+<translated_text>
 ${translatedText}
+</translated_text>
 
 品質分析：
 ${qualityFeedback.analysis}
@@ -309,7 +355,26 @@ ${qualityFeedback.suggestions}
             return this.dictionary.applyDictionaryToText(improvedTranslation);
             
         } catch (error) {
-            this.logger.error(`Translation improvement failed: ${error.message}`);
+            // Log prompt and error details for debugging
+            this.logger.error('Translation improvement failed', {
+                errorName: error?.name,
+                errorMessage: error?.message,
+                status: error?.status || error?.statusCode || error?.response?.status,
+                code: error?.code,
+                type: error?.type,
+                responseData: error?.response?.data || error?.data,
+                headers: error?.response?.headers,
+                stack: error?.stack,
+                requestMeta: {
+                    model: this.config.deploymentName,
+                    apiVersion: this.config.apiVersion,
+                    endpoint: this.config.azureEndpoint,
+                    max_tokens: 4000,
+                    temperature: 0.2,
+                    promptLength: improvementPrompt?.length
+                },
+                improvementPrompt
+            });
             return translatedText; // Return original translation if improvement fails
         }
     }
@@ -321,7 +386,9 @@ ${qualityFeedback.suggestions}
 上下文：${context || '技術文件'}
 
 原文：
+<text>
 ${text}
+</text>
 
 翻譯要求：
 1. 保持技術準確性
@@ -511,12 +578,45 @@ class DocumentTranslator {
         }
     }
     
-    async run() {
+    async run(options = {}) {
         try {
             this.logger.info('Starting automatic translation process...');
-            
+
+            // If a specific input file is provided, translate only that file
+            const inputFile = options.inputFile ? path.resolve(options.inputFile) : null;
+            if (inputFile) {
+                if (!fs.existsSync(inputFile)) {
+                    this.logger.error(`Input file not found: ${inputFile}`);
+                    process.exit(1);
+                }
+                if (!inputFile.endsWith('.md')) {
+                    this.logger.warn(`Input file does not have .md extension: ${inputFile}`);
+                }
+
+                let retries = 0;
+                while (retries < this.config.maxRetries) {
+                    try {
+                        await this.translateDocument(inputFile);
+                        break;
+                    } catch (error) {
+                        retries++;
+                        if (retries >= this.config.maxRetries) {
+                            this.logger.error(`Failed to translate ${inputFile} after ${this.config.maxRetries} retries`);
+                            break;
+                        }
+                        this.logger.warn(`Retry ${retries}/${this.config.maxRetries} for ${inputFile}`);
+                        await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+                    }
+                }
+
+                this.dictionary.saveDictionary();
+                this.logger.success('Translation process completed!');
+                return;
+            }
+
+            // Otherwise, process all markdown files per inputPattern
             const files = await this.processor.findMarkdownFiles();
-            
+
             for (const file of files) {
                 let retries = 0;
                 while (retries < this.config.maxRetries) {
@@ -547,8 +647,25 @@ class DocumentTranslator {
 
 // CLI execution
 if (require.main === module) {
+    // Simple CLI args parsing
+    const args = process.argv.slice(2);
+    let inputFile = null;
+    for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        if (arg === '-i' || arg === '--input') {
+            inputFile = args[i + 1];
+            i++;
+        } else if (arg === '-h' || arg === '--help') {
+            console.log(
+                'Usage: node translation-tool/translate.js [-i FILENAME]\n' +
+                '  -i, --input    Translate a single Markdown file' 
+            );
+            process.exit(0);
+        }
+    }
+
     const translator = new DocumentTranslator();
-    translator.run().catch(error => {
+    translator.run({ inputFile }).catch(error => {
         console.error(chalk.red(`Fatal error: ${error.message}`));
         process.exit(1);
     });
