@@ -370,6 +370,7 @@ class MarkdownProcessor {
             const files = glob.sync(this.config.inputPattern, {
                 ignore: [
                     'node_modules/**',
+                    'translation-tool/**',
                     '.git/**',
                     '**/.*/**',
                     `**/*${this.config.outputSuffix}.md`

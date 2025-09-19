@@ -27,6 +27,18 @@ This folder contains a Node.js-based automatic translation system for translatin
    npm test
    ```
 
+4. **Promote zh-tw as default filenames (dry-run by default)**:
+   ```bash
+   # Preview planned changes (no modifications)
+   npm run promote:zh-tw-default
+
+   # Apply changes (rename *.md -> *.en.md, then promote *_zh-tw.md -> *.md)
+   npm run promote:zh-tw-default -- --execute
+
+   # Apply changes and overwrite if destination exists
+   npm run promote:zh-tw-default -- --execute --force
+   ```
+
 ## Files
 
 - `translate.js` - Main translation orchestrator
@@ -36,6 +48,7 @@ This folder contains a Node.js-based automatic translation system for translatin
 - `TRANSLATION_DEMO.md` - Live demonstration with examples
 - `test-translation.js` - Basic functionality tests
 - `demo-translation.js` - Demo script
+- `promote-zh-tw-default.js` - Utility to rename `*.md` -> `*.en.md` and promote `*_zh-tw.md` -> `*.md`
 
 ## Features
 

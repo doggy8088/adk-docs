@@ -6,7 +6,8 @@
   "scripts": {
     "translate": "node translate.js",
     "demo": "node demo-translation.js",
-    "test": "node test-translation.js"
+    "test": "node test-translation.js",
+    "promote:zh-tw-default": "node promote-zh-tw-default.js"
   },
   "keywords": [
     "translation",
