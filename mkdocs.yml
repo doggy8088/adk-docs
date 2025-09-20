@@ -160,16 +160,16 @@ nav:
     - 代理引擎: deploy/agent-engine.md
     - Cloud Run: deploy/cloud-run.md
     - GKE: deploy/gke.md
-  - 會話與記憶體:
+  - 工作階段與記憶:
     - sessions/index.md
-    - 會話: sessions/session.md
+    - 工作階段: sessions/session.md
     - 狀態: sessions/state.md
-    - 記憶體: sessions/memory.md
+    - 記憶: sessions/memory.md
     - Vertex AI 快速模式: sessions/express-mode.md
-  - 回調:
+  - 回呼:
     - callbacks/index.md
-    - 回調類型: callbacks/types-of-callbacks.md
-    - 回調模式: callbacks/design-patterns-and-best-practices.md
+    - 回呼類型: callbacks/types-of-callbacks.md
+    - 回呼模式: callbacks/design-patterns-and-best-practices.md
   - 產出物:
     - artifacts/index.md
   - 事件:
