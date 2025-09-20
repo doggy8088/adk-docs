@@ -1,76 +1,76 @@
-# Safety and Security for AI Agents
+# AI Agents 的安全性與保安
 
-## Overview
+## 概覽
 
-As AI agents grow in capability, ensuring they operate safely, securely, and align with your brand values is paramount. Uncontrolled agents can pose risks, including executing misaligned or harmful actions, such as data exfiltration, and generating inappropriate content that can impact your brand’s reputation. **Sources of risk include vague instructions, model hallucination, jailbreaks and prompt injections from adversarial users, and indirect prompt injections via tool use.**
+隨著 AI agents 能力日益提升，確保其運作安全、保安無虞，並符合您的品牌價值觀變得至關重要。未經控管的 agents 可能帶來風險，包括執行不符預期或有害的行為（如資料外洩），以及產生不當內容，進而影響品牌聲譽。**風險來源包括指令不明確、模型幻覺、惡意用戶的 jailbreak 與提示注入（prompt injection），以及透過工具使用間接發生的提示注入。**
 
-[Google Cloud Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/overview) provides a multi-layered approach to mitigate these risks, enabling you to build powerful *and* trustworthy agents. It offers several mechanisms to establish strict boundaries, ensuring agents only perform actions you've explicitly allowed:
+[Google Cloud Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/overview) 提供多層次的風險緩解方案，協助您打造強大且值得信賴的 agents。它提供多種機制來建立嚴格的邊界，確保 agents 只執行您明確允許的行為：
 
-1. **Identity and Authorization**: Control who the agent **acts as** by defining agent and user auth.
-2. **Guardrails to screen inputs and outputs:** Control your model and tool calls precisely.
+1. **身份與授權**：透過定義 agent 與用戶的授權，控制 agent「以誰的身份」執行動作。
+2. **輸入與輸出防護措施（Guardrails）**：精確控管您的模型與工具呼叫。
 
-    * *In-Tool Guardrails:* Design tools defensively, using developer-set tool context to enforce policies (e.g., allowing queries only on specific tables).  
-    * *Built-in Gemini Safety Features:* If using Gemini models, benefit from content filters to block harmful outputs and system Instructions to guide the model's behavior and safety guidelines  
-    * *Callbacks and Plugins:* Validate model and tool calls before or after execution, checking parameters against agent state or external policies.
-    * *Using Gemini as a safety guardrail:* Implement an additional safety layer using a cheap and fast model (like Gemini Flash Lite) configured via callbacks  to screen inputs and outputs.
+    * *工具內防護措施（In-Tool Guardrails）：* 以防禦性思維設計工具，利用開發者設定的工具 context 來強制執行政策（例如：僅允許查詢特定資料表）。
+    * *內建 Gemini 安全功能：* 若使用 Gemini 模型，可利用內容過濾器阻擋有害輸出，並透過系統指令（system Instructions）引導模型行為與安全準則。
+    * *Callbacks 與 Plugins：* 在執行前後驗證模型與工具呼叫，將參數與 agent 狀態或外部政策比對。
+    * *以 Gemini 作為安全防護措施：* 透過 callbacks 配置一個廉價且快速的模型（如 Gemini Flash Lite）作為額外安全層，篩選輸入與輸出。
 
-3. **Sandboxed code execution:** Prevent model-generated code to cause security issues by sandboxing the environment  
-4. **Evaluation and tracing**: Use evaluation tools to assess the quality, relevance, and correctness of the agent's final output. Use tracing to gain visibility into agent actions to analyze the steps an agent takes to reach a solution, including its choice of tools, strategies, and the efficiency of its approach.
-5. **Network Controls and VPC-SC:** Confine agent activity within secure perimeters (like VPC Service Controls) to prevent data exfiltration and limit the potential impact radius.
+3. **沙箱化程式碼執行**：將模型產生的程式碼執行於沙箱環境，防止產生安全問題。
+4. **評估與追蹤**：利用評估工具檢視 agent 最終輸出的品質、相關性與正確性。透過追蹤功能掌握 agent 行為，分析 agent 解決問題的步驟，包括其工具選擇、策略與效率。
+5. **網路控管與 VPC-SC**：將 agent 活動限制於安全邊界（如 VPC Service Controls），以防資料外洩並降低潛在影響範圍。
 
-## Safety and Security Risks
+## 安全性與保安風險
 
-Before implementing safety measures, perform a thorough risk assessment specific to your agent's capabilities, domain, and deployment context.
+在實施安全措施前，請針對您的 agent 能力、應用領域與部署情境進行全面的風險評估。
 
-***Sources*** **of risk** include:
+***風險來源*** 包括：
 
-* Ambiguous agent instructions
-* Prompt injection and jailbreak attempts from adversarial users  
-* Indirect prompt injections via tool use
+* agent 指令不明確
+* 惡意用戶的提示注入（prompt injection）與 jailbreak 嘗試
+* 透過工具使用間接發生的提示注入
 
-**Risk categories** include:
+**風險類別** 包括：
 
-* **Misalignment & goal corruption**  
-    * Pursuing unintended or proxy goals that lead to harmful outcomes ("reward hacking")  
-    * Misinterpreting complex or ambiguous instructions  
-* **Harmful content generation, including brand safety**
-    * Generating toxic, hateful, biased, sexually explicit, discriminatory, or illegal content  
-    * Brand safety risks such as Using language that goes against the brand’s values or off-topic conversations  
-* **Unsafe actions**  
-    * Executing commands that damage systems
-    * Making unauthorized purchases or financial transactions.  
-    * Leaking sensitive personal data (PII)
-    * Data exfiltration
+* **目標偏離與目標腐化（Misalignment & goal corruption）**
+    * 追求非預期或代理目標，導致有害結果（如「獎勵駭客」reward hacking）
+    * 誤解複雜或模糊的指令
+* **有害內容產生，包括品牌安全**
+    * 產生有毒、仇恨、偏見、露骨、歧視或非法內容
+    * 品牌安全風險，如使用違背品牌價值的語言或離題對話
+* **不安全的行為**
+    * 執行損害系統的指令
+    * 進行未授權購買或金融交易
+    * 洩漏敏感個人資料（PII）
+    * 資料外洩
 
-## Best practices
+## 最佳實踐
 
-### Identity and Authorization
+### 身份與授權
 
-The identity that a *tool* uses to perform actions on external systems is a crucial design consideration from a security perspective. Different tools in the same agent can be configured with different strategies, so care is needed when talking about the agent's configurations.
+*工具* 在外部系統執行動作時所使用的身份，從安全角度來看是關鍵的設計考量。同一 agent 的不同工具可以配置不同策略，因此在討論 agent 設定時需特別留意。
 
 #### Agent-Auth
 
-The **tool interacts with external systems using the agent's own identity** (e.g., a service account). The agent identity must be explicitly authorized in the external system access policies, like adding an agent's service account to a database's IAM policy for read access. Such policies constrain the agent in only performing actions that the developer intended as possible: by giving read-only permissions to a resource, no matter what the model decides, the tool will be prohibited from performing write actions.
+**工具以 agent 自身身份與外部系統互動**（例如：使用服務帳戶）。agent 身份必須在外部系統的存取政策中明確授權，例如將 agent 的服務帳戶加入資料庫的 IAM 政策以取得讀取權限。這類政策限制 agent 僅能執行開發者預期允許的行為：例如僅給予資源唯讀權限，無論模型決策為何，工具都無法執行寫入操作。
 
-This approach is simple to implement, and it is **appropriate for agents where all users share the same level of access.** If not all users have the same level of access, such an approach alone doesn't provide enough protection and must be complemented with other techniques below. In tool implementation, ensure that logs are created to maintain attribution of actions to users, as all agents' actions will appear as coming from the agent.
+此方法實作簡單，**適用於所有用戶擁有相同存取層級的 agents。** 若並非所有用戶權限相同，僅採用此方法不足以提供完整保護，需搭配下述其他技術。在工具實作時，請確保有產生日誌以維持行為可追溯性，因所有 agent 行為都會以 agent 身份出現。
 
 #### User Auth
 
-The tool interacts with an external system using the **identity of the "controlling user"** (e.g., the human interacting with the frontend in a web application). In ADK, this is typically implemented using OAuth: the agent interacts with the frontend to acquire a OAuth token, and then the tool uses the token when performing external actions: the external system authorizes the action if the controlling user is authorized to perform it on its own.
+工具以**「控制用戶」的身份**與外部系統互動（例如：在網頁應用中與前端互動的人類用戶）。在 ADK 中，這通常透過 OAuth 實現：agent 與前端互動以取得 OAuth token，然後工具在執行外部操作時使用該 token；若控制用戶本身有權執行該操作，外部系統就會授權。
 
-User auth has the advantage that agents only perform actions that the user could have performed themselves. This greatly reduces the risk that a malicious user could abuse the agent to obtain access to additional data. However, most common implementations of delegation have a fixed set permissions to delegate (i.e., OAuth scopes). Often, such scopes are broader than the access that the agent actually requires, and the techniques below are required to further constrain agent actions.
+User auth 的優點在於 agent 僅能執行用戶本身可執行的操作，大幅降低惡意用戶濫用 agent 取得額外資料的風險。然而，多數常見的委派實作僅能委派固定權限集（即 OAuth scopes），而這些 scopes 通常比 agent 實際需求更寬鬆，因此需搭配下述技術進一步限制 agent 行為。
 
-### Guardrails to screen inputs and outputs
+### 輸入與輸出防護措施（Guardrails）
 
-#### In-tool guardrails
+#### 工具內防護措施（In-tool guardrails）
 
-Tools can be designed with security in mind: we can create tools that expose the actions we want the model to take and nothing else. By limiting the range of actions we provide to the agents, we can deterministically eliminate classes of rogue actions that we never want the agent to take.
+工具可以以安全為核心設計：我們可以建立僅暴露希望模型執行的動作的工具，其他行為一律不允許。藉由限制 agent 可用的行為範圍，可決定性地消除我們永遠不希望 agent 執行的異常行為。
 
-In-tool guardrails is an approach to create common and re-usable tools that expose deterministic controls that can be used by developers to set limits on each tool instantiation.
+工具內防護措施是一種建立通用且可重複使用工具的方式，這些工具暴露決定性控制，讓開發者能針對每次工具實例化設定限制。
 
-This approach relies on the fact that tools receive two types of input: arguments,  which are set by the model, and [**`Tool Context`**](../tools/index.md#tool-context), which can be set deterministically by the agent developer. We can rely on the deterministically set information to validate that the model is behaving as-expected.
+此方法仰賴工具接收兩種輸入：由模型設定的 arguments，以及 [**`Tool Context`**](../tools/index.md#tool-context)，後者可由 agent 開發者決定性地設定。我們可以依賴這些決定性資訊，驗證模型是否如預期運作。
 
-For example, a query tool can be designed to expect a policy to be read from the Tool Context.
+例如，一個查詢工具可以設計為從 Tool Context 讀取政策。
 
 === "Python"
 
@@ -113,7 +113,7 @@ For example, a query tool can be designed to expect a policy to be read from the
     // For this example, we'll assume it gets stored somewhere accessible.
     ```
 
-During the tool execution, [**`Tool Context`**](../tools/index.md#tool-context) will be passed to the tool:
+在工具執行期間，[**`Tool Context`**](../tools/index.md#tool-context) 會被傳遞給工具：
 
 === "Python"
 
@@ -184,22 +184,22 @@ During the tool execution, [**`Tool Context`**](../tools/index.md#tool-context) 
     }
     ```
 
-#### Built-in Gemini Safety Features
+#### 內建 Gemini 安全功能
 
-Gemini models come with in-built safety mechanisms that can be leveraged to improve content and brand safety.
+Gemini 模型內建多項安全機制，可用於提升內容與品牌安全性。
 
-* **Content safety filters**:  [Content filters](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/configure-safety-attributes) can help block the output of harmful content. They function independently from Gemini models as part of a layered defense against threat actors who attempt to jailbreak the model. Gemini models on Vertex AI use two types of content filters:  
-* **Non-configurable safety filters** automatically block outputs containing prohibited content, such as child sexual abuse material (CSAM) and personally identifiable information (PII).  
-* **Configurable content filters** allow you to define blocking thresholds in four harm categories (hate speech, harassment, sexually explicit, and dangerous content,) based on probability and severity scores. These filters are default off but you can configure them according to your needs.  
-* **System instructions for safety**: [System instructions](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/safety-system-instructions) for Gemini models in Vertex AI provide direct guidance to the model on how to behave and what type of content to generate. By providing specific instructions, you can proactively steer the model away from generating undesirable content to meet your organization’s unique needs. You can craft system instructions to define content safety guidelines, such as prohibited and sensitive topics, and disclaimer language, as well as brand safety guidelines to ensure the model's outputs align with your brand's voice, tone, values, and target audience.
+* **內容安全過濾器**：[內容過濾器](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/configure-safety-attributes) 可協助阻擋有害內容的輸出。這些過濾器獨立於 Gemini 模型運作，作為針對試圖破解模型的威脅行為者的多層防禦之一。Vertex AI 上的 Gemini 模型使用兩種類型的內容過濾器：  
+* **不可設定的安全過濾器** 會自動阻擋包含違禁內容的輸出，例如兒童性虐待材料（CSAM）和個人可識別資訊（PII）。  
+* **可設定的內容過濾器** 允許您根據四種危害類別（仇恨言論、騷擾、色情內容與危險內容）的機率與嚴重程度分數，定義阻擋的門檻。這些過濾器預設為關閉，但您可以根據需求進行設定。  
+* **安全性系統指令**：[系統指令](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/safety-system-instructions) 可為 Vertex AI 上的 Gemini 模型提供直接的行為指引，規範模型應如何運作及產生何種類型的內容。透過提供具體指令，您可以主動引導模型避免產生不符合組織需求的不良內容。您可以撰寫系統指令來定義內容安全準則，例如禁止與敏感主題、免責聲明語言，以及品牌安全準則，確保模型輸出符合品牌語調、價值觀與目標受眾。
 
-While these measures are robust against content safety, you need additional checks to reduce agent misalignment, unsafe actions, and brand safety risks.
+雖然這些措施在內容安全方面相當完善，但您仍需額外檢查，以降低 agent 不一致、危險行為及品牌安全風險。
 
-#### Callbacks and Plugins for Security Guardrails
+#### 安全防護的 Callback 與 Plugin
 
-Callbacks provide a simple, agent-specific method for adding pre-validation to tool and model I/O, whereas plugins offer a reusable solution for implementing general security policies across multiple agents.
+Callback 提供了一種簡單、針對 agent 的方法，可在工具與模型 I/O 前加入預先驗證；而 plugin 則能在多個 agent 之間實作通用的安全政策，具備可重複使用的特性。
 
-When modifications to the tools to add guardrails aren't possible, the [**`Before Tool Callback`**](../callbacks/types-of-callbacks.md#before-tool-callback) function can be used to add pre-validation of calls. The callback has access to the agent's state, the requested tool and parameters. This approach is very general and can even be created to create a common library of re-usable tool policies. However, it might not be applicable for all tools if the information to enforce the guardrails isn't directly visible in the parameters.
+當無法修改工具以新增防護措施時，可以使用 [**`Before Tool Callback`**](../callbacks/types-of-callbacks.md#before-tool-callback) 函式來對呼叫進行預先驗證。Callback 可以存取 agent 的狀態、所請求的工具與參數。這種方式非常通用，甚至可以建立共用的工具政策函式庫以重複使用。不過，若強制執行防護措施所需的資訊未直接顯示於參數中，則未必適用於所有工具。
 
 === "Python"
 
@@ -280,36 +280,36 @@ When modifications to the tools to add guardrails aren't possible, the [**`Befor
     }
     ```
 
-However, when adding security guardrails to your agent applications, plugins are the recommended approach for implementing policies that are not specific to a single agent. Plugins are designed to be self-contained and modular, allowing you to create individual plugins for specific security policies, and apply them globally at the runner level. This means that a security plugin can be configured once and applied to every agent that uses the runner, ensuring consistent security guardrails across your entire application without repetitive code.
+然而，當你為 agent 應用程式加入安全防護措施時，建議使用插件（plugin）來實作不特定於單一 agent 的政策。插件設計為自包含且模組化，允許你針對特定安全政策建立獨立插件，並在 Runner 層級全域套用。這代表安全插件只需設定一次，即可套用到所有使用該 Runner 的 agent，確保整個應用程式具備一致的安全防護，無需重複撰寫程式碼。
 
-Some examples include:
+以下是一些範例：
 
-* **Gemini as a Judge Plugin**: This plugin uses Gemini Flash Lite to evaluate user inputs, tool input and output, and agent's response for appropriateness, prompt injection, and jailbreak detection. The plugin configures Gemini to act as a safety filter to mitigate against content safety, brand safety, and agent misalignment. The plugin is configured to pass user input, tool input and output, and model output to Gemini Flash Lite, who decides if the input to the agent is safe or unsafe. If Gemini decides the input is unsafe, the agent returns a predetermined response: "Sorry I cannot help with that. Can I help you with something else?".
+* **Gemini as a Judge Plugin**：此插件利用 Gemini Flash Lite 來評估使用者輸入、工具輸入與輸出，以及 agent 回應的適當性、提示注入（prompt injection）與越獄（jailbreak）偵測。該插件將 Gemini 配置為安全過濾器，以降低內容安全、品牌安全及 agent 失調的風險。插件會將使用者輸入、工具輸入與輸出、模型輸出傳遞給 Gemini Flash Lite，由其判斷輸入給 agent 的內容是否安全。如果 Gemini 判定輸入不安全，agent 將回傳預設回應：「很抱歉，我無法協助這個問題。請問還有其他我可以幫忙的嗎？」
 
-* **Model Armor Plugin**: A plugin that queries the model armor API to check for potential content safety violations at specified points of agent execution. Similar to the _Gemini as a Judge_ plugin, if Model Armor finds matches of harmful content, it returns a predetermined response to the user.
+* **Model Armor Plugin**：此插件會在 agent 執行過程中的指定時機，查詢 Model Armor API 以檢查潛在的內容安全違規。與 _Gemini as a Judge_ 插件類似，若 Model Armor 偵測到有害內容，則會回傳預設回應給使用者。
 
-* **PII Redaction Plugin**: A specialized plugin with design for the [Before Tool Callback](/adk-docs/plugins/#tool-callbacks) and specifically created to redact personally identifiable information before it’s processed by a tool or sent to an external service.
+* **PII Redaction Plugin**：這是一個專為 [Before Tool Callback](/adk-docs/plugins/#tool-callbacks) 設計的插件，專門用於在資料被工具處理或傳送至外部服務前，先去除個人可識別資訊（PII）。
 
-### Sandboxed Code Execution
+### 沙箱化程式碼執行
 
-Code execution is a special tool that has extra security implications: sandboxing must be used to prevent model-generated code to compromise the local environment, potentially creating security issues.
+程式碼執行是一項具有額外安全考量的特殊工具：必須採用沙箱（sandbox）機制，防止模型產生的程式碼危及本地環境，進而產生安全問題。
 
-Google and the ADK provide several options for safe code execution. [Vertex Gemini Enterprise API code execution feature](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/code-execution-api) enables agents to take advantage of sandboxed code execution server-side by enabling the tool\_execution tool. For code performing data analysis, you can use the [built-in Code Executor](../tools/built-in-tools.md#code-execution) tool in ADK to call the [Vertex Code Interpreter Extension](https://cloud.google.com/vertex-ai/generative-ai/docs/extensions/code-interpreter).
+Google 及 Agent Development Kit (ADK)（ADK）提供多種安全執行程式碼的選項。[Vertex Gemini Enterprise API 程式碼執行功能](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/code-execution-api) 讓 agent 能在伺服器端利用沙箱化程式碼執行，方法是啟用 `tool_execution` 工具。若需進行資料分析的程式碼，你可以使用 ADK 內建的 [Code Executor](../tools/built-in-tools.md#code-execution) 工具，呼叫 [Vertex Code Interpreter Extension](https://cloud.google.com/vertex-ai/generative-ai/docs/extensions/code-interpreter)。
 
-If none of these options satisfy your requirements, you can build your own code executor using the building blocks provided by the ADK. We recommend creating execution environments that are hermetic: no network connections and API calls permitted to avoid uncontrolled data exfiltration; and full clean up of data across execution to not create cross-user exfiltration concerns.
+如果上述選項都無法滿足你的需求，你可以利用 ADK 提供的基礎元件自行建構程式碼執行器。我們建議建立具備完全隔離（hermetic）的執行環境：不允許網路連線與 API 呼叫，以避免資料外洩；並且在每次執行後徹底清除資料，避免跨使用者的資料外洩風險。
 
-### Evaluations
+### 評估
 
-See [Evaluate Agents](../evaluate/index.md).
+請參閱 [Evaluate Agents](../evaluate/index.md)。
 
-### VPC-SC Perimeters and Network Controls
+### VPC-SC 周界與網路控制
 
-If you are executing your agent into a VPC-SC perimeter, that will guarantee that all API calls will only be manipulating resources within the perimeter, reducing the chance of data exfiltration.
+如果你將 agent 執行於 VPC-SC 周界內，這將確保所有 API 呼叫僅操作周界內的資源，降低資料外洩的機率。
 
-However, identity and perimeters only provide coarse controls around agent actions. Tool-use guardrails mitigate such limitations, and give more power to agent developers to finely control which actions to allow.
+然而，身份與周界僅能對 agent 行為提供粗略的控制。工具使用的安全防護措施（guardrails）可補足這些限制，讓 agent 開發者能更細緻地控制允許哪些行為。
 
-### Other Security Risks
+### 其他安全風險
 
-#### Always Escape Model-Generated Content in UIs
+#### 在 UI 中務必跳脫模型產生的內容
 
-Care must be taken when agent output is visualized in a browser: if HTML or JS content isn't properly escaped in the UI, the text returned by the model could be executed, leading to data exfiltration. For example, an indirect prompt injection can trick a model to include an img tag tricking the browser to send the session content to a 3rd party site; or construct URLs that, if clicked, send data to external sites. Proper escaping of such content must ensure that model-generated text isn't interpreted as code by browsers.
+當 agent 輸出內容在瀏覽器中顯示時，必須特別注意：若 HTML 或 JS 內容未在 UI 中正確跳脫，模型回傳的文字可能會被執行，導致資料外洩。例如，間接提示注入（indirect prompt injection）可能誘使模型插入一個 img 標籤，讓瀏覽器將 session 內容傳送到第三方網站；或是構造 URL，若被點擊則會將資料送往外部網站。正確跳脫這類內容，必須確保模型產生的文字不會被瀏覽器當作程式碼解讀執行。

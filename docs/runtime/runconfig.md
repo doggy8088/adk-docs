@@ -1,21 +1,16 @@
-# Runtime Configuration
+# 執行階段組態
 
-`RunConfig` defines runtime behavior and options for agents in the ADK. It
-controls speech and streaming settings, function calling, artifact saving, and
-limits on LLM calls.
+`RunConfig` 定義了 Agent Development Kit (ADK)（ADK）中 agent 的執行階段行為與選項。它控制語音與串流設定、函式呼叫、artifact 儲存，以及對大型語言模型 (LLM) 呼叫的限制。
 
-When constructing an agent run, you can pass a `RunConfig` to customize how the
-agent interacts with models, handles audio, and streams responses. By default,
-no streaming is enabled and inputs aren’t retained as artifacts. Use `RunConfig`
-to override these defaults.
+在建立 agent 執行時，你可以傳入 `RunConfig`，以自訂 agent 與模型互動、處理音訊及串流回應的方式。預設情況下，並未啟用任何串流，且輸入內容不會被保留為 artifact。你可以使用 `RunConfig` 來覆寫這些預設值。
 
-## Class Definition
+## 類別定義
 
-The `RunConfig` class holds configuration parameters for an agent's runtime behavior.
+`RunConfig` 類別用於儲存 agent 執行階段行為的組態參數。
 
-- Python ADK uses Pydantic for this validation.
+- Python ADK 使用 Pydantic 進行此類驗證。
 
-- Java ADK typically uses immutable data classes.
+- Java ADK 通常使用不可變的資料類別。
 
 === "Python"
 
@@ -61,25 +56,25 @@ The `RunConfig` class holds configuration parameters for an agent's runtime beha
     }
     ```
 
-## Runtime Parameters
+## 執行時參數
 
-| Parameter                       | Python Type                                  | Java Type                                             | Default (Py / Java)               | Description                                                                                                                  |
-| :------------------------------ | :------------------------------------------- |:------------------------------------------------------|:----------------------------------|:-----------------------------------------------------------------------------------------------------------------------------|
-| `speech_config`                 | `Optional[types.SpeechConfig]`               | `SpeechConfig` (nullable via `@Nullable`)             | `None` / `null`                   | Configures speech synthesis (voice, language) using the `SpeechConfig` type.                                                 |
-| `response_modalities`           | `Optional[list[str]]`                        | `ImmutableList<Modality>`                             | `None` / Empty `ImmutableList`    | List of desired output modalities (e.g., Python: `["TEXT", "AUDIO"]`; Java: uses structured `Modality` objects).             |
-| `save_input_blobs_as_artifacts` | `bool`                                       | `boolean`                                             | `False` / `false`                 | If `true`, saves input blobs (e.g., uploaded files) as run artifacts for debugging/auditing.                                 |
-| `streaming_mode`                | `StreamingMode`                              | *Currently not supported*                             | `StreamingMode.NONE` / N/A        | Sets the streaming behavior: `NONE` (default), `SSE` (server-sent events), or `BIDI` (bidirectional).                        |
-| `output_audio_transcription`    | `Optional[types.AudioTranscriptionConfig]`   | `AudioTranscriptionConfig` (nullable via `@Nullable`) | `None` / `null`                   | Configures transcription of generated audio output using the `AudioTranscriptionConfig` type.                                |
-| `max_llm_calls`                 | `int`                                        | `int`                                                 | `500` / `500`                     | Limits total LLM calls per run. `0` or negative means unlimited (warned); `sys.maxsize` raises `ValueError`.                 |
-| `support_cfc`                   | `bool`                                       | *Currently not supported*                             | `False` / N/A                     | **Python:** Enables Compositional Function Calling. Requires `streaming_mode=SSE` and uses the LIVE API. **Experimental.**   |
+| 參數                             | Python 類型                                  | Java 類型                                             | 預設值 (Py / Java)                | 說明                                                                                                                        |
+| :------------------------------ | :------------------------------------------- |:------------------------------------------------------|:----------------------------------|:---------------------------------------------------------------------------------------------------------------------------|
+| `speech_config`                 | `Optional[types.SpeechConfig]`               | `SpeechConfig` (nullable via `@Nullable`)             | `None` / `null`                   | 使用 `SpeechConfig` 類型設定語音合成（語音、語言）。                                                 |
+| `response_modalities`           | `Optional[list[str]]`                        | `ImmutableList<Modality>`                             | `None` / Empty `ImmutableList`    | 指定所需的輸出模態清單（例如，Python: `["TEXT", "AUDIO"]`；Java: 使用結構化的 `Modality` 物件）。             |
+| `save_input_blobs_as_artifacts` | `bool`                                       | `boolean`                                             | `False` / `false`                 | 若為 `true`，則將輸入 blob（例如上傳的檔案）儲存為執行產物，以便除錯或稽核。                                 |
+| `streaming_mode`                | `StreamingMode`                              | *目前尚未支援*                             | `StreamingMode.NONE` / N/A        | 設定串流行為：`NONE`（預設）、`SSE`（server-sent events）、或 `BIDI`（雙向）。                        |
+| `output_audio_transcription`    | `Optional[types.AudioTranscriptionConfig]`   | `AudioTranscriptionConfig` (nullable via `@Nullable`) | `None` / `null`                   | 使用 `AudioTranscriptionConfig` 類型設定產生音訊輸出的轉錄。                                |
+| `max_llm_calls`                 | `int`                                        | `int`                                                 | `500` / `500`                     | 限制每次執行的大型語言模型 (LLM) 呼叫總數。`0` 或負數表示無限制（會有警告）；`sys.maxsize` 則會拋出 `ValueError`。                 |
+| `support_cfc`                   | `bool`                                       | *目前尚未支援*                             | `False` / N/A                     | **Python：** 啟用組合式函式呼叫（Compositional Function Calling）。需搭配 `streaming_mode=SSE` 並使用 LIVE API。**實驗性功能。**   |
 
 ### `speech_config`
 
 !!! Note
-    The interface or definition of `SpeechConfig` is the same, irrespective of the language.
+    `SpeechConfig` 的介面或定義在所有語言中皆相同。
 
-Speech configuration settings for live agents with audio capabilities. The
-`SpeechConfig` class has the following structure:
+針對具備音訊能力的即時 agent（live agent）之語音設定。  
+`SpeechConfig` 類別的結構如下：
 
 ```python
 class SpeechConfig(_common.BaseModel):
@@ -96,7 +91,7 @@ class SpeechConfig(_common.BaseModel):
     )
 ```
 
-The `voice_config` parameter uses the `VoiceConfig` class:
+`voice_config` 參數會使用 `VoiceConfig` 類別：
 
 ```python
 class VoiceConfig(_common.BaseModel):
@@ -108,7 +103,7 @@ class VoiceConfig(_common.BaseModel):
     )
 ```
 
-And `PrebuiltVoiceConfig` has the following structure:
+`PrebuiltVoiceConfig` 具有以下結構：
 
 ```python
 class PrebuiltVoiceConfig(_common.BaseModel):
@@ -120,31 +115,24 @@ class PrebuiltVoiceConfig(_common.BaseModel):
     )
 ```
 
-These nested configuration classes allow you to specify:
+這些巢狀的組態類別允許你指定：
 
-* `voice_config`: The name of the prebuilt voice to use (in the `PrebuiltVoiceConfig`)
-* `language_code`: ISO 639 language code (e.g., "en-US") for speech synthesis
+* `voice_config`：要使用的預建語音名稱（於 `PrebuiltVoiceConfig` 中）
+* `language_code`：語音合成所用的 ISO 639 語言代碼（例如："en-US"）
 
-When implementing voice-enabled agents, configure these parameters to control
-how your agent sounds when speaking.
+在實作語音功能 agent 時，請設定這些參數，以控制 agent 說話時的語音表現。
 
 ### `response_modalities`
 
-Defines the output modalities for the agent. If not set, defaults to AUDIO.
-Response modalities determine how the agent communicates with users through
-various channels (e.g., text, audio).
+定義 agent 的輸出模態（output modalities）。若未設定，預設為 AUDIO。回應模態決定 agent 如何透過不同通道（例如文字、語音）與使用者溝通。
 
 ### `save_input_blobs_as_artifacts`
 
-When enabled, input blobs will be saved as artifacts during agent execution.
-This is useful for debugging and audit purposes, allowing developers to review
-the exact data received by agents.
+啟用後，輸入的 blob 會在 agent 執行期間以 artifact 形式儲存。這對於除錯與稽核很有幫助，讓開發者可以檢視 agent 實際收到的資料內容。
 
 ### `support_cfc`
 
-Enables Compositional Function Calling (CFC) support. Only applicable when using
-StreamingMode.SSE. When enabled, the LIVE API will be invoked as only it
-supports CFC functionality.
+啟用 Compositional Function Calling（CFC，組合式函式呼叫）支援。僅適用於使用 StreamingMode.SSE 時。啟用後，將會呼叫 LIVE API，因為目前僅有該 API 支援 CFC 功能。
 
 !!! warning
 
@@ -153,43 +141,39 @@ supports CFC functionality.
 
 ### `streaming_mode`
 
-Configures the streaming behavior of the agent. Possible values:
+設定 agent 的串流行為。可用值如下：
 
-* `StreamingMode.NONE`: No streaming; responses delivered as complete units
-* `StreamingMode.SSE`: Server-Sent Events streaming; one-way streaming from server to client
-* `StreamingMode.BIDI`: Bidirectional streaming; simultaneous communication in both directions
+* `StreamingMode.NONE`：不進行串流；回應會以完整單元傳送
+* `StreamingMode.SSE`：Server-Sent Events（SSE）串流；伺服器到用戶端的單向串流
+* `StreamingMode.BIDI`：雙向串流（Bidirectional streaming）；支援雙向同時通訊
 
-Streaming modes affect both performance and user experience. SSE streaming lets users see partial responses as they're generated, while BIDI streaming enables real-time interactive experiences.
+串流模式會影響效能與使用者體驗。SSE 串流可讓使用者即時看到產生中的部分回應，而雙向串流則可實現即時互動體驗。
 
 ### `output_audio_transcription`
 
-Configuration for transcribing audio outputs from live agents with audio
-response capability. This enables automatic transcription of audio responses for
-accessibility, record-keeping, and multi-modal applications.
+針對具備語音回應能力的即時 agent，設定音訊輸出的轉錄（transcribing）功能。啟用後，系統會自動將語音回應轉錄為文字，提升無障礙使用性、便於紀錄保存，並支援多模態應用。
 
 ### `max_llm_calls`
 
-Sets a limit on the total number of LLM calls for a given agent run.
+設定單次 agent 執行時，大型語言模型 (LLM) 呼叫的總次數上限。
 
-* Values greater than 0 and less than `sys.maxsize`: Enforces a bound on LLM calls
-* Values less than or equal to 0: Allows unbounded LLM calls *(not recommended for production)*
+* 大於 0 且小於 `sys.maxsize` 的值：限制 LLM 呼叫次數
+* 小於或等於 0 的值：允許無限制的 LLM 呼叫（*不建議於正式環境使用*）
 
-This parameter prevents excessive API usage and potential runaway processes.
-Since LLM calls often incur costs and consume resources, setting appropriate
-limits is crucial.
+此參數可防止過度 API 使用及潛在的失控程序。由於 LLM 呼叫通常會產生費用並消耗資源，適當設定限制非常重要。
 
-## Validation Rules
+## 驗證規則
 
-The `RunConfig` class validates its parameters to ensure proper agent operation. While Python ADK uses `Pydantic` for automatic type validation, Java ADK relies on its static typing and may include explicit checks in the RunConfig's construction.
-For the `max_llm_calls` parameter specifically:
+`RunConfig` 類別會驗證其參數，以確保 agent 正常運作。Python Agent Development Kit (ADK) 採用 `Pydantic` 進行自動型別驗證，Java Agent Development Kit (ADK) 則仰賴靜態型別，並可能於 RunConfig 建構時進行明確檢查。
+針對 `max_llm_calls` 參數，特別注意：
 
-1. Extremely large values (like `sys.maxsize` in Python or `Integer.MAX_VALUE` in Java) are typically disallowed to prevent issues.
+1. 極大的數值（如 Python 的 `sys.maxsize` 或 Java 的 `Integer.MAX_VALUE`）通常會被禁止，以避免問題發生。
 
-2. Values of zero or less will usually trigger a warning about unlimited LLM interactions.
+2. 若值為 0 或更小，通常會觸發有關 LLM 互動無上限的警告。
 
-## Examples
+## 範例
 
-### Basic runtime configuration
+### 基本執行階段設定
 
 === "Python"
 
@@ -204,6 +188,10 @@ For the `max_llm_calls` parameter specifically:
 
 === "Java"
 
+
+=== "Java"
+（Java）
+
     ```java
     import com.google.adk.agents.RunConfig;
     import com.google.adk.agents.RunConfig.StreamingMode;
@@ -214,11 +202,9 @@ For the `max_llm_calls` parameter specifically:
             .build();
     ```
 
-This configuration creates a non-streaming agent with a limit of 100 LLM calls,
-suitable for simple task-oriented agents where complete responses are
-preferable.
+此組態會建立一個非串流（non-streaming）agent，並限制最多 100 次大型語言模型 (LLM) 呼叫，適合用於簡單的任務導向型 agent，其中完整回應較為理想。
 
-### Enabling streaming
+### 啟用串流
 
 === "Python"
 
@@ -233,6 +219,9 @@ preferable.
 
 === "Java"
 
+
+=== "Java"
+
     ```java
     import com.google.adk.agents.RunConfig;
     import com.google.adk.agents.RunConfig.StreamingMode;
@@ -243,10 +232,9 @@ preferable.
         .build();
     ```
 
-Using SSE streaming allows users to see responses as they're generated,
-providing a more responsive feel for chatbots and assistants.
+使用 SSE 串流可以讓使用者即時看到回應的生成過程，為聊天機器人和助理帶來更即時的互動體驗。
 
-### Enabling speech support
+### 啟用語音支援
 
 === "Python"
 
@@ -302,18 +290,18 @@ providing a more responsive feel for chatbots and assistants.
             .build();
     ```
 
-This comprehensive example configures an agent with:
+這個完整範例為 agent 配置了以下功能：
 
-* Speech capabilities using the "Kore" voice (US English)
-* Both audio and text output modalities
-* Artifact saving for input blobs (useful for debugging)
-* Experimental CFC support enabled **(Python only)**
-* SSE streaming for responsive interaction
-* A limit of 1000 LLM calls
+* 使用「Kore」語音（美式英語）的語音能力
+* 同時支援音訊與文字輸出模式
+* 輸入 blob 的 artifact 儲存（有助於除錯）
+* 啟用實驗性 CFC 支援 **（僅限 Python）**
+* 透過 SSE 串流實現即時互動
+* 限制最多 1000 次大型語言模型 (LLM) 呼叫
 
-### Enabling Experimental CFC Support
+### 啟用實驗性 CFC 支援
 
-![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="This feature is currently available for Python. Java support is planned/ coming soon."}
+![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python。Java 支援預計推出/即將上線。" }
 
 ```python
 from google.genai.adk import RunConfig, StreamingMode
@@ -325,6 +313,4 @@ config = RunConfig(
 )
 ```
 
-Enabling Compositional Function Calling creates an agent that can dynamically
-execute functions based on model outputs, powerful for applications requiring
-complex workflows.
+啟用組合式函式呼叫（Compositional Function Calling）會建立一個能根據模型輸出動態執行函式的 agent，非常適合需要複雜工作流程的應用程式。

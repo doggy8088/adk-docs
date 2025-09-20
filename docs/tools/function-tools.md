@@ -1,9 +1,9 @@
 # Function tools
 
-When pre-built ADK tools don't meet your requirements, you can create custom *function tools*. Building function tools allows you to create tailored functionality, such as connecting to proprietary databases or implementing unique algorithms.
-For example, a function tool, `myfinancetool`, might be a function that calculates a specific financial metric. ADK also supports long running functions, so if that calculation takes a while, the agent can continue working on other tasks.
+當內建的 Agent Development Kit (ADK) 工具無法滿足您的需求時，您可以建立自訂的 *function tools*（函式工具）。建構 function tools 讓您能夠打造專屬的功能，例如連接專有資料庫或實作獨特的演算法。
+舉例來說，一個 function tool `myfinancetool` 可能是一個計算特定財務指標的函式。Agent Development Kit (ADK) 也支援長時間運行的函式，因此即使該計算需要較長時間，代理（agent）仍可繼續處理其他任務。
 
-ADK offers several ways to create functions tools, each suited to different levels of complexity and control:
+Agent Development Kit (ADK) 提供多種建立 function tools 的方式，適用於不同複雜度與控制需求：
 
 *  [Function Tools](#function-tool)
 *  [Long Running Function Tools](#long-run-tool)
@@ -11,24 +11,24 @@ ADK offers several ways to create functions tools, each suited to different leve
 
 ## Function Tools {#function-tool}
 
-Transforming a Python function into a tool is a straightforward way to integrate custom logic into your agents. When you assign a function to an agent’s `tools` list, the framework automatically wraps it as a `FunctionTool`.
+將 Python 函式轉換為工具，是將自訂邏輯整合至您的代理（agent）中的直接方式。當您將函式指派給代理的 `tools` 清單時，框架會自動將其包裝為 `FunctionTool`。
 
-### How it Works
+### 運作方式
 
-The ADK framework automatically inspects your Python function's signature—including its name, docstring, parameters, type hints, and default values—to generate a schema. This schema is what the LLM uses to understand the tool's purpose, when to use it, and what arguments it requires.
+Agent Development Kit (ADK) 框架會自動檢查您的 Python 函式簽章，包括名稱、docstring、參數、型別提示（type hints）及預設值，以產生一份 schema。這份 schema 讓大型語言模型 (LLM) 能理解該工具的用途、適用時機及所需參數。
 
-### Defining Function Signatures
+### 定義函式簽章
 
-A well-defined function signature is crucial for the LLM to use your tool correctly.
+良好定義的函式簽章對於大型語言模型 (LLM) 正確使用您的工具至關重要。
 
-#### Parameters
+#### 參數
 
-You can define functions with required parameters, optional parameters, and variadic arguments. Here’s how each is handled:
+您可以定義具有必要參數、選用參數，以及可變參數的函式。以下說明各種情境的處理方式：
 
-##### Required Parameters
-A parameter is considered **required** if it has a type hint but **no default value**. The LLM must provide a value for this argument when it calls the tool.
+##### 必要參數
+若參數有型別提示（type hint）但**沒有預設值**，則視為**必要參數**。大型語言模型 (LLM) 在呼叫該工具時，必須為此參數提供值。
 
-???+ "Example: Required Parameters"
+???+ "範例：必要參數"
     === "Python"
         ```python
         def get_weather(city: str, unit: str):
@@ -42,12 +42,12 @@ A parameter is considered **required** if it has a type hint but **no default va
             # ... function logic ...
             return {"status": "success", "report": f"Weather for {city} is sunny."}
         ```
-    In this example, both `city` and `unit` are mandatory. If the LLM tries to call `get_weather` without one of them, the ADK will return an error to the LLM, prompting it to correct the call.
+    在此範例中，`city` 和 `unit` 都是必填參數。如果大型語言模型 (LLM) 嘗試在缺少其中一個的情況下呼叫 `get_weather`，Agent Development Kit (ADK) 會回傳錯誤給 LLM，並提示其修正呼叫方式。
 
-##### Optional Parameters with Default Values
-A parameter is considered **optional** if you provide a **default value**. This is the standard Python way to define optional arguments. The ADK correctly interprets these and does not list them in the `required` field of the tool schema sent to the LLM.
+##### 具有預設值的選用參數
+如果你為參數提供了**預設值**，該參數就被視為**選用**。這是 Python 定義選用參數的標準方式。Agent Development Kit (ADK) 會正確解析這些參數，並且不會將它們列在傳送給 LLM 的工具 schema 的 `required` 欄位中。
 
-???+ "Example: Optional Parameter with Default Value"
+???+ "範例：具有預設值的選用參數"
     === "Python"
         ```python
         def search_flights(destination: str, departure_date: str, flexible_days: int = 0):
@@ -64,12 +64,12 @@ A parameter is considered **optional** if you provide a **default value**. This 
                 return {"status": "success", "report": f"Found flexible flights to {destination}."}
             return {"status": "success", "report": f"Found flights to {destination} on {departure_date}."}
         ```
-    Here, `flexible_days` is optional. The LLM can choose to provide it, but it's not required.
+    這裡的 `flexible_days` 是可選的。大型語言模型 (LLM) 可以選擇提供它，但並非必須。
 
-##### Optional Parameters with `typing.Optional`
-You can also mark a parameter as optional using `typing.Optional[SomeType]` or the `| None` syntax (Python 3.10+). This signals that the parameter can be `None`. When combined with a default value of `None`, it behaves as a standard optional parameter.
+##### 使用 `typing.Optional` 標記為可選參數
+你也可以使用 `typing.Optional[SomeType]` 或 `| None` 語法（Python 3.10+）將參數標記為可選。這表示該參數可以是 `None`。當與預設值 `None` 結合時，它的行為就如同標準的可選參數。
 
-???+ "Example: `typing.Optional`"
+???+ "範例：`typing.Optional`"
     === "Python"
         ```python
         from typing import Optional
@@ -88,31 +88,31 @@ You can also mark a parameter as optional using `typing.Optional[SomeType]` or t
             return {"status": "success", "message": f"Profile for {username} created."}
         ```
 
-##### Variadic Parameters (`*args` and `**kwargs`)
-While you can include `*args` (variable positional arguments) and `**kwargs` (variable keyword arguments) in your function signature for other purposes, they are **ignored by the ADK framework** when generating the tool schema for the LLM. The LLM will not be aware of them and cannot pass arguments to them. It's best to rely on explicitly defined parameters for all data you expect from the LLM.
+##### 可變參數（`*args` 與 `**kwargs`）
+雖然你可以在函式簽名中包含 `*args`（可變位置參數）和 `**kwargs`（可變關鍵字參數）以供其他用途，但**在為大型語言模型 (LLM) 產生工具 schema 時，Agent Development Kit (ADK) 框架會忽略這些參數**。LLM 不會察覺到這些參數，也無法傳遞參數給它們。建議你對所有期望從 LLM 獲取的資料，都明確定義為參數。
 
-#### Return Type
+#### 回傳型別
 
-The preferred return type for a Function Tool is a **dictionary** in Python or **Map** in Java. This allows you to structure the response with key-value pairs, providing context and clarity to the LLM. If your function returns a type other than a dictionary, the framework automatically wraps it into a dictionary with a single key named **"result"**.
+Function Tool（函式工具）建議的回傳型別為 Python 的 **dictionary（字典）** 或 Java 的 **Map（映射）**。這樣可以用鍵值對的方式結構化回應，為 LLM 提供更多上下文與清晰度。如果你的函式回傳的型別不是字典，框架會自動將其包裝成一個以 **"result"** 為鍵的單一字典。
 
-Strive to make your return values as descriptive as possible. *For example,* instead of returning a numeric error code, return a dictionary with an "error_message" key containing a human-readable explanation. **Remember that the LLM**, not a piece of code, needs to understand the result. As a best practice, include a "status" key in your return dictionary to indicate the overall outcome (e.g., "success", "error", "pending"), providing the LLM with a clear signal about the operation's state.
+請盡量讓你的回傳值具有描述性。*例如，*與其回傳數字錯誤碼，不如回傳一個包含 "error_message" 鍵且內含易於理解說明的字典。**請記住，理解結果的是 LLM，而不是程式碼。**最佳實踐是，在回傳的字典中加入 "status" 鍵，來標示整體執行狀態（例如："success"、"error"、"pending"），讓 LLM 能夠明確判斷操作的狀態。
 
-#### Docstrings
+#### Docstrings（文件字串）
 
-The docstring of your function serves as the tool's **description** and is sent to the LLM. Therefore, a well-written and comprehensive docstring is crucial for the LLM to understand how to use the tool effectively. Clearly explain the purpose of the function, the meaning of its parameters, and the expected return values.
+你的函式 docstring（文件字串）會作為工具的**描述**，並傳送給 LLM。因此，撰寫清楚且詳盡的 docstring 對於讓 LLM 正確理解如何使用此工具至關重要。請明確說明函式的用途、各參數的意義，以及預期的回傳值。
 
-### Passing Data Between Tools
+### 工具間資料傳遞
 
-When an agent calls multiple tools in a sequence, you might need to pass data from one tool to another. The recommended way to do this is by using the `temp:` prefix in the session state.
+當 agent 依序呼叫多個工具時，你可能需要將資料從一個工具傳遞到另一個工具。建議的做法是利用 session state（會話狀態）中的 `temp:` 前綴來達成。
 
-A tool can write data to a `temp:` variable, and a subsequent tool can read it. This data is only available for the current invocation and is discarded afterwards.
+一個工具可以將資料寫入 `temp:` 變數，後續的工具則可以讀取該資料。這些資料僅在本次呼叫期間有效，之後會被清除。
 
-!!! note "Shared Invocation Context"
-    All tool calls within a single agent turn share the same `InvocationContext`. This means they also share the same temporary (`temp:`) state, which is how data can be passed between them.
+!!! note "共享呼叫上下文"
+    單一 agent 回合內的所有工具呼叫都共用同一個 `InvocationContext`。這表示它們也共用同一個暫存（`temp:`）狀態，因此資料可以在它們之間傳遞。
 
-### Example
+### 範例
 
-??? "Example"
+??? "範例"
 
     === "Python"
     
@@ -144,50 +144,47 @@ A tool can write data to a `temp:` variable, and a subsequent tool can read it. 
         For input `GOOG`: {"symbol": "GOOG", "price": "1.0"}
         ```
 
-### Best Practices
+### 最佳實踐
 
-While you have considerable flexibility in defining your function, remember that simplicity enhances usability for the LLM. Consider these guidelines:
+雖然你在定義函式時有相當大的彈性，但請記住，簡單性有助於提升大型語言模型 (LLM) 的可用性。建議遵循以下指引：
 
-* **Fewer Parameters are Better:** Minimize the number of parameters to reduce complexity.  
-* **Simple Data Types:** Favor primitive data types like `str` and `int` over custom classes whenever possible.  
-* **Meaningful Names:** The function's name and parameter names significantly influence how the LLM interprets and utilizes the tool. Choose names that clearly reflect the function's purpose and the meaning of its inputs. Avoid generic names like `do_stuff()` or `beAgent()`.
-* **Build for Parallel Execution:** Improve function calling performance when multiple tools are run by building for asynchronous operation. For information on enabling parallel execution for tools, see
-[Increase tool performance with parallel execution](/adk-docs/tools/performance/).
+* **參數越少越好：** 盡量減少參數數量，以降低複雜度。  
+* **簡單資料型別：** 優先使用像是 `str` 和 `int` 這類原始資料型別，而非自訂類別。  
+* **具意義的命名：** 函式名稱與參數名稱會大幅影響大型語言模型 (LLM) 如何解讀與使用這個工具。請選用能清楚反映函式用途及輸入意義的名稱，避免像 `do_stuff()` 或 `beAgent()` 這類通用名稱。
+* **為平行執行設計：** 當多個工具同時運行時，建議設計為非同步操作以提升函式呼叫效能。關於如何啟用工具的平行執行，請參閱
+[Increase tool performance with parallel execution](/adk-docs/tools/performance/)。
 
-## Long Running Function Tools {#long-run-tool}
+## 長時間運行函式工具 {#long-run-tool}
 
-This tool is designed to help you start and manage tasks that are handled outside the operation of your agent workflow, and require a significant amount of processing time, without blocking the agent's execution. This tool is a subclass of `FunctionTool`.
+這個工具旨在協助你啟動並管理需要大量處理時間、且在代理流程 (agent workflow) 之外執行的任務，同時不會阻塞代理的執行。此工具為 `FunctionTool` 的子類別。
 
-When using a `LongRunningFunctionTool`, your function can initiate the long-running operation and optionally return an **initial result**, such as a long-running operation id. Once a long running function tool is invoked the agent runner pauses the agent run and lets the agent client to decide whether to continue or wait until the long-running operation finishes. The agent client can query the progress of the long-running operation and send back an intermediate or final response. The agent can then continue with other tasks. An example is the human-in-the-loop scenario where the agent needs human approval before proceeding with a task.
+當你使用 `LongRunningFunctionTool` 時，你的函式可以啟動長時間運行的操作，並可選擇性地回傳**初始結果**，例如長時間運行操作的 ID。當長時間運行函式工具被呼叫後，代理執行器 (agent runner) 會暫停代理的運作，並讓代理客戶端 (agent client) 決定是否繼續或等待長時間運行操作完成。代理客戶端可以查詢長時間運行操作的進度，並回傳中間或最終回應。代理便可繼續處理其他任務。常見情境如 human-in-the-loop（人類參與流程），代理在執行任務前需取得人類批准。
 
-!!! warning "Warning: Execution handling"
-    Long Running Function Tools are designed to help you start and *manage* long running
-    tasks as part of your agent workflow, but ***not perform*** the actual, long task.
-    For tasks that require significant time to complete, you should implement a separate
-    server to do the task.
+!!! warning "警告：執行處理"
+    長時間運行函式工具的設計目的是協助你啟動並*管理*長時間運行的任務，
+    但***不會執行***實際的長時間任務。
+    對於需要大量時間才能完成的任務，建議你實作獨立的伺服器來執行該任務。
 
-!!! tip "Tip: Parallel execution"
-    Depending on the type of tool you are building, designing for asychronous
-    operation may be a better solution than creating a long running tool. For
-    more information, see
-    [Increase tool performance with parallel execution](/adk-docs/tools/performance/).
+!!! tip "提示：平行執行"
+    視你所開發工具的類型而定，設計為非同步操作可能比建立長時間運行工具更合適。
+    詳情請參閱
+    [Increase tool performance with parallel execution](/adk-docs/tools/performance/)。
 
-### How it Works
+### 運作方式
 
-In Python, you wrap a function with `LongRunningFunctionTool`.  In Java, you pass a Method name to `LongRunningFunctionTool.create()`.
+在 Python 中，你可以用 `LongRunningFunctionTool` 包裝函式。在 Java 中，則將方法名稱傳遞給 `LongRunningFunctionTool.create()`。
 
+1. **啟動：** 當大型語言模型 (LLM) 呼叫此工具時，你的函式會啟動長時間運行的操作。
 
-1. **Initiation:** When the LLM calls the tool, your function starts the long-running operation.
+2. **初始更新：** 你的函式可選擇性地回傳初始結果（例如長時間運行操作的 ID）。Agent Development Kit (ADK) 框架會將結果包裝在 `FunctionResponse` 中並回傳給大型語言模型 (LLM)。這樣 LLM 就能通知使用者（例如狀態、完成百分比、訊息）。接著代理運作會結束或暫停。
 
-2. **Initial Updates:** Your function should optionally return an initial result (e.g. the long-running operaiton id). The ADK framework takes the result and sends it back to the LLM packaged within a `FunctionResponse`. This allows the LLM to inform the user (e.g., status, percentage complete, messages). And then the agent run is ended / paused.
+3. **繼續或等待：** 每次代理運作結束後，代理客戶端可以查詢長時間運行操作的進度，並決定是否以中間回應（用於更新進度）繼續代理運作，或等待取得最終回應。代理客戶端應將中間或最終回應傳回代理以進行下一次運作。
 
-3. **Continue or Wait:** After each agent run is completed. Agent client can query the progress of the long-running operation and decide whether to continue the agent run with an intermediate response (to update the progress) or wait until a final response is retrieved. Agent client should send the intermediate or final response back to the agent for the next run.
+4. **框架處理：** Agent Development Kit (ADK) 框架會負責執行管理。它會將代理客戶端傳來的中間或最終 `FunctionResponse` 傳送給大型語言模型 (LLM)，以產生對使用者友善的訊息。
 
-4. **Framework Handling:** The ADK framework manages the execution. It sends the intermediate or final `FunctionResponse` sent by agent client to the LLM to generate a user friendly message.
+### 建立工具
 
-### Creating the Tool
-
-Define your tool function and wrap it using the `LongRunningFunctionTool` class:
+定義你的工具函式，並使用 `LongRunningFunctionTool` 類別進行包裝：
 
 === "Python"
 
@@ -237,11 +234,11 @@ Define your tool function and wrap it using the `LongRunningFunctionTool` class:
     }
     ```
 
-### Intermediate / Final result Updates
+### 中間／最終結果更新
 
-Agent client received an event with long running function calls and check the status of the ticket. Then Agent client can send the intermediate or final response back to update the progress. The framework packages this value (even if it's None) into the content of the `FunctionResponse` sent back to the LLM.
+Agent client 會收到包含長時間執行 function 呼叫的事件，並檢查該 ticket 的狀態。接著，Agent client 可以傳送中間或最終回應，以更新進度。框架會將這個值（即使是 None）封裝到回傳給大型語言模型 (LLM) 的 `FunctionResponse` 內容中。
 
-??? Tip "Applies to only Java ADK"
+??? Tip "僅適用於 Java Agent Development Kit (ADK)"
 
     When passing `ToolContext` with Function Tools, ensure that one of the following is true:
 
@@ -285,35 +282,35 @@ Agent client received an event with long running function calls and check the st
     ```
 
 
-??? "Python complete example: File Processing Simulation"
+??? "Python 完整範例：檔案處理模擬"
 
     ```py
     --8<-- "examples/python/snippets/tools/function-tools/human_in_the_loop.py"
     ```
 
-#### Key aspects of this example
+#### 此範例的重點
 
-* **`LongRunningFunctionTool`**: Wraps the supplied method/function; the framework handles sending yielded updates and the final return value as sequential FunctionResponses.
+* **`LongRunningFunctionTool`**：包裝所提供的方法/函式；框架會處理傳送產生的更新內容以及最終回傳值，這些都會以連續的 FunctionResponse 形式傳送。
 
-* **Agent instruction**: Directs the LLM to use the tool and understand the incoming FunctionResponse stream (progress vs. completion) for user updates.
+* **代理指令**：指示大型語言模型 (LLM) 使用該工具，並理解傳入的 FunctionResponse 串流（進度 vs. 完成），以便向使用者更新狀態。
 
-* **Final return**: The function returns the final result dictionary, which is sent in the concluding FunctionResponse to indicate completion.
+* **最終回傳**：該函式會回傳最終的結果字典，並在最後的 FunctionResponse 中傳送，以表示任務完成。
 
 ## Agent-as-a-Tool {#agent-tool}
 
-This powerful feature allows you to leverage the capabilities of other agents within your system by calling them as tools. The Agent-as-a-Tool enables you to invoke another agent to perform a specific task, effectively **delegating responsibility**. This is conceptually similar to creating a Python function that calls another agent and uses the agent's response as the function's return value.
+這個強大的功能讓你能夠在系統內部將其他代理（Agent）作為工具來調用，充分發揮其能力。Agent-as-a-Tool 允許你呼叫另一個代理來執行特定任務，實現**責任委派**。這在概念上類似於建立一個 Python 函式，該函式呼叫另一個代理，並將該代理的回應作為自己的回傳值。
 
-### Key difference from sub-agents
+### 與子代理（Sub-Agent）的主要差異
 
-It's important to distinguish an Agent-as-a-Tool from a Sub-Agent.
+需要明確區分 Agent-as-a-Tool 與 Sub-Agent（子代理）。
 
-* **Agent-as-a-Tool:** When Agent A calls Agent B as a tool (using Agent-as-a-Tool), Agent B's answer is **passed back** to Agent A, which then summarizes the answer and generates a response to the user. Agent A retains control and continues to handle future user input.  
+* **Agent-as-a-Tool：** 當代理 A 以工具方式呼叫代理 B（使用 Agent-as-a-Tool）時，代理 B 的回應會**傳回**給代理 A，然後代理 A 會彙整這個回應並產生對使用者的回覆。代理 A 保持控制權，並繼續處理後續的使用者輸入。
 
-* **Sub-agent:** When Agent A calls Agent B as a sub-agent, the responsibility of answering the user is completely **transferred to Agent B**. Agent A is effectively out of the loop. All subsequent user input will be answered by Agent B.
+* **子代理（Sub-agent）：** 當代理 A 以子代理方式呼叫代理 B 時，回應使用者的責任會完全**轉移給代理 B**。代理 A 等同於退出流程，後續所有的使用者輸入都將由代理 B 回應。
 
-### Usage
+### 使用方式
 
-To use an agent as a tool, wrap the agent with the AgentTool class.
+若要將代理作為工具使用，請使用 AgentTool 類別來包裝該代理。
 
 === "Python"
 
@@ -327,13 +324,13 @@ To use an agent as a tool, wrap the agent with the AgentTool class.
     AgentTool.create(agent)
     ```
 
-### Customization
+### 自訂
 
-The `AgentTool` class provides the following attributes for customizing its behavior:
+`AgentTool` 類別提供以下屬性以自訂其行為：
 
-* **skip\_summarization: bool:** If set to True, the framework will **bypass the LLM-based summarization** of the tool agent's response. This can be useful when the tool's response is already well-formatted and requires no further processing.
+* **skip\_summarization: bool：** 若設為 True，框架將**略過基於大型語言模型 (LLM) 的工具代理回應摘要**。當工具的回應已經格式良好且不需要進一步處理時，這個選項會很有用。
 
-??? "Example"
+??? "範例"
 
     === "Python"
 
@@ -347,11 +344,11 @@ The `AgentTool` class provides the following attributes for customizing its beha
         --8<-- "examples/java/snippets/src/main/java/tools/AgentToolCustomization.java:full_code"
         ```
 
-### How it works
+### 運作方式
 
-1. When the `main_agent` receives the long text, its instruction tells it to use the 'summarize' tool for long texts.  
-2. The framework recognizes 'summarize' as an `AgentTool` that wraps the `summary_agent`.  
-3. Behind the scenes, the `main_agent` will call the `summary_agent` with the long text as input.  
-4. The `summary_agent` will process the text according to its instruction and generate a summary.  
-5. **The response from the `summary_agent` is then passed back to the `main_agent`.**  
-6. The `main_agent` can then take the summary and formulate its final response to the user (e.g., "Here's a summary of the text: ...")
+1. 當 `main_agent` 收到長文本時，其指令會告訴它針對長文本使用 'summarize' 工具。  
+2. 框架會辨識 'summarize' 是包裝了 `summary_agent` 的 `AgentTool`。  
+3. 在後台，`main_agent` 會以長文本作為輸入呼叫 `summary_agent`。  
+4. `summary_agent` 會依照其指令處理文本並產生摘要。  
+5. **來自 `summary_agent` 的回應隨後會傳回給 `main_agent`。**  
+6. `main_agent` 便可利用該摘要，向使用者組成最終回應（例如：「這是該文本的摘要：...」）

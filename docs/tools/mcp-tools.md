@@ -1,26 +1,26 @@
-# Model Context Protocol Tools
+# Model Context Protocol 工具
 
- This guide walks you through two ways of integrating Model Context Protocol (MCP) with ADK.
+本指南將帶你了解兩種將 Model Context Protocol (MCP) 與 Agent Development Kit (ADK) 整合的方法。
 
-## What is Model Context Protocol (MCP)?
+## 什麼是 Model Context Protocol (MCP)？
 
-The Model Context Protocol (MCP) is an open standard designed to standardize how Large Language Models (LLMs) like Gemini and Claude communicate with external applications, data sources, and tools. Think of it as a universal connection mechanism that simplifies how LLMs obtain context, execute actions, and interact with various systems.
+Model Context Protocol (MCP) 是一個開放標準，旨在標準化大型語言模型 (Large Language Model, LLM)（如 Gemini 和 Claude）與外部應用程式、資料來源及工具之間的溝通方式。你可以將它視為一種通用的連接機制，簡化 LLM 取得上下文、執行動作及與各種系統互動的過程。
 
-MCP follows a client-server architecture, defining how **data** (resources), **interactive templates** (prompts), and **actionable functions** (tools) are exposed by an **MCP server** and consumed by an **MCP client** (which could be an LLM host application or an AI agent).
+MCP 採用 client-server 架構，定義了**資料**（資源）、**互動式模板**（提示詞）以及**可執行功能**（工具）如何由**MCP 伺服器**提供，並由**MCP 用戶端**（可能是 LLM 主機應用程式或 AI agent）消費。
 
-This guide covers two primary integration patterns:
+本指南涵蓋兩種主要的整合模式：
 
-1. **Using Existing MCP Servers within ADK:** An ADK agent acts as an MCP client, leveraging tools provided by external MCP servers.
-2. **Exposing ADK Tools via an MCP Server:** Building an MCP server that wraps ADK tools, making them accessible to any MCP client.
+1. **在 ADK 中使用現有的 MCP 伺服器：** ADK agent 作為 MCP 用戶端，利用外部 MCP 伺服器所提供的工具。
+2. **透過 MCP 伺服器對外公開 ADK 工具：** 建立一個 MCP 伺服器，將 ADK 工具包裝後，讓任何 MCP 用戶端都能存取。
 
-## Prerequisites
+## 先決條件
 
-Before you begin, ensure you have the following set up:
+在開始之前，請確保你已完成以下設定：
 
-* **Set up ADK:** Follow the standard ADK [setup instructions](../get-started/quickstart.md/#venv-install) in the quickstart.
-* **Install/update Python/Java:** MCP requires Python version of 3.9 or higher for Python or Java 17 or higher.
-* **Setup Node.js and npx:** **(Python only)** Many community MCP servers are distributed as Node.js packages and run using `npx`. Install Node.js (which includes npx) if you haven't already. For details, see [https://nodejs.org/en](https://nodejs.org/en).
-* **Verify Installations:** **(Python only)** Confirm `adk` and `npx` are in your PATH within the activated virtual environment:
+* **設定 ADK：** 請依照快速入門中的標準 ADK [設定說明](../get-started/quickstart.md/#venv-install) 進行。
+* **安裝/更新 Python/Java：** MCP 需要 Python 3.9 以上版本，或 Java 17 以上版本。
+* **安裝 Node.js 與 npx：** **（僅限 Python）** 許多社群 MCP 伺服器是以 Node.js 套件形式發佈，並透過 `npx` 執行。如果尚未安裝，請安裝 Node.js（其中包含 npx）。詳情請參閱 [https://nodejs.org/en](https://nodejs.org/en)。
+* **確認安裝：** **（僅限 Python）** 請在已啟用的虛擬環境中確認 `adk` 與 `npx` 已加入 PATH：
 
 ```shell
 # Both commands should print the path to the executables.
@@ -28,32 +28,32 @@ which adk
 which npx
 ```
 
-## 1. Using MCP servers with ADK agents (ADK as an MCP client) in `adk web`
+## 1. 在 `adk web` 中使用帶有 ADK agents 的 MCP 伺服器（ADK 作為 MCP 客戶端）
 
-This section demonstrates how to integrate tools from external MCP (Model Context Protocol) servers into your ADK agents. This is the **most common** integration pattern when your ADK agent needs to use capabilities provided by an existing service that exposes an MCP interface. You will see how the `MCPToolset` class can be directly added to your agent's `tools` list, enabling seamless connection to an MCP server, discovery of its tools, and making them available for your agent to use. These examples primarily focus on interactions within the `adk web` development environment.
+本節將說明如何將外部 MCP（Model Context Protocol）伺服器的工具整合到你的 Agent Development Kit (ADK) agent 中。當你的 ADK agent 需要使用現有服務所提供、並以 MCP 介面公開的功能時，這是**最常見**的整合模式。你將看到如何將 `MCPToolset` 類別直接加入到 agent 的 `tools` 清單中，從而實現與 MCP 伺服器的無縫連接、工具發現，並讓這些工具可供 agent 使用。這些範例主要聚焦於 `adk web` 開發環境中的互動。
 
-### `MCPToolset` class
+### `MCPToolset` 類別
 
-The `MCPToolset` class is ADK's primary mechanism for integrating tools from an MCP server. When you include an `MCPToolset` instance in your agent's `tools` list, it automatically handles the interaction with the specified MCP server. Here's how it works:
+`MCPToolset` 類別是 ADK 用來整合 MCP 伺服器工具的主要機制。當你在 agent 的 `tools` 清單中加入 `MCPToolset` 實例時，它會自動處理與指定 MCP 伺服器的互動。其運作方式如下：
 
-1.  **Connection Management:** On initialization, `MCPToolset` establishes and manages the connection to the MCP server. This can be a local server process (using `StdioConnectionParams` for communication over standard input/output) or a remote server (using `SseConnectionParams` for Server-Sent Events). The toolset also handles the graceful shutdown of this connection when the agent or application terminates.
-2.  **Tool Discovery & Adaptation:** Once connected, `MCPToolset` queries the MCP server for its available tools (via the `list_tools` MCP method). It then converts the schemas of these discovered MCP tools into ADK-compatible `BaseTool` instances.
-3.  **Exposure to Agent:** These adapted tools are then made available to your `LlmAgent` as if they were native ADK tools.
-4.  **Proxying Tool Calls:** When your `LlmAgent` decides to use one of these tools, `MCPToolset` transparently proxies the call (using the `call_tool` MCP method) to the MCP server, sends the necessary arguments, and returns the server's response back to the agent.
-5.  **Filtering (Optional):** You can use the `tool_filter` parameter when creating an `MCPToolset` to select a specific subset of tools from the MCP server, rather than exposing all of them to your agent.
+1.  **連線管理：** 初始化時，`MCPToolset` 會建立並管理與 MCP 伺服器的連線。這可以是本地伺服器程序（透過 `StdioConnectionParams` 以標準輸入/輸出進行通訊），也可以是遠端伺服器（透過 `SseConnectionParams` 使用 Server-Sent Events）。工具集也會在 agent 或應用程式終止時，妥善關閉這個連線。
+2.  **工具發現與適配：** 連線建立後，`MCPToolset` 會向 MCP 伺服器查詢其可用工具（透過 `list_tools` MCP 方法）。然後，會將這些發現到的 MCP 工具 schema 轉換為 ADK 相容的 `BaseTool` 實例。
+3.  **對 agent 的工具暴露：** 這些適配後的工具會像原生 ADK 工具一樣，提供給你的 `LlmAgent` 使用。
+4.  **工具呼叫代理：** 當你的 `LlmAgent` 決定使用其中一個工具時，`MCPToolset` 會透明地代理呼叫（使用 `call_tool` MCP 方法）到 MCP 伺服器，傳送必要的參數，並將伺服器的回應傳回給 agent。
+5.  **過濾（可選）：** 你可以在建立 `MCPToolset` 時，透過 `tool_filter` 參數，選擇只從 MCP 伺服器暴露特定子集的工具給 agent，而非全部工具。
 
-The following examples demonstrate how to use `MCPToolset` within the `adk web` development environment. For scenarios where you need more fine-grained control over the MCP connection lifecycle or are not using `adk web`, refer to the "Using MCP Tools in your own Agent out of `adk web`" section later in this page.
+以下範例展示如何在 `adk web` 開發環境中使用 `MCPToolset`。若你需要更細緻地控制 MCP 連線生命週期，或未使用 `adk web`，請參考本頁稍後的「在 `adk web` 之外於自訂 Agent 中使用 MCP 工具」章節。
 
-### Example 1: File System MCP Server
+### 範例 1：檔案系統 MCP 伺服器
 
-This Python example demonstrates connecting to a local MCP server that provides file system operations.
+此 Python 範例說明如何連接到提供檔案系統操作的本地 MCP 伺服器。
 
-#### Step 1: Define your Agent with `MCPToolset`
+#### 步驟 1：用 `MCPToolset` 定義你的 Agent
 
-Create an `agent.py` file (e.g., in `./adk_agent_samples/mcp_agent/agent.py`). The `MCPToolset` is instantiated directly within the `tools` list of your `LlmAgent`.
+建立一個 `agent.py` 檔案（例如放在 `./adk_agent_samples/mcp_agent/agent.py`）。`MCPToolset` 會直接在你的 `LlmAgent` 的 `tools` 清單中實例化。
 
-*   **Important:** Replace `"/path/to/your/folder"` in the `args` list with the **absolute path** to an actual folder on your local system that the MCP server can access.
-*   **Important:** Place the `.env` file in the parent directory of the `./adk_agent_samples` directory.
+*   **重要：** 請將 `args` 清單中的 `"/path/to/your/folder"` 替換為 MCP 伺服器可存取的實際本機資料夾的**絕對路徑**。
+*   **重要：** 請將 `.env` 檔案放在 `./adk_agent_samples` 目錄的上一層目錄。
 
 ```python
 # ./adk_agent_samples/mcp_agent/agent.py
@@ -101,44 +101,42 @@ root_agent = LlmAgent(
 ```
 
 
-#### Step 2: Create an `__init__.py` file
+#### 步驟 2：建立 `__init__.py` 檔案
 
-Ensure you have an `__init__.py` in the same directory as `agent.py` to make it a discoverable Python package for ADK.
+請確保在與 `agent.py` 相同的目錄下有一個 `__init__.py`，以便讓其成為 Agent Development Kit (ADK) 可發現的 Python 套件。
 
 ```python
 # ./adk_agent_samples/mcp_agent/__init__.py
 from . import agent
 ```
 
-#### Step 3: Run `adk web` and Interact
+#### 步驟 3：執行 `adk web` 並進行互動
 
-Navigate to the parent directory of `mcp_agent` (e.g., `adk_agent_samples`) in your terminal and run:
+請在終端機中切換到 `mcp_agent` 的上層目錄（例如：`adk_agent_samples`），然後執行：
 
 ```shell
 cd ./adk_agent_samples # Or your equivalent parent directory
 adk web
 ```
 
-!!!info "Note for Windows users"
+!!!info "Windows 使用者注意事項"
 
     When hitting the `_make_subprocess_transport NotImplementedError`, consider using `adk web --no-reload` instead.
 
 
-Once the ADK Web UI loads in your browser:
+當 ADK Web UI 在您的瀏覽器中載入後：
 
-1.  Select the `filesystem_assistant_agent` from the agent dropdown.
-2.  Try prompts like:
-    *   "List files in the current directory."
-    *   "Can you read the file named sample.txt?" (assuming you created it in `TARGET_FOLDER_PATH`).
-    *   "What is the content of `another_file.md`?"
+1.  從代理程式下拉選單中選擇 `filesystem_assistant_agent`。
+2.  嘗試以下提示詞：
+    *   「列出目前目錄中的檔案。」
+    *   「你可以讀取名為 sample.txt 的檔案嗎？」（假設您已在 `TARGET_FOLDER_PATH` 中建立該檔案）。
+    *   「`another_file.md` 的內容是什麼？」
 
-You should see the agent interacting with the MCP file system server, and the server's responses (file listings, file content) relayed through the agent. The `adk web` console (terminal where you ran the command) might also show logs from the `npx` process if it outputs to stderr.
+您應該會看到代理程式與 MCP 檔案系統伺服器互動，並且伺服器的回應（如檔案清單、檔案內容）會透過代理程式回傳。`adk web` 主控台（您執行指令的終端機）也可能會顯示來自 `npx` 程序的日誌（如果有輸出到 stderr）。
 
 <img src="../../assets/adk-tool-mcp-filesystem-adk-web-demo.png" alt="MCP with ADK Web - FileSystem Example">
 
-
-
-For Java, refer to the following sample to define an agent that initializes the `MCPToolset`:
+若為 Java，請參考以下範例以定義一個初始化 `MCPToolset` 的代理程式：
 
 ```java
 package agents;
@@ -231,7 +229,7 @@ public class McpAgentCreator {
 }
 ```
 
-Assuming a folder containing three files named `first`, `second` and `third`, successful response will look like this:
+假設有一個資料夾，裡面包含三個名為 `first`、`second` 和 `third` 的檔案，成功的回應將如下所示：
 
 ```shell
 Event received: {"id":"163a449e-691a-48a2-9e38-8cadb6d1f136","invocationId":"e-c2458c56-e57a-45b2-97de-ae7292e505ef","author":"enterprise_assistant","content":{"parts":[{"functionCall":{"id":"adk-388b4ac2-d40e-4f6a-bda6-f051110c6498","args":{"path":"~/home-test"},"name":"list_directory"}}],"role":"model"},"actions":{"stateDelta":{},"artifactDelta":{},"requestedAuthConfigs":{}},"timestamp":1747377543788}
@@ -243,21 +241,21 @@ Event received: {"id":"8fe7e594-3e47-4254-8b57-9106ad8463cb","invocationId":"e-c
 
 
 
-### Example 2: Google Maps MCP Server
+### 範例 2：Google Maps MCP 伺服器
 
-This example demonstrates connecting to the Google Maps MCP server.
+本範例說明如何連接到 Google Maps MCP 伺服器。
 
-#### Step 1: Get API Key and Enable APIs
+#### 步驟 1：取得 API 金鑰並啟用 API
 
-1.  **Google Maps API Key:** Follow the directions at [Use API keys](https://developers.google.com/maps/documentation/javascript/get-api-key#create-api-keys) to obtain a Google Maps API Key.
-2.  **Enable APIs:** In your Google Cloud project, ensure the following APIs are enabled:
+1.  **Google Maps API 金鑰：** 請依照 [Use API keys](https://developers.google.com/maps/documentation/javascript/get-api-key#create-api-keys) 的說明，取得 Google Maps API 金鑰。
+2.  **啟用 API：** 請確認在您的 Google Cloud 專案中，已啟用以下 API：
     *   Directions API
     *   Routes API
-    For instructions, see the [Getting started with Google Maps Platform](https://developers.google.com/maps/get-started#enable-api-sdk) documentation.
+    詳細操作請參考 [Getting started with Google Maps Platform](https://developers.google.com/maps/get-started#enable-api-sdk) 文件。
 
-#### Step 2: Define your Agent with `MCPToolset` for Google Maps
+#### 步驟 2：使用 `MCPToolset` 定義您的 Google Maps Agent
 
-Modify your `agent.py` file (e.g., in `./adk_agent_samples/mcp_agent/agent.py`). Replace `YOUR_GOOGLE_MAPS_API_KEY` with the actual API key you obtained.
+請修改您的 `agent.py` 檔案（例如，在 `./adk_agent_samples/mcp_agent/agent.py` 中）。將 `YOUR_GOOGLE_MAPS_API_KEY` 替換為您實際取得的 API 金鑰。
 
 ```python
 # ./adk_agent_samples/mcp_agent/agent.py
@@ -307,44 +305,43 @@ root_agent = LlmAgent(
 )
 ```
 
-#### Step 3: Ensure `__init__.py` Exists
+#### 步驟 3：確認 `__init__.py` 是否存在
 
-If you created this in Example 1, you can skip this. Otherwise, ensure you have an `__init__.py` in the `./adk_agent_samples/mcp_agent/` directory:
+如果你已在範例 1 中建立過，則可以跳過這個步驟。否則，請確保你在 `./adk_agent_samples/mcp_agent/` 目錄下有一個 `__init__.py`：
 
 ```python
 # ./adk_agent_samples/mcp_agent/__init__.py
 from . import agent
 ```
 
-#### Step 4: Run `adk web` and Interact
+#### 步驟 4：執行 `adk web` 並互動
 
-1.  **Set Environment Variable (Recommended):**
-    Before running `adk web`, it's best to set your Google Maps API key as an environment variable in your terminal:
+1.  **設定環境變數（建議）：**  
+    在執行 `adk web` 之前，建議先在終端機中將你的 Google Maps API 金鑰設為環境變數：
     ```shell
     export GOOGLE_MAPS_API_KEY="YOUR_ACTUAL_GOOGLE_MAPS_API_KEY"
     ```
-    Replace `YOUR_ACTUAL_GOOGLE_MAPS_API_KEY` with your key.
+    將 `YOUR_ACTUAL_GOOGLE_MAPS_API_KEY` 替換為你的金鑰。
 
-2.  **Run `adk web`**:
-    Navigate to the parent directory of `mcp_agent` (e.g., `adk_agent_samples`) and run:
+2.  **執行 `adk web`**：
+    請切換到 `mcp_agent` 的上層目錄（例如：`adk_agent_samples`），然後執行：
     ```shell
     cd ./adk_agent_samples # Or your equivalent parent directory
     adk web
     ```
 
-3.  **Interact in the UI**:
-    *   Select the `maps_assistant_agent`.
-    *   Try prompts like:
-        *   "Get directions from GooglePlex to SFO."
-        *   "Find coffee shops near Golden Gate Park."
-        *   "What's the route from Paris, France to Berlin, Germany?"
+3.  **在 UI 中互動**：
+    *   選擇`maps_assistant_agent`。
+    *   嘗試以下提示詞：
+        *   「從 GooglePlex 到 SFO 的路線。」
+        *   「尋找靠近金門公園的咖啡店。」
+        *   「從法國巴黎到德國柏林的路線是什麼？」
 
-You should see the agent use the Google Maps MCP tools to provide directions or location-based information.
+你應該會看到 agent 使用 Google Maps MCP 工具來提供路線或基於位置的資訊。
 
 <img src="../../assets/adk-tool-mcp-maps-adk-web-demo.png" alt="MCP with ADK Web - Google Maps Example">
 
-
-For Java, refer to the following sample to define an agent that initializes the `MCPToolset`:
+若為 Java，請參考以下範例來定義一個初始化`MCPToolset`的 agent：
 
 ```java
 package agents;
@@ -443,42 +440,42 @@ public class MapsAgentCreator {
 }
 ```
 
-A successful response will look like this:
+成功的回應會如下所示：
 ```shell
 Event received: {"id":"1a4deb46-c496-4158-bd41-72702c773368","invocationId":"e-48994aa0-531c-47be-8c57-65215c3e0319","author":"maps_assistant","content":{"parts":[{"text":"OK. I see a few options. The closest one is CVS Pharmacy at 5 Pennsylvania Plaza, New York, NY 10001, United States. Would you like directions?\n"}],"role":"model"},"actions":{"stateDelta":{},"artifactDelta":{},"requestedAuthConfigs":{}},"timestamp":1747380026642}
 ```
 
-## 2. Building an MCP server with ADK tools (MCP server exposing ADK)
+## 2. 使用 ADK 工具建構 MCP 伺服器（MCP 伺服器對外暴露 ADK）
 
-This pattern allows you to wrap existing ADK tools and make them available to any standard MCP client application. The example in this section exposes the ADK `load_web_page` tool through a custom-built MCP server.
+此模式允許你將現有的 Agent Development Kit (ADK) 工具包裝後，讓任何標準的 MCP 用戶端應用程式都能存取。以下範例說明如何透過自訂建構的 MCP 伺服器，對外暴露 ADK `load_web_page` 工具。
 
-### Summary of steps
+### 步驟摘要
 
-You will create a standard Python MCP server application using the `mcp` library. Within this server, you will:
+你將使用 `mcp` 函式庫建立一個標準的 Python MCP 伺服器應用程式。在這個伺服器中，你將：
 
-1.  Instantiate the ADK tool(s) you want to expose (e.g., `FunctionTool(load_web_page)`).
-2.  Implement the MCP server's `@app.list_tools()` handler to advertise the ADK tool(s). This involves converting the ADK tool definition to the MCP schema using the `adk_to_mcp_tool_type` utility from `google.adk.tools.mcp_tool.conversion_utils`.
-3.  Implement the MCP server's `@app.call_tool()` handler. This handler will:
-    *   Receive tool call requests from MCP clients.
-    *   Identify if the request targets one of your wrapped ADK tools.
-    *   Execute the ADK tool's `.run_async()` method.
-    *   Format the ADK tool's result into an MCP-compliant response (e.g., `mcp.types.TextContent`).
+1.  實例化你想要對外暴露的 ADK 工具（例如 `FunctionTool(load_web_page)`）。
+2.  實作 MCP 伺服器的 `@app.list_tools()` handler，用來宣告 ADK 工具。這個步驟會使用 `google.adk.tools.mcp_tool.conversion_utils` 的 `adk_to_mcp_tool_type` 工具，將 ADK 工具定義轉換為 MCP schema。
+3.  實作 MCP 伺服器的 `@app.call_tool()` handler。此 handler 將會：
+    *   接收來自 MCP 用戶端的工具呼叫請求。
+    *   判斷該請求是否針對你包裝的 ADK 工具。
+    *   執行 ADK 工具的 `.run_async()` 方法。
+    *   將 ADK 工具的結果格式化為符合 MCP 的回應格式（例如 `mcp.types.TextContent`）。
 
-### Prerequisites
+### 先決條件
 
-Install the MCP server library in the same Python environment as your ADK installation:
+請在與你的 ADK 安裝相同的 Python 環境中安裝 MCP 伺服器函式庫：
 
 ```shell
 pip install mcp
 ```
 
-### Step 1: Create the MCP Server Script
+### 步驟 1：建立 MCP 伺服器腳本
 
-Create a new Python file for your MCP server, for example, `my_adk_mcp_server.py`.
+建立一個新的 Python 檔案作為你的 MCP 伺服器，例如：`my_adk_mcp_server.py`。
 
-### Step 2: Implement the Server Logic
+### 步驟 2：實作伺服器邏輯
 
-Add the following code to `my_adk_mcp_server.py`. This script sets up an MCP server that exposes the ADK `load_web_page` tool.
+將以下程式碼加入到 `my_adk_mcp_server.py`。此腳本會建立一個 MCP 伺服器，並對外提供 Agent Development Kit (ADK) `load_web_page` 工具。
 
 ```python
 # my_adk_mcp_server.py
@@ -599,11 +596,11 @@ if __name__ == "__main__":
 # --- End MCP Server ---
 ```
 
-### Step 3: Test your Custom MCP Server with an ADK Agent
+### 步驟 3：使用 ADK Agent 測試你的自訂 MCP 伺服器
 
-Now, create an ADK agent that will act as a client to the MCP server you just built. This ADK agent will use `MCPToolset` to connect to your `my_adk_mcp_server.py` script.
+現在，請建立一個 ADK Agent（Agent Development Kit, ADK），作為你剛剛建置的 MCP 伺服器的客戶端。這個 ADK Agent 將會使用 `MCPToolset` 來連接你的 `my_adk_mcp_server.py` 腳本。
 
-Create an `agent.py` (e.g., in `./adk_agent_samples/mcp_client_agent/agent.py`):
+建立一個 `agent.py`（例如，在 `./adk_agent_samples/mcp_client_agent/agent.py` 中）：
 
 ```python
 # ./adk_agent_samples/mcp_client_agent/agent.py
@@ -638,55 +635,53 @@ root_agent = LlmAgent(
 )
 ```
 
-And an `__init__.py` in the same directory:
+以及同一目錄下的`__init__.py`：
 ```python
 # ./adk_agent_samples/mcp_client_agent/__init__.py
 from . import agent
 ```
 
-**To run the test:**
+**執行測試的方法：**
 
-1.  **Start your custom MCP server (optional, for separate observation):**
-    You can run your `my_adk_mcp_server.py` directly in one terminal to see its logs:
+1.  **啟動自訂的 MCP 伺服器（可選，方便分開觀察）：**
+    你可以在一個終端機中直接執行你的 `my_adk_mcp_server.py`，以便查看其日誌：
     ```shell
     python3 /path/to/your/my_adk_mcp_server.py
     ```
-    It will print "Launching MCP Server..." and wait. The ADK agent (run via `adk web`) will then connect to this process if the `command` in `StdioConnectionParams` is set up to execute it.
-    *(Alternatively, `MCPToolset` will start this server script as a subprocess automatically when the agent initializes).*
+    它會顯示「Launching MCP Server...」並進入等待狀態。如果在`StdioConnectionParams`中的`command`已設定為執行此程序，則Agent Development Kit (ADK) agent（透過`adk web`執行）會連線到這個程序。
+    *（或者，`MCPToolset`會在 agent 初始化時自動以子程序方式啟動這個 server script）。*
 
-2.  **Run `adk web` for the client agent:**
-    Navigate to the parent directory of `mcp_client_agent` (e.g., `adk_agent_samples`) and run:
+2.  **為 client agent 執行`adk web`：**
+    請切換到`mcp_client_agent`的上層目錄（例如：`adk_agent_samples`），然後執行：
     ```shell
     cd ./adk_agent_samples # Or your equivalent parent directory
     adk web
     ```
 
-3.  **Interact in the ADK Web UI:**
-    *   Select the `web_reader_mcp_client_agent`.
-    *   Try a prompt like: "Load the content from https://example.com"
+3.  **在 ADK Web UI 中互動：**
+    *   選擇 `web_reader_mcp_client_agent`。
+    *   嘗試輸入提示，例如：「載入來自 https://example.com" 的內容」
 
-The ADK agent (`web_reader_mcp_client_agent`) will use `MCPToolset` to start and connect to your `my_adk_mcp_server.py`. Your MCP server will receive the `call_tool` request, execute the ADK `load_web_page` tool, and return the result. The ADK agent will then relay this information. You should see logs from both the ADK Web UI (and its terminal) and potentially from your `my_adk_mcp_server.py` terminal if you ran it separately.
+ADK agent (`web_reader_mcp_client_agent`) 會使用 `MCPToolset` 來啟動並連接到你的 `my_adk_mcp_server.py`。你的 MCP 伺服器會收到 `call_tool` 請求，執行 ADK `load_web_page` 工具，並回傳結果。接著，ADK agent 會轉發這些資訊。你應該可以在 ADK Web UI（及其終端機）中看到日誌，若你是分開啟動，也有可能在你的 `my_adk_mcp_server.py` 終端機中看到日誌。
 
-This example demonstrates how ADK tools can be encapsulated within an MCP server, making them accessible to a broader range of MCP-compliant clients, not just ADK agents.
+這個範例展示了如何將 ADK 工具封裝在 MCP 伺服器中，讓它們能被更廣泛的 MCP 相容用戶端存取，而不僅限於 ADK agent。
 
-Refer to the [documentation](https://modelcontextprotocol.io/quickstart/server#core-mcp-concepts), to try it out with Claude Desktop.
+請參考[文件](https://modelcontextprotocol.io/quickstart/server#core-mcp-concepts)，以嘗試在 Claude Desktop 上使用。
 
-## Using MCP Tools in your own Agent out of `adk web`
+## 在你自己的 Agent（非 `adk web`）中使用 MCP 工具
 
-This section is relevant to you if:
+如果你符合以下情況，本節內容適用於你：
 
-* You are developing your own Agent using ADK
-* And, you are **NOT** using `adk web`,
-* And, you are exposing the agent via your own UI
+* 你正在使用 Agent Development Kit (ADK) 開發自己的 Agent
+* 並且，你**沒有**使用 `adk web`，
+* 並且，你是透過自己的 UI 對外提供 agent
 
+使用 MCP 工具的設定方式與一般工具不同，因為 MCP 工具的規格是從遠端或其他行程中執行的 MCP 伺服器非同步取得的。
 
-Using MCP Tools requires a different setup than using regular tools, due to the fact that specs for MCP Tools are fetched asynchronously
-from the MCP Server running remotely, or in another process.
+以下範例是從上方「範例 1：檔案系統 MCP 伺服器」修改而來。主要差異如下：
 
-The following example is modified from the "Example 1: File System MCP Server" example above. The main differences are:
-
-1. Your tool and agent are created asynchronously
-2. You need to properly manage the exit stack, so that your agents and tools are destructed properly when the connection to MCP Server is closed.
+1. 你的工具與 agent 需要以非同步方式建立
+2. 你需要正確管理 exit stack，確保當與 MCP 伺服器的連線關閉時，agent 與工具能正確釋放資源
 
 ```python
 # agent.py (modify get_tools_async and other parts as needed)
@@ -784,32 +779,32 @@ if __name__ == '__main__':
 ```
 
 
-## Key considerations
+## 主要注意事項
 
-When working with MCP and ADK, keep these points in mind:
+在使用 MCP 與 Agent Development Kit (ADK) 時，請注意以下幾點：
 
-* **Protocol vs. Library:** MCP is a protocol specification, defining communication rules. ADK is a Python library/framework for building agents. MCPToolset bridges these by implementing the client side of the MCP protocol within the ADK framework. Conversely, building an MCP server in Python requires using the model-context-protocol library.
+* **協定 vs. 函式庫：** MCP 是一個協定規範，定義了通訊規則；ADK 則是一個用於構建 agent 的 Python 函式庫／框架。MCPToolset 透過在 ADK 框架內實作 MCP 協定的 client 端，將兩者串接起來。相對地，若要在 Python 中建立 MCP server，則需使用 model-context-protocol 函式庫。
 
-* **ADK Tools vs. MCP Tools:**
+* **ADK 工具 vs. MCP 工具：**
 
-    * ADK Tools (BaseTool, FunctionTool, AgentTool, etc.) are Python objects designed for direct use within the ADK's LlmAgent and Runner.
-    * MCP Tools are capabilities exposed by an MCP Server according to the protocol's schema. MCPToolset makes these look like ADK tools to an LlmAgent.
-    * Langchain/CrewAI Tools are specific implementations within those libraries, often simple functions or classes, lacking the server/protocol structure of MCP. ADK offers wrappers (LangchainTool, CrewaiTool) for some interoperability.
+    * ADK 工具（如 BaseTool、FunctionTool、AgentTool 等）是設計給 ADK 的 LlmAgent 與 Runner 直接使用的 Python 物件。
+    * MCP 工具則是 MCP Server 依據協定 schema 所公開的能力。MCPToolset 會將這些能力包裝成 LlmAgent 可用的 ADK 工具。
+    * Langchain／CrewAI 工具則是這些函式庫中的特定實作，通常是簡單的函式或類別，並不具備 MCP 的 server／協定架構。ADK 提供了包裝器（如 LangchainTool、CrewaiTool）以支援部分互通。
 
-* **Asynchronous nature:** Both ADK and the MCP Python library are heavily based on the asyncio Python library. Tool implementations and server handlers should generally be async functions.
+* **非同步特性：** ADK 與 MCP 的 Python 函式庫都大量採用 asyncio 函式庫。工具實作與 server handler 通常都應該是 async 函式。
 
-* **Stateful sessions (MCP):** MCP establishes stateful, persistent connections between a client and server instance. This differs from typical stateless REST APIs.
+* **有狀態的 session（MCP）：** MCP 建立了 client 與 server 實例之間有狀態且持久的連線。這與一般無狀態的 REST API 不同。
 
-    * **Deployment:** This statefulness can pose challenges for scaling and deployment, especially for remote servers handling many users. The original MCP design often assumed client and server were co-located. Managing these persistent connections requires careful infrastructure considerations (e.g., load balancing, session affinity).
-    * **ADK MCPToolset:** Manages this connection lifecycle. The exit\_stack pattern shown in the examples is crucial for ensuring the connection (and potentially the server process) is properly terminated when the ADK agent finishes.
+    * **部署：** 這種有狀態特性在擴展與部署時會帶來挑戰，特別是當遠端 server 需同時處理多位使用者時。原始 MCP 設計常假設 client 與 server 部署於同一環境。管理這些持久連線時，基礎架構需特別考量（例如：負載平衡、session 黏著性）。
+    * **ADK MCPToolset：** 會管理這些連線的生命週期。範例中所示的 exit\_stack 模式對於確保 ADK agent 結束時，連線（以及可能的 server process）能被正確終止至關重要。
 
-## Deploying Agents with MCP Tools
+## 使用 MCP 工具部署 Agent
 
-When deploying ADK agents that use MCP tools to production environments like Cloud Run, GKE, or Vertex AI Agent Engine, you need to consider how MCP connections will work in containerized and distributed environments.
+當你要將使用 MCP 工具的 ADK agent 部署到生產環境（如 Cloud Run、GKE 或 Vertex AI Agent Engine）時，必須考慮 MCP 連線在容器化與分散式環境下的運作方式。
 
-### Critical Deployment Requirement: Synchronous Agent Definition
+### 關鍵部署需求：同步定義 Agent
 
-**⚠️ Important:** When deploying agents with MCP tools, the agent and its MCPToolset must be defined **synchronously** in your `agent.py` file. While `adk web` allows for asynchronous agent creation, deployment environments require synchronous instantiation.
+**⚠️ 重要：** 當你部署帶有 MCP 工具的 agent 時，agent 及其 MCPToolset 必須在你的 `agent.py` 檔案中**同步**定義。雖然 `adk web` 支援非同步建立 agent，但在部署環境中，必須以同步方式進行實例化。
 
 ```python
 # ✅ CORRECT: Synchronous agent definition for deployment
@@ -845,6 +840,7 @@ root_agent = LlmAgent(
 )
 ```
 
+請提供原文、初始譯文、品質分析與改進建議內容，這樣我才能根據品質分析意見改進翻譯。
 ```python
 # ❌ WRONG: Asynchronous patterns don't work in deployment
 async def get_agent():  # This won't work for deployment
@@ -852,7 +848,7 @@ async def get_agent():  # This won't work for deployment
     return LlmAgent(tools=[toolset])
 ```
 
-### Quick Deployment Commands
+### 快速部署指令
 
 #### Vertex AI Agent Engine
 ```bash
@@ -873,13 +869,13 @@ uv run adk deploy cloud_run \
   ./path/to/your/agent_directory
 ```
 
-### Deployment Patterns
+### 部署模式
 
-#### Pattern 1: Self-Contained Stdio MCP Servers
+#### 模式 1：自包含 Stdio MCP 伺服器
 
-For MCP servers that can be packaged as npm packages or Python modules (like `@modelcontextprotocol/server-filesystem`), you can include them directly in your agent container:
+對於可以被打包為 npm 套件或 Python 模組的 MCP 伺服器（如 `@modelcontextprotocol/server-filesystem`），你可以直接將它們包含在你的 agent 容器中：
 
-**Container Requirements:**
+**容器需求：**
 ```dockerfile
 # Example for npm-based MCP servers
 FROM python:3.13-slim
@@ -898,7 +894,7 @@ COPY . .
 CMD ["python", "main.py"]
 ```
 
-**Agent Configuration:**
+**Agent 設定：**
 ```python
 # This works in containers because npx and the MCP server run in the same environment
 MCPToolset(
@@ -911,11 +907,11 @@ MCPToolset(
 )
 ```
 
-#### Pattern 2: Remote MCP Servers (Streamable HTTP)
+#### 模式二：遠端 MCP 伺服器（可串流 HTTP）
 
-For production deployments requiring scalability, deploy MCP servers as separate services and connect via Streamable HTTP:
+若在生產環境中需要擴展性，建議將 MCP 伺服器部署為獨立服務，並透過可串流的 HTTP 連線：
 
-**MCP Server Deployment (Cloud Run):**
+**MCP 伺服器部署（Cloud Run）：**
 ```python
 # deploy_mcp_server.py - Separate Cloud Run service using Streamable HTTP
 import contextlib
@@ -1018,7 +1014,7 @@ if __name__ == "__main__":
     main()
 ```
 
-**Agent Configuration for Remote MCP:**
+**遠端 MCP 的 Agent 設定：**
 ```python
 # Your ADK agent connects to the remote MCP service via Streamable HTTP
 MCPToolset(
@@ -1029,9 +1025,9 @@ MCPToolset(
 )
 ```
 
-#### Pattern 3: Sidecar MCP Servers (GKE)
+#### 範例三：Sidecar MCP 伺服器（GKE）
 
-In Kubernetes environments, you can deploy MCP servers as sidecar containers:
+在 Kubernetes 環境中，您可以將 MCP 伺服器部署為 sidecar 容器：
 
 ```yaml
 # deployment.yaml - GKE with MCP sidecar
@@ -1059,51 +1055,51 @@ spec:
         - containerPort: 8081
 ```
 
-### Connection Management Considerations
+### 連線管理考量
 
-#### Stdio Connections
-- **Pros:** Simple setup, process isolation, works well in containers
-- **Cons:** Process overhead, not suitable for high-scale deployments
-- **Best for:** Development, single-tenant deployments, simple MCP servers
+#### Stdio 連線
+- **優點：** 設定簡單、具備程序隔離、在容器中運作良好
+- **缺點：** 有程序額外負擔，不適合大規模部署
+- **最適用於：** 開發階段、單一租戶部署、簡單的 MCP 伺服器
 
-#### SSE/HTTP Connections  
-- **Pros:** Network-based, scalable, can handle multiple clients
-- **Cons:** Requires network infrastructure, authentication complexity
-- **Best for:** Production deployments, multi-tenant systems, external MCP services
+#### SSE/HTTP 連線  
+- **優點：** 基於網路、可擴展、可同時處理多個用戶端
+- **缺點：** 需要網路基礎設施、驗證流程較為複雜
+- **最適用於：** 生產環境部署、多租戶系統、對外的 MCP 服務
 
-### Production Deployment Checklist
+### 生產環境部署檢查清單
 
-When deploying agents with MCP tools to production:
+當使用 MCP 工具將 agent 部署到生產環境時：
 
-**✅ Connection Lifecycle**
-- Ensure proper cleanup of MCP connections using exit_stack patterns
-- Configure appropriate timeouts for connection establishment and requests
-- Implement retry logic for transient connection failures
+**✅ 連線生命週期**
+- 使用 exit_stack 模式確保 MCP 連線能正確清理
+- 為連線建立與請求設定適當的逾時時間
+- 實作重試機制以處理暫時性連線失敗
 
-**✅ Resource Management**
-- Monitor memory usage for stdio MCP servers (each spawns a process)
-- Configure appropriate CPU/memory limits for MCP server processes
-- Consider connection pooling for remote MCP servers
+**✅ 資源管理**
+- 監控 stdio MCP 伺服器的記憶體使用量（每個會啟動一個程序）
+- 為 MCP 伺服器程序設定適當的 CPU/記憶體限制
+- 遠端 MCP 伺服器可考慮使用連線池機制
 
-**✅ Security**
-- Use authentication headers for remote MCP connections
-- Restrict network access between ADK agents and MCP servers
-- **Filter MCP tools using `tool_filter` to limit exposed functionality**
-- Validate MCP tool inputs to prevent injection attacks
-- Use restrictive file paths for filesystem MCP servers (e.g., `os.path.dirname(os.path.abspath(__file__))`)
-- Consider read-only tool filters for production environments
+**✅ 安全性**
+- 遠端 MCP 連線請使用驗證標頭（authentication headers）
+- 限制 ADK agent 與 MCP 伺服器之間的網路存取
+- **使用 `tool_filter` 過濾 MCP 工具以限制暴露的功能**
+- 驗證 MCP 工具輸入以防止注入攻擊
+- 為檔案系統型 MCP 伺服器使用限制性檔案路徑（例如：`os.path.dirname(os.path.abspath(__file__))`）
+- 生產環境可考慮採用唯讀工具過濾器
 
-**✅ Monitoring & Observability**
-- Log MCP connection establishment and teardown events
-- Monitor MCP tool execution times and success rates
-- Set up alerts for MCP connection failures
+**✅ 監控與可觀察性**
+- 記錄 MCP 連線建立與關閉事件
+- 監控 MCP 工具執行時間與成功率
+- 為 MCP 連線失敗設置警示
 
-**✅ Scalability**
-- For high-volume deployments, prefer remote MCP servers over stdio
-- Configure session affinity if using stateful MCP servers
-- Consider MCP server connection limits and implement circuit breakers
+**✅ 可擴展性**
+- 高流量部署時，建議優先使用遠端 MCP 伺服器而非 stdio
+- 若使用有狀態的 MCP 伺服器，請設定 session affinity
+- 考慮 MCP 伺服器的連線上限，並實作斷路器（circuit breaker）機制
 
-### Environment-Specific Configurations
+### 特定環境設定
 
 #### Cloud Run
 ```python
@@ -1140,7 +1136,7 @@ MCPToolset(
 )
 ```
 
-#### Vertex AI Agent Engine
+#### Vertex AI 代理引擎
 ```python
 # Agent Engine managed deployment
 # Prefer lightweight, self-contained MCP servers or external services
@@ -1152,11 +1148,11 @@ MCPToolset(
 )
 ```
 
-### Troubleshooting Deployment Issues
+### 疑難排解部署問題
 
-**Common MCP Deployment Problems:**
+**常見的 MCP 部署問題：**
 
-1. **Stdio Process Startup Failures**
+1. **Stdio 程序啟動失敗**
    ```python
    # Debug stdio connection issues
    MCPToolset(
@@ -1171,7 +1167,7 @@ MCPToolset(
    )
    ```
 
-2. **Network Connectivity Issues**
+2. **網路連線問題**
    ```python
    # Test remote MCP connectivity
    import aiohttp
@@ -1182,12 +1178,12 @@ MCPToolset(
                print(f"MCP Server Health: {resp.status}")
    ```
 
-3. **Resource Exhaustion**
-   - Monitor container memory usage when using stdio MCP servers
-   - Set appropriate limits in Kubernetes deployments
-   - Use remote MCP servers for resource-intensive operations
+3. **資源耗盡**
+   - 使用 stdio MCP 伺服器時，請監控容器的記憶體使用狀況
+   - 在 Kubernetes 部署中設定適當的資源限制
+   - 對於資源密集型操作，建議使用遠端 MCP 伺服器
 
-## Further Resources
+## 進一步資源
 
 * [Model Context Protocol Documentation](https://modelcontextprotocol.io/ )
 * [MCP Specification](https://modelcontextprotocol.io/specification/)

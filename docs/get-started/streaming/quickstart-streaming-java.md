@@ -1,20 +1,20 @@
-# Quickstart (Streaming / Java) {#adk-streaming-quickstart-java}
+# 快速開始（串流 / Java） {#adk-streaming-quickstart-java}
 
-This quickstart guide will walk you through the process of creating a basic agent and leveraging ADK Streaming with Java to facilitate low-latency, bidirectional voice interactions.
+本快速開始指南將帶領你建立一個基礎的 agent，並使用 Java 結合 ADK Streaming，以實現低延遲、雙向語音互動。
 
-You'll begin by setting up your Java and Maven environment, structuring your project, and defining the necessary dependencies. Following this, you'll create a simple `ScienceTeacherAgent`, test its text-based streaming capabilities using the Dev UI, and then progress to enabling live audio communication, transforming your agent into an interactive voice-driven application.
+你將從設定 Java 與 Maven 開發環境開始，建立專案結構並定義必要的相依套件。接著，你會建立一個簡單的 `ScienceTeacherAgent`，透過 Dev UI 測試其文字串流功能，然後進一步啟用即時語音通訊，讓你的 agent 轉變為互動式語音驅動應用程式。
 
-## **Create your first agent** {#create-your-first-agent}
+## **建立你的第一個 agent** {#create-your-first-agent}
 
-### **Prerequisites**
+### **先決條件**
 
-* In this getting started guide, you will be programming in Java. Check if **Java** is installed on your machine. Ideally, you should be using Java 17 or more (you can check that by typing **java \-version**)
+* 在本入門指南中，你將使用 Java 進行開發。請確認你的機器上已安裝 **Java**。建議使用 Java 17 或以上版本（可透過輸入 **java \-version** 來檢查）。
 
-* You’ll also be using the **Maven** build tool for Java. So be sure to have [Maven installed](https://maven.apache.org/install.html) on your machine before going further (this is the case for Cloud Top or Cloud Shell, but not necessarily for your laptop).
+* 你也會使用 Java 的建構工具 **Maven**。在繼續之前，請確保你的機器上已[安裝 Maven](https://maven.apache.org/install.html)（Cloud Top 或 Cloud Shell 預設已安裝，但你的筆電未必如此）。
 
-### **Prepare the project structure**
+### **準備專案結構**
 
-To get started with ADK Java, let’s create a Maven project with the following directory structure:
+要開始使用 ADK Java，請建立一個具有以下目錄結構的 Maven 專案：
 
 ```
 adk-agents/
@@ -26,14 +26,14 @@ adk-agents/
                 └── ScienceTeacherAgent.java
 ```
 
-Follow the instructions in [Installation](../../get-started/installation.md) page to add `pom.xml` for using the ADK package.
+請依照 [Installation](../../get-started/installation.md) 頁面的指示，新增 `pom.xml` 以使用 Agent Development Kit (ADK)（ADK）套件。
 
 !!! Note
-    Feel free to use whichever name you like for the root directory of your project (instead of adk-agents)
+    專案的根目錄名稱（例如 adk-agents）可依您喜好自行命名，無需固定。
 
-### **Running a compilation**
+### **執行編譯**
 
-Let’s see if Maven is happy with this build, by running a compilation (**mvn compile** command):
+讓我們透過執行編譯（`mvn compile` 指令）來確認 Maven 是否能順利建置：
 
 ```shell
 $ mvn compile
@@ -57,11 +57,11 @@ $ mvn compile
 [INFO] ------------------------------------------------------------------------
 ```
 
-Looks like the project is set up properly for compilation\!
+看起來專案已經正確設置完成，可以進行編譯了！
 
-### **Creating an agent**
+### **建立 agent**
 
-Create the **ScienceTeacherAgent.java** file under the `src/main/java/agents/` directory with the following content:
+請在 `src/main/java/agents/` 目錄下建立 **ScienceTeacherAgent.java** 檔案，內容如下：
 
 ```java
 package samples.liveaudio;
@@ -90,34 +90,34 @@ public class ScienceTeacherAgent {
 }
 ```
 
-!!!note "Troubleshooting"
+!!!note "疑難排解"
 
     The model `gemini-2.0-flash-exp` will be deprecated in the future. If you see any issues on using it, try using `gemini-2.0-flash-live-001` instead
 
-We will use `Dev UI` to run this agent later. For the tool to automatically recognize the agent, its Java class has to comply with the following two rules:
+我們稍後會使用 `Dev UI` 來執行這個 agent。為了讓工具能自動辨識這個 agent，其 Java 類別需遵循以下兩個規則：
 
-* The agent should be stored in a global **public static** variable named **ROOT\_AGENT** of type **BaseAgent** and initialized at declaration time.
-* The agent definition has to be a **static** method so it can be loaded during the class initialization by the dynamic compiling classloader.
+* agent 必須儲存在一個全域的 **public static** 變數，名稱為 **ROOT\_AGENT**，型別為 **BaseAgent**，並於宣告時初始化。
+* agent 定義必須是一個 **static** 方法，以便在類別初始化時，能由動態編譯的 classloader 載入。
 
-## **Run agent with Dev UI** {#run-agent-with-adk-web-server}
+## **使用 Dev UI 執行 agent** {#run-agent-with-adk-web-server}
 
-`Dev UI` is a web server where you can quickly run and test your agents for development purpose, without building your own UI application for the agents.
+`Dev UI` 是一個網頁伺服器，讓你可以快速執行並測試你的 agent 以進行開發，而無需為 agent 建立自己的 UI 應用程式。
 
-### **Define environment variables**
+### **定義環境變數**
 
-To run the server, you’ll need to export two environment variables:
+要執行此伺服器，你需要匯出兩個環境變數：
 
-* a Gemini key that you can [get from AI Studio](https://ai.google.dev/gemini-api/docs/api-key),
-* a variable to specify we’re not using Vertex AI this time.
+* 一組 Gemini 金鑰，你可以從 [AI Studio 取得](https://ai.google.dev/gemini-api/docs/api-key)，
+* 一個用來指定這次不使用 Vertex AI 的變數。
 
 ```shell
 export GOOGLE_GENAI_USE_VERTEXAI=FALSE
 export GOOGLE_API_KEY=YOUR_API_KEY
 ```
 
-### **Run Dev UI**
+### **啟動 Dev UI**
 
-Run the following command from the terminal to launch the Dev UI.
+請在終端機中執行以下指令，以啟動 Dev UI。
 
 ```console title="terminal"
 mvn exec:java \
@@ -126,47 +126,45 @@ mvn exec:java \
     -Dexec.classpathScope="compile"
 ```
 
-**Step 1:** Open the URL provided (usually `http://localhost:8080` or
-`http://127.0.0.1:8080`) directly in your browser.
+**步驟 1：** 請直接在瀏覽器中開啟所提供的 URL（通常為 `http://localhost:8080` 或 `http://127.0.0.1:8080`）。
 
-**Step 2.** In the top-left corner of the UI, you can select your agent in
-the dropdown. Select "science-app".
+**步驟 2：** 在網頁 UI 左上角的下拉選單中，您可以選擇您的 agent。請選擇「science-app」。
 
-!!!note "Troubleshooting"
+!!!note "疑難排解"
 
     If you do not see "science-app" in the dropdown menu, make sure you
     are running the `mvn` command at the location where your Java source code
     is located (usually `src/main/java`).
 
-## Try Dev UI with text
+## 使用文字體驗 Dev UI
 
-With your favorite browser, navigate to: [http://127.0.0.1:8080/](http://127.0.0.1:8080/)
+請使用你喜愛的瀏覽器，前往：[http://127.0.0.1:8080/](http://127.0.0.1:8080/)
 
-You should see the following interface:
+你應該會看到以下介面：
 
 ![Dev UI](../../assets/quickstart-streaming-devui.png)
 
-Click the `Token Streaming` switch at the top right, and ask any questions for the science teacher such as `What's the electron?`. Then you should see the output text in streaming on the UI.
+點擊右上角的 `Token Streaming` 開關，並向科學老師提問任何問題，例如 `What's the electron?`。接著你應該會在 UI 上看到文字以串流方式輸出。
 
-As we saw, you do not have to write any specific code in the agent itself for the text streaming capability. It is provided as an ADK Agent feature by default.
+如同我們所見，你不需要在 agent 本身撰寫任何特定程式碼來支援文字串流功能。這項功能預設由 Agent Development Kit (ADK) 提供。
 
-### Try with voice and video
+### 體驗語音與視訊
 
-To try with voice, reload the web browser, click the microphone button to enable the voice input, and ask the same question in voice. You will hear the answer in voice in real-time.
+若要體驗語音，請重新載入網頁瀏覽器，點擊麥克風按鈕以啟用語音輸入，然後用語音詢問相同的問題。你將會即時聽到語音回覆。
 
-To try with video, reload the web browser, click the camera button to enable the video input, and ask questions like "What do you see?". The agent will answer what they see in the video input.
+若要體驗視訊，請重新載入網頁瀏覽器，點擊相機按鈕以啟用視訊輸入，並提問像是「你看到了什麼？」這類問題。agent 會回答他們在視訊輸入中看到的內容。
 
-### Stop the tool
+### 停止工具
 
-Stop the tool by pressing `Ctrl-C` on the console.
+在主控台按下 `Ctrl-C` 以停止工具。
 
-## **Run agent with a custom live audio app** {#run-agent-with-live-audio}
+## **使用自訂即時音訊應用程式執行 agent** {#run-agent-with-live-audio}
 
-Now, let's try audio streaming with the agent and a custom live audio application.
+現在，讓我們嘗試將 agent 與自訂即時音訊應用程式結合進行音訊串流。
 
-### **A Maven pom.xml build file for Live Audio**
+### **Live Audio 的 Maven pom.xml 建置檔**
 
-Replace your existing pom.xml with the following.
+請將你現有的 pom.xml 替換為以下內容。
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -271,9 +269,9 @@ Replace your existing pom.xml with the following.
 </project>
 ```
 
-### **Creating Live Audio Run tool**
+### **建立 Live Audio Run 工具**
 
-Create the **LiveAudioRun.java** file under the `src/main/java/` directory with the following content. This tool runs the agent on it with live audio input and output.
+在 `src/main/java/` 目錄下建立 **LiveAudioRun.java** 檔案，內容如下。這個工具會以即時音訊輸入與輸出方式執行 agent。
 
 ```java
 
@@ -549,15 +547,15 @@ public final class LiveAudioRun {
 }
 ```
 
-### **Run the Live Audio Run tool**
+### **執行 Live Audio Run 工具**
 
-To run Live Audio Run tool, use the following command on the `adk-agents` directory:
+要執行 Live Audio Run 工具，請在 `adk-agents` 目錄下使用以下指令：
 
 ```
 mvn compile exec:java
 ```
 
-Then you should see:
+然後你應該會看到：
 
 ```
 $ mvn compile exec:java
@@ -568,11 +566,11 @@ Speaker initialized.
 Microphone initialized. Start speaking...
 ```
 
-With this message, the tool is ready to take voice input. Talk to the agent with a question like `What's the electron?`.
+當你看到這個訊息時，該工具已準備好接收語音輸入。你可以用像是 `What's the electron?` 這樣的問題與 agent 對話。
 
 !!! Caution
-    When you observe the agent keep speaking by itself and doesn't stop, try using earphones to suppress the echoing.
+    當你發現 agent 持續自動說話且無法停止時，請嘗試使用耳機，以抑制回音問題。
 
-## **Summary** {#summary}
+## **總結** {#summary}
 
-Streaming for ADK enables developers to create agents capable of low-latency, bidirectional voice and video communication, enhancing interactive experiences. The article demonstrates that text streaming is a built-in feature of ADK Agents, requiring no additional specific code, while also showcasing how to implement live audio conversations for real-time voice interaction with an agent. This allows for more natural and dynamic communication, as users can speak to and hear from the agent seamlessly.
+ADK Streaming 讓開發者能夠打造具備低延遲、雙向語音與視訊通訊能力的 agent，進一步提升互動體驗。本文說明了文字串流是 ADK agent 的內建功能，無需額外撰寫特定程式碼，同時也展示了如何實作即時語音對話，讓使用者能與 agent 進行即時語音互動。這使得溝通過程更加自然且具動態性，使用者可以無縫地與 agent 進行語音交流。

@@ -1,36 +1,35 @@
-# Agent Observability with Phoenix
+# 使用 Phoenix 進行 Agent Observability
 
-[Phoenix](https://arize.com/docs/phoenix) is an open-source, self-hosted observability platform for monitoring, debugging, and improving LLM applications and AI Agents at scale. It provides comprehensive tracing and evaluation capabilities for your Google ADK applications. To get started, sign up for a [free account](https://phoenix.arize.com/). 
+[Phoenix](https://arize.com/docs/phoenix) 是一個開源、自行架設的可觀測性平台，能夠大規模監控、除錯並優化大型語言模型 (LLM) 應用與 AI 代理（agent）。Phoenix 為你的 Google Agent Development Kit (ADK) 應用提供完整的追蹤與評估功能。你可以先註冊一個[免費帳號](https://phoenix.arize.com/)來開始使用。
 
+## 概覽
 
-## Overview
+Phoenix 可以透過 [OpenInference instrumentation](https://github.com/Arize-ai/openinference/tree/main/python/instrumentation/openinference-instrumentation-google-adk) 自動從 Google Agent Development Kit (ADK) 收集追蹤資料，讓你能夠：
 
-Phoenix can automatically collect traces from Google ADK using [OpenInference instrumentation](https://github.com/Arize-ai/openinference/tree/main/python/instrumentation/openinference-instrumentation-google-adk), allowing you to:
+- **追蹤 agent 互動** —— 自動擷取每一次 agent 執行、工具呼叫、模型請求與回應，並保留完整上下文與中繼資料
+- **評估效能** —— 使用自訂或預設的評估器來評估 agent 行為，並執行實驗以測試 agent 設定
+- **除錯問題** —— 分析詳細的追蹤資料，快速找出瓶頸、失敗的工具呼叫與非預期的 agent 行為
+- **自行架設控管** —— 資料完全保留在你的基礎設施上
 
-- **Trace agent interactions** - Automatically capture every agent run, tool call, model request, and response with full context and metadata
-- **Evaluate performance** - Assess agent behavior using custom or pre-built evaluators and run experiments to test agent configurations
-- **Debug issues** - Analyze detailed traces to quickly identify bottlenecks, failed tool calls, and unexpected agent behavior
-- **Self-hosted control** - Keep your data on your own infrastructure
+## 安裝
 
-## Installation
-
-### 1. Install Required Packages { #install-required-packages }
+### 1. 安裝必要套件 { #install-required-packages }
 
 ```bash
 pip install openinference-instrumentation-google-adk google-adk arize-phoenix-otel
 ```
 
-## Setup
+## 設定
 
-### 1. Launch Phoenix { #launch-phoenix }
+### 1. 啟動 Phoenix { #launch-phoenix }
 
-These instructions show you how to use Phoenix Cloud. You can also [launch Phoenix](https://arize.com/docs/phoenix/integrations/llm-providers/google-gen-ai/google-adk-tracing) in a notebook, from your terminal, or self-host it using a container. 
+以下說明將引導你如何使用 Phoenix Cloud。你也可以在 notebook 中、透過終端機，或使用容器自行部署來[啟動 Phoenix](https://arize.com/docs/phoenix/integrations/llm-providers/google-gen-ai/google-adk-tracing)。
 
-1. Sign up for a [free Phoenix account](https://phoenix.arize.com/). 
-2. From the Settings page of your new Phoenix Space, create your API key
-3. Copy your endpoint which should look like: https://app.phoenix.arize.com/s/[your-space-name]
+1. 註冊一個[免費的 Phoenix 帳號](https://phoenix.arize.com/)。
+2. 在你的新 Phoenix Space 的 Settings 頁面中，建立你的 API KEY。
+3. 複製你的 endpoint，格式應如下所示：https://app.phoenix.arize.com/s/[your-space-name]
 
-**Set your Phoenix endpoint and API Key:**
+**設定你的 Phoenix endpoint 與 API KEY：**
 
 ```python
 import os
@@ -42,7 +41,7 @@ os.environ["PHOENIX_COLLECTOR_ENDPOINT"] = "ADD YOUR PHOENIX COLLECTOR ENDPOINT"
 # os.environ["PHOENIX_CLIENT_HEADERS"] = f"api_key={os.getenv('PHOENIX_API_KEY')}"
 ```
 
-### 2.  Connect your application to Phoenix { #connect-your-application-to-phoenix }
+### 2.  將您的應用程式連接至 Phoenix { #connect-your-application-to-phoenix }
 
 ```python
 from phoenix.otel import register
@@ -54,9 +53,9 @@ tracer_provider = register(
 )
 ```
 
-## Observe
+## 觀察（Observe）
 
-Now that you have tracing setup, all Google ADK SDK requests will be streamed to Phoenix for observability and evaluation.
+現在你已經完成追蹤（tracing）設定，所有 Google Agent Development Kit (ADK) SDK 請求都會串流到 Phoenix，以進行可觀察性（observability）與評估。
 
 ```python
 import nest_asyncio
@@ -123,7 +122,7 @@ async for event in runner.run_async(
         print(event.content.parts[0].text.strip())
 ```
 
-## Support and Resources
-- [Phoenix Documentation](https://arize.com/docs/phoenix/integrations/llm-providers/google-gen-ai/google-adk-tracing)
-- [Community Slack](https://arize-ai.slack.com/join/shared_invite/zt-11t1vbu4x-xkBIHmOREQnYnYDH1GDfCg#/shared-invite/email)
-- [OpenInference Package](https://github.com/Arize-ai/openinference/tree/main/python/instrumentation/openinference-instrumentation-google-adk)
+## 支援與資源
+- [Phoenix 文件](https://arize.com/docs/phoenix/integrations/llm-providers/google-gen-ai/google-adk-tracing)
+- [社群 Slack](https://arize-ai.slack.com/join/shared_invite/zt-11t1vbu4x-xkBIHmOREQnYnYDH1GDfCg#/shared-invite/email)
+- [OpenInference 套件](https://github.com/Arize-ai/openinference/tree/main/python/instrumentation/openinference-instrumentation-google-adk)

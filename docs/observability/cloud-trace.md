@@ -1,18 +1,18 @@
-# Agent Observability with Cloud Trace
+# 使用 Cloud Trace 進行 Agent Observability
 
-With ADK, you’ve already capable of inspecting and observing your agent interaction locally utilizing the powerful web development UI discussed in [here](https://google.github.io/adk-docs/evaluate/#debugging-with-the-trace-view). However, if we aim for cloud deployment, we will need a centralized dashboard to observe real traffic.
+透過 Agent Development Kit (ADK)，你已經能夠利用[這裡](https://google.github.io/adk-docs/evaluate/#debugging-with-the-trace-view)介紹的強大網頁 UI，在本地檢查與觀察你的 agent 互動。然而，若目標為雲端部署，我們則需要一個集中式儀表板來觀察實際流量。
 
-Cloud Trace is a component of Google Cloud Observability. It is a powerful tool for monitoring, debugging, and improving the performance of your applications by focusing specifically on tracing capabilities. For Agent Development Kit (ADK) applications, Cloud Trace enables comprehensive tracing, helping you understand how requests flow through your agent's interactions and identify performance bottlenecks or errors within your AI agents.
+Cloud Trace 是 Google Cloud Observability 的一個元件。它是一套專注於追蹤（tracing）能力的強大工具，可用於監控、除錯，以及提升應用程式效能。對於 Agent Development Kit (ADK) 應用程式而言，Cloud Trace 能夠提供全面的追蹤功能，協助你理解請求如何在 agent 互動中流動，並找出 AI agent 內部的效能瓶頸或錯誤。
 
-## Overview
+## 概述
 
-Cloud Trace is built on [OpenTelemetry](https://opentelemetry.io/), an open-source standard that supports many languages and ingestion methods for generating trace data. This aligns with observability practices for ADK applications, which also leverage OpenTelemetry-compatible instrumentation, allowing you to :
+Cloud Trace 建構於 [OpenTelemetry](https://opentelemetry.io/) 之上，這是一套支援多種語言與資料收集方式的開源標準。這與 Agent Development Kit (ADK) 應用程式的可觀測性實踐相符，ADK 也採用相容於 OpenTelemetry 的儀器化方式，讓你可以：
 
-- Trace agent interactions : Cloud Trace continuously gathers and analyzes trace data from your project, enabling you to rapidly diagnose latency issues and errors within your ADK applications. This automatic data collection simplifies the process of identifying problems in complex agent workflows.
-- Debug issues : Quickly diagnose latency issues and errors by analyzing detailed traces. Crucial for understanding issues that manifest as increased communication latency across different services or during specific agent actions like tool calls.
-- In-depth Analysis and Visualization: Trace Explorer is the primary tool for analyzing traces, offering visual aids like heatmaps for span duration and line charts for request/error rates. It also provides a spans table, groupable by service and operation, which gives one-click access to representative traces and a waterfall view to easily identify bottlenecks and sources of errors within your agent's execution path
+- 追蹤 agent 互動：Cloud Trace 持續從你的專案收集並分析追蹤資料，使你能快速診斷 ADK 應用程式中的延遲問題與錯誤。這種自動化資料收集簡化了在複雜 agent 工作流程中找出問題的過程。
+- 除錯問題：透過分析詳細的追蹤資料，能快速診斷延遲問題與錯誤。這對於理解在不同服務間或特定 agent 行為（如工具呼叫）時出現的通訊延遲問題尤其重要。
+- 深入分析與視覺化：Trace Explorer 是分析追蹤資料的主要工具，提供如 span 持續時間熱圖、請求/錯誤率折線圖等視覺化輔助工具。它同時提供可依服務與操作分組的 spans 表格，讓你一鍵存取代表性追蹤資料，以及瀑布圖檢視，方便你在 agent 執行路徑中快速找出瓶頸與錯誤來源。
 
-The following example will assume the following agent directory structure
+以下範例將假設 agent 目錄結構如下：
 
 ```
 working_dir/
@@ -24,6 +24,7 @@ working_dir/
 └── agent_runner.py
 ```
 
+請提供原文、初始譯文、品質分析與改進建議，我才能協助你改進翻譯。
 ```python
 # weather_agent/agent.py
 
@@ -70,13 +71,13 @@ root_agent = Agent(
 )
 ```
 
-## Cloud Trace Setup
+## Cloud Trace 設定
 
-### Setup for Agent Engine Deployment
+### Agent Engine 部署設定
 
-#### Agent Engine Deployment - from ADK CLI
+#### Agent Engine 部署 - 透過 ADK 命令列介面 (CLI)
 
-You can enable cloud tracing by adding `--trace_to_cloud` flag when deploying your agent using `adk deploy agent_engine` command for agent engine deployment.
+當你使用 `adk deploy agent_engine` 指令進行 agent engine 部署時，可以在部署 agent 時加入 `--trace_to_cloud` 旗標來啟用 cloud tracing。
 
 ```bash
 adk deploy agent_engine \
@@ -87,9 +88,9 @@ adk deploy agent_engine \
     $AGENT_PATH
 ```
 
-#### Agent Engine Deployment - from Python SDK
+#### Agent Engine 部署 - 使用 Python SDK
 
-If you prefer using Python SDK, you can enable cloud tracing by adding `enable_tracing=True` when initialize the `AdkApp` object
+如果你偏好使用 Python SDK，可以在初始化 `AdkApp` 物件時，加入 `enable_tracing=True` 來啟用雲端追蹤（cloud tracing）。
 
 ```python
 # deploy_agent_engine.py
@@ -127,11 +128,11 @@ remote_app = agent_engines.create(
 )
 ```
 
-### Setup for Cloud Run Deployment
+### Cloud Run 部署設定
 
-#### Cloud Run Deployment - from ADK CLI
+#### 透過 ADK 命令列介面 (CLI) 進行 Cloud Run 部署
 
-You can enable cloud tracing by adding `--trace_to_cloud` flag when deploying your agent using `adk deploy cloud_run` command for cloud run deployment.
+當你使用 `adk deploy cloud_run` 指令在 Cloud Run 部署 agent 時，可以加入 `--trace_to_cloud` 旗標來啟用雲端追蹤（cloud tracing）。
 
 ```bash
 adk deploy cloud_run \
@@ -141,13 +142,13 @@ adk deploy cloud_run \
     $AGENT_PATH
 ```
 
-If you want to enable cloud tracing and using a customized agent service deployment on Cloud Run, you can refer to the [Setup for Customized Deployment](#setup-for-customized-deployment) section below
+如果你想啟用雲端追蹤（cloud tracing），並且在 Cloud Run 上使用自訂的 agent 服務部署，可以參考下方的 [Setup for Customized Deployment](#setup-for-customized-deployment) 章節。
 
-### Setup for Customized Deployment
+### 自訂部署設定（Setup for Customized Deployment）
 
-#### From Built-in `get_fast_api_app` Module
+#### 來自內建 `get_fast_api_app` 模組
 
-If you want to customize your own agent service, you can enable cloud tracing by initialize the FastAPI app using built-in `get_fast_api_app` module and set `trace_to_cloud=True`
+如果你想自訂自己的 agent 服務，可以透過使用內建的 `get_fast_api_app` 模組初始化 FastAPI 應用程式，並設定 `trace_to_cloud=True`，以啟用雲端追蹤（cloud tracing）。
 
 ```python
 # deploy_fast_api_app.py
@@ -181,9 +182,9 @@ if __name__ == "__main__":
 ```
 
 
-#### From Customized Agent Runner
+#### 從自訂 Agent Runner
 
-If you want to fully customize your ADK agent runtime, you can enable cloud tracing by using `CloudTraceSpanExporter` module from Opentelemetry.
+如果你希望完全自訂你的 Agent Development Kit (ADK)（ADK）agent 執行環境，可以透過使用 Opentelemetry 的 `CloudTraceSpanExporter` 模組來啟用雲端追蹤（cloud tracing）。
 
 ```python
 # agent_runner.py
@@ -241,20 +242,20 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Inspect Cloud Traces
+## 檢查 Cloud Trace
 
-After the setup is complete, whenever you interact with the agent it will automatically send trace data to Cloud Trace. You can inspect the traces by going to [console.cloud.google.com](https://console.cloud.google.com) and visit the Trace Explorer on the configured Google Cloud Project
+完成設定後，每當你與 agent 互動時，系統會自動將追蹤資料傳送到 Cloud Trace。你可以前往 [console.cloud.google.com](https://console.cloud.google.com)，並在已設定的 Google Cloud 專案中造訪 Trace Explorer 來檢查這些追蹤紀錄。
 
 ![cloud-trace](../assets/cloud-trace1.png)
 
-And then you will see all available traces produced by ADK agent which configured in several span names such as `invocation` , `agent_run` . `call_llm` and `execute_tool`
+接著，你將會看到由 Agent Development Kit (ADK)（ADK）agent 所產生的所有可用追蹤紀錄，這些追蹤會以多個 span 名稱顯示，例如 `invocation`、`agent_run`、`call_llm` 和 `execute_tool`。
 
 ![cloud-trace](../assets/cloud-trace2.png)
 
-If you click on one of the traces, you will see the waterfall view of the detailed process, similar to what we see in the web development UI with `adk web` command.
+如果你點擊其中一個追蹤紀錄，就會看到詳細流程的瀑布圖（waterfall view），這與我們在網頁 UI 中使用 `adk web` 指令時所見的畫面類似。
 
 ![cloud-trace](../assets/cloud-trace3.png)
 
-## Resources
+## 相關資源
 
 - [Google Cloud Trace Documentation](https://cloud.google.com/trace)

@@ -1,15 +1,15 @@
-# Quickstart
+# 快速開始
 
-This quickstart guides you through installing the Agent Development Kit (ADK),
-setting up a basic agent with multiple tools, and running it locally either in the terminal or in the interactive, browser-based dev UI.
+本快速開始將引導你安裝 Agent Development Kit (ADK)，
+建立一個包含多個工具的基本 agent，並在本機端以終端機或互動式瀏覽器開發 UI 執行。
 
 <!-- <img src="../../assets/quickstart.png" alt="Quickstart setup"> -->
 
-This quickstart assumes a local IDE (VS Code, PyCharm, IntelliJ IDEA, etc.)
-with Python 3.9+ or Java 17+ and terminal access. This method runs the
-application entirely on your machine and is recommended for internal development.
+本快速開始假設你已在本機 IDE（如 VS Code、PyCharm、IntelliJ IDEA 等）中
+安裝 Python 3.9+ 或 Java 17+，並可存取終端機。此方法會讓
+應用程式完全在你的機器上運行，建議用於內部開發。
 
-## 1. Set up Environment & Install ADK { #set-up-environment-install-adk }
+## 1. 建立環境並安裝 ADK { #set-up-environment-install-adk }
 
 === "Python"
 
@@ -34,9 +34,9 @@ application entirely on your machine and is recommended for internal development
 
     To install ADK and setup the environment, proceed to the following steps.
 
-## 2. Create Agent Project { #create-agent-project }
+## 2. 建立 Agent 專案 { #create-agent-project }
 
-### Project structure
+### 專案結構
 
 === "Python"
 
@@ -141,28 +141,25 @@ application entirely on your machine and is recommended for internal development
 
 ![intro_components.png](../assets/quickstart-flow-tool.png)
 
-## 3. Set up the model { #set-up-the-model }
+## 3. 設定模型 { #set-up-the-model }
 
-Your agent's ability to understand user requests and generate responses is
-powered by a Large Language Model (LLM). Your agent needs to make secure calls
-to this external LLM service, which **requires authentication credentials**. Without
-valid authentication, the LLM service will deny the agent's requests, and the
-agent will be unable to function.
+你的 agent 能夠理解使用者請求並產生回應，是由大型語言模型 (Large Language Model, LLM) 所驅動。你的 agent 需要安全地呼叫這個外部的 LLM 服務，而這**需要驗證憑證**。如果沒有有效的驗證，LLM 服務將會拒絕 agent 的請求，導致 agent 無法運作。
 
-!!!tip "Model Authentication guide"
-    For a detailed guide on authenticating to different models, see the [Authentication guide](../agents/models.md#google-ai-studio).
-    This is a critical step to ensure your agent can make calls to the LLM service.
+!!!tip "模型驗證指南"
+    如需有關不同模型驗證的詳細說明，請參閱 [Authentication guide](../agents/models.md#google-ai-studio)。
+    這是確保你的 agent 能夠呼叫 LLM 服務的關鍵步驟。
 
 === "Gemini - Google AI Studio"
-    1. Get an API key from [Google AI Studio](https://aistudio.google.com/apikey).
-    2. When using Python, open the **`.env`** file located inside (`multi_tool_agent/`)
-    and copy-paste the following code.
+    1. 從 [Google AI Studio](https://aistudio.google.com/apikey) 取得 API KEY。
+    2. 使用 Python 時，請開啟位於 (`multi_tool_agent/`) 內的 **`.env`** 檔案，
+       並將以下程式碼複製貼上。
 
         ```env title="multi_tool_agent/.env"
         GOOGLE_GENAI_USE_VERTEXAI=FALSE
         GOOGLE_API_KEY=PASTE_YOUR_ACTUAL_API_KEY_HERE
         ```
 
+請提供原文、初始譯文、品質分析與改進建議，我才能協助改進翻譯。
         When using Java, define environment variables:
 
         ```console title="terminal"
@@ -173,11 +170,10 @@ agent will be unable to function.
     3. Replace `PASTE_YOUR_ACTUAL_API_KEY_HERE` with your actual `API KEY`.
 
 === "Gemini - Google Cloud Vertex AI"
-    1. Set up a [Google Cloud project](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-gcp) and [enable the Vertex AI API](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com).
-    2. Set up the [gcloud CLI](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-local).
-    3. Authenticate to Google Cloud from the terminal by running `gcloud auth application-default login`.
-    4. When using Python, open the **`.env`** file located inside (`multi_tool_agent/`). Copy-paste
-    the following code and update the project ID and location.
+    1. 建立一個 [Google Cloud 專案](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-gcp)，並[啟用 Vertex AI API](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com)。
+    2. 設定 [gcloud 命令列介面 (CLI)](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-local)。
+    3. 在終端機中執行 `gcloud auth application-default login`，以驗證 Google Cloud 身份。
+    4. 若使用 Python，請開啟 (`multi_tool_agent/`) 目錄下的 **`.env`** 檔案。複製並貼上下列程式碼，並更新 Google Cloud 專案 ID 與位置 (Location)。
 
         ```env title="multi_tool_agent/.env"
         GOOGLE_GENAI_USE_VERTEXAI=TRUE
@@ -185,6 +181,7 @@ agent will be unable to function.
         GOOGLE_CLOUD_LOCATION=LOCATION
         ```
 
+請提供原文、初始譯文、品質分析與改進建議內容，我才能協助改進翻譯。
         When using Java, define environment variables:
 
         ```console title="terminal"
@@ -194,18 +191,18 @@ agent will be unable to function.
         ```
 
 === "Gemini - Google Cloud Vertex AI with Express Mode"
-    1. You can sign up for a free Google Cloud project and use Gemini for free with an eligible account!
-        * Set up a
-          [Google Cloud project with Vertex AI Express Mode](https://cloud.google.com/vertex-ai/generative-ai/docs/start/express-mode/overview)
-        * Get an API key from your Express mode project. This key can be used with ADK to use Gemini models for free, as well as access to Agent Engine services.
-    2. When using Python, open the **`.env`** file located inside (`multi_tool_agent/`). Copy-paste
-    the following code and update the project ID and location.
+    1. 你可以註冊一個免費的 Google Cloud 專案，並使用符合資格的帳戶免費體驗 Gemini！
+        * 設定
+          [Google Cloud 專案並啟用 Vertex AI Express Mode](https://cloud.google.com/vertex-ai/generative-ai/docs/start/express-mode/overview)
+        * 從你的 Express mode 專案取得 API 金鑰。這個金鑰可以搭配 Agent Development Kit (ADK) 使用，免費存取 Gemini 模型，以及 Agent Engine 服務。
+    2. 使用 Python 時，請開啟 (`multi_tool_agent/`) 目錄下的 **`.env`** 檔案。複製並貼上下方程式碼，並更新你的專案 ID 與位置 (Location)。
 
         ```env title="multi_tool_agent/.env"
         GOOGLE_GENAI_USE_VERTEXAI=TRUE
         GOOGLE_API_KEY=PASTE_YOUR_ACTUAL_EXPRESS_MODE_API_KEY_HERE
         ```
 
+請提供原文、初始譯文、品質分析與改進建議，這樣我才能根據品質分析意見改進翻譯。
         When using Java, define environment variables:
 
         ```console title="terminal"
@@ -213,7 +210,7 @@ agent will be unable to function.
         export GOOGLE_API_KEY=PASTE_YOUR_ACTUAL_EXPRESS_MODE_API_KEY_HERE
         ```
 
-## 4. Run Your Agent { #run-your-agent }
+## 4. 執行你的 agent { #run-your-agent }
 
 === "Python"
 
@@ -422,25 +419,24 @@ agent will be unable to function.
 
 
 
-### 📝 Example prompts to try
+### 📝 範例提示語（prompts）嘗試
 
-* What is the weather in New York?
-* What is the time in New York?
-* What is the weather in Paris?
-* What is the time in Paris?
+* 紐約的天氣如何？
+* 紐約現在幾點？
+* 巴黎的天氣如何？
+* 巴黎現在幾點？
 
-## 🎉 Congratulations!
+## 🎉 恭喜！
 
-You've successfully created and interacted with your first agent using ADK!
+你已經成功使用 Agent Development Kit (ADK)（ADK）建立並互動你的第一個 agent！
 
 ---
 
-## 🛣️ Next steps
+## 🛣️ 下一步
 
-* **Go to the tutorial**: Learn how to add memory, session, state to your agent:
-  [tutorial](../tutorials/index.md).
-* **Delve into advanced configuration:** Explore the [setup](installation.md)
-  section for deeper dives into project structure, configuration, and other
-  interfaces.
-* **Understand Core Concepts:** Learn about
-  [agents concepts](../agents/index.md).
+* **前往教學課程**：學習如何為你的 agent 加入記憶體、工作階段（session）、狀態等功能：
+  [tutorial](../tutorials/index.md)。
+* **深入進階設定：** 探索 [setup](installation.md)
+  章節，深入了解專案結構、設定方式及其他介面。
+* **理解核心概念：** 進一步認識
+  [agents concepts](../agents/index.md)。

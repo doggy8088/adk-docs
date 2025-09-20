@@ -1,26 +1,26 @@
-# Custom Audio Streaming app (SSE) {#custom-streaming}
+# 自訂音訊串流應用程式（SSE） {#custom-streaming}
 
-This article overviews the server and client code for a custom asynchronous web app built with ADK Streaming and [FastAPI](https://fastapi.tiangolo.com/), enabling real-time, bidirectional audio and text communication with Server-Sent Events (SSE). The key features are:
+本文概述了一個以 Agent Development Kit (ADK) Streaming 與 [FastAPI](https://fastapi.tiangolo.com/) 建立的自訂非同步網頁應用程式的伺服器端與用戶端程式碼，實現了透過 Server-Sent Events (SSE) 進行即時、雙向音訊與文字通訊。其主要特色包括：
 
-**Server-Side (Python/FastAPI)**:
-- FastAPI + ADK integration
-- Server-Sent Events for real-time streaming
-- Session management with isolated user contexts
-- Support for both text and audio communication modes
-- Google Search tool integration for grounded responses
+**伺服器端（Python/FastAPI）**：
+- FastAPI 與 ADK 整合
+- 以 Server-Sent Events 實現即時串流
+- 具備獨立使用者情境的工作階段管理
+- 同時支援文字與音訊通訊模式
+- 整合 Google Search 工具以產生具根據的回應
 
-**Client-Side (JavaScript/Web Audio API)**:
-- Real-time bidirectional communication via SSE and HTTP POST
-- Professional audio processing using AudioWorklet processors
-- Seamless mode switching between text and audio
-- Automatic reconnection and error handling
-- Base64 encoding for audio data transmission
+**用戶端（JavaScript/Web Audio API）**：
+- 透過 SSE 與 HTTP POST 實現即時雙向通訊
+- 使用 AudioWorklet 處理器進行專業音訊處理
+- 可無縫切換文字與音訊模式
+- 自動重新連線與錯誤處理
+- 以 Base64 編碼進行音訊資料傳輸
 
-There is also a [WebSocket](custom-streaming-ws.md) version of the sample is available.
+本範例亦提供 [WebSocket](custom-streaming-ws.md) 版本。
 
-## 1. Install ADK {#1.-setup-installation}
+## 1. 安裝 ADK {#1.-setup-installation}
 
-Create & Activate Virtual Environment (Recommended):
+建立並啟用虛擬環境（建議）：
 
 ```bash
 # Create
@@ -31,19 +31,19 @@ python -m venv .venv
 # Windows PowerShell: .venv\Scripts\Activate.ps1
 ```
 
-Install ADK:
+安裝 Agent Development Kit (ADK)：
 
 ```bash
 pip install --upgrade google-adk==1.10.0
 ```
 
-Set `SSL_CERT_FILE` variable with the following command.
+使用以下指令設定 `SSL_CERT_FILE` 變數。
 
 ```shell
 export SSL_CERT_FILE=$(python -m certifi)
 ```
 
-Download the sample code:
+下載範例程式碼：
 
 ```bash
 git clone --no-checkout https://github.com/google/adk-docs.git
@@ -54,7 +54,7 @@ git checkout main
 cd examples/python/snippets/streaming/adk-streaming/app
 ```
 
-This sample code has the following files and folders:
+此範例程式碼包含以下檔案與資料夾：
 
 ```console
 adk-streaming/
@@ -69,34 +69,33 @@ adk-streaming/
         └── agent.py # Agent definition
 ```
 
-## 2\. Set up the platform {#2.-set-up-the-platform}
+## 2\. 設定平台 {#2.-set-up-the-platform}
 
-To run the sample app, choose a platform from either Google AI Studio or Google Cloud Vertex AI:
+要執行範例應用程式，請從 Google AI Studio 或 Google Cloud Vertex AI 中選擇一個平台：
 
 === "Gemini - Google AI Studio"
-    1. Get an API key from [Google AI Studio](https://aistudio.google.com/apikey).
-    2. Open the **`.env`** file located inside (`app/`) and copy-paste the following code.
+    1. 從 [Google AI Studio](https://aistudio.google.com/apikey) 取得 API 金鑰。
+    2. 開啟位於 (`app/`) 內的 **`.env`** 檔案，並複製貼上下列程式碼。
 
         ```env title=".env"
         GOOGLE_GENAI_USE_VERTEXAI=FALSE
         GOOGLE_API_KEY=PASTE_YOUR_ACTUAL_API_KEY_HERE
         ```
 
-    3. Replace `PASTE_YOUR_ACTUAL_API_KEY_HERE` with your actual `API KEY`.
+    3. 將 `PASTE_YOUR_ACTUAL_API_KEY_HERE` 替換為您實際的 `API KEY`。
 
 === "Gemini - Google Cloud Vertex AI"
-    1. You need an existing
-       [Google Cloud](https://cloud.google.com/?e=48754805&hl=en) account and a
-       project.
-        * Set up a
-          [Google Cloud project](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-gcp)
-        * Set up the
-          [gcloud CLI](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-local)
-        * Authenticate to Google Cloud, from the terminal by running
-          `gcloud auth login`.
-        * [Enable the Vertex AI API](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com).
-    2. Open the **`.env`** file located inside (`app/`). Copy-paste
-       the following code and update the project ID and location.
+    1. 您需要一個現有的
+       [Google Cloud](https://cloud.google.com/?e=48754805&hl=en) 帳戶以及一個
+       專案。
+        * 建立一個
+          [Google Cloud 專案](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-gcp)
+        * 設定
+          [gcloud 命令列介面 (CLI)](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-local)
+        * 在終端機中執行
+          `gcloud auth login`，以驗證 Google Cloud 身份。
+        * [啟用 Vertex AI API](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com)。
+    2. 開啟位於 (`app/`) 內的 **`.env`** 檔案。複製並貼上以下程式碼，並更新專案 ID 及位置。
 
         ```env title=".env"
         GOOGLE_GENAI_USE_VERTEXAI=TRUE
@@ -105,41 +104,41 @@ To run the sample app, choose a platform from either Google AI Studio or Google 
         ```
 
 
-## 3\. Interact with Your Streaming app {#3.-interact-with-your-streaming-app}
+## 3\. 與您的串流應用互動 {#3.-interact-with-your-streaming-app}
 
-1\. **Navigate to the Correct Directory:**
+1\. **切換到正確的目錄：**
 
-   To run your agent effectively, make sure you are in the **app folder (`adk-streaming/app`)**
+   為了有效執行您的代理，請確保您位於**app 資料夾 (`adk-streaming/app`)**
 
-2\. **Start the Fast API**: Run the following command to start CLI interface with
+2\. **啟動 Fast API**：執行以下指令以啟動命令列介面 (CLI)
 
 ```console
 uvicorn main:app --reload
 ```
 
-3\. **Access the app with the text mode:** Once the app starts, the terminal will display a local URL (e.g., [http://localhost:8000](http://localhost:8000)). Click this link to open the UI in your browser.
+3\. **以文字模式存取應用程式：** 當應用程式啟動後，終端機會顯示一個本機 URL（例如：[http://localhost:8000](http://localhost:8000)）。點擊這個連結，即可在瀏覽器中開啟網頁 UI。
 
-Now you should see the UI like this:
+現在你應該會看到如下的 UI 畫面：
 
 ![ADK Streaming app](../assets/adk-streaming-text.png)
 
-Try asking a question `What time is it now?`. The agent will use Google Search to respond to your queries. You would notice that the UI shows the agent's response as streaming text. You can also send messages to the agent at any time, even while the agent is still responding. This demonstrates the bidirectional communication capability of ADK Streaming.
+試著提出一個問題 `What time is it now?`。代理（agent）會利用 Google Search 回答你的查詢。你會發現 UI 會以串流文字的方式顯示代理的回應。即使代理還在回應時，你也可以隨時傳送訊息給代理。這展示了 Agent Development Kit (ADK) Streaming 的雙向通訊能力。
 
-4\. **Access the app with the audio mode:** Now click the `Start Audio` button. The app reconnects with the server in an audio mode, and the UI will show the following dialog for the first time:
+4\. **以語音模式存取應用程式：** 現在請點擊 `Start Audio` 按鈕。應用程式會以語音模式重新連線到伺服器，並且 UI 首次會顯示以下對話框：
 
 ![ADK Streaming app](../assets/adk-streaming-audio-dialog.png)
 
-Click `Allow while visiting the site`, then you will see the microphone icon will be shown at the top of the browser:
+點擊 `Allow while visiting the site`，然後你會看到瀏覽器頂端出現麥克風圖示：
 
 ![ADK Streaming app](../assets/adk-streaming-mic.png)
 
-Now you can talk to the agent with voice. Ask questions like `What time is it now?` with voice and you will hear the agent responding in voice too. As Streaming for ADK supports [multiple languages](https://ai.google.dev/gemini-api/docs/live#supported-languages), it can also respond to question in the supported languages.
+現在你可以用語音與代理對話。像是用語音詢問 `What time is it now?` 這類問題，你也會聽到代理以語音回應。由於 Agent Development Kit (ADK) Streaming 支援[多種語言](https://ai.google.dev/gemini-api/docs/live#supported-languages)，因此也能以支援的語言回應你的問題。
 
-5\. **Check console logs**
+5\. **檢查主控台日誌**
 
-If you are using the Chrome browser, use the right click and select `Inspect` to open the DevTools. On the `Console`, you can see the incoming and outgoing audio data such as `[CLIENT TO AGENT]` and `[AGENT TO CLIENT]`, representing the audio data streaming in and out between the browser and the server.
+如果你使用的是 Chrome 瀏覽器，請右鍵點擊並選擇 `Inspect` 以開啟 DevTools。在 `Console` 上，你可以看到如 `[CLIENT TO AGENT]` 和 `[AGENT TO CLIENT]` 這類進出音訊資料，這些代表瀏覽器與伺服器之間串流的音訊資料。
 
-At the same time, in the app server console, you should see something like this:
+同時，在應用程式伺服器的主控台中，你應該會看到類似以下的內容：
 
 ```
 Client #90766266 connected via SSE, audio mode: false
@@ -151,16 +150,16 @@ INFO:     127.0.0.1:52696 - "POST /send/90766266 HTTP/1.1" 200 OK
 [AGENT TO CLIENT]: {'turn_complete': True, 'interrupted': None}
 ```
 
-These console logs are important in case you develop your own streaming application. In many cases, the communication failure between the browser and server becomes a major cause for the streaming application bugs.
+這些主控台日誌（console logs）在你開發自有串流應用程式時非常重要。在許多情況下，瀏覽器與伺服器之間的通訊失敗，往往是串流應用程式錯誤的主要原因。
 
-6\. **Troubleshooting tips**
+6\. **疑難排解提示**
 
-- **When your browser can't connect to the server via SSH proxy:** SSH proxy used in various cloud services may not work with SSE. Please try without SSH proxy, such as using a local laptop, or try the [WebSocket](custom-streaming-ws.md) version.
-- **When `gemini-2.0-flash-exp` model doesn't work:** If you see any errors on the app server console with regard to `gemini-2.0-flash-exp` model availability, try replacing it with `gemini-2.0-flash-live-001` on `app/google_search_agent/agent.py` at line 6.
+- **當你的瀏覽器無法透過 SSH proxy 連線到伺服器時：** 各種雲端服務中所使用的 SSH proxy 可能無法與 SSE 搭配運作。請嘗試不使用 SSH proxy，例如直接使用本機筆記型電腦，或改用 [WebSocket](custom-streaming-ws.md) 版本。
+- **當 `gemini-2.0-flash-exp` 模型無法運作時：** 如果你在應用程式伺服器主控台看到有關 `gemini-2.0-flash-exp` 模型可用性的錯誤訊息，請嘗試在 `app/google_search_agent/agent.py` 的第 6 行將其替換為 `gemini-2.0-flash-live-001`。
 
-## 4. Agent definition
+## 4. Agent 定義
 
-The agent definition code `agent.py` in the `google_search_agent` folder is where the agent's logic is written:
+`google_search_agent` 資料夾中的 agent 定義程式碼 `agent.py`，是撰寫 agent 邏輯的地方：
 
 
 ```py
@@ -177,48 +176,46 @@ root_agent = Agent(
 )
 ```
 
-Notice how easily you integrated [grounding with Google Search](https://ai.google.dev/gemini-api/docs/grounding?lang=python#configure-search) capabilities.  The `Agent` class and the `google_search` tool handle the complex interactions with the LLM and grounding with the search API, allowing you to focus on the agent's *purpose* and *behavior*.
+請注意，您可以輕鬆地整合 [grounding with Google Search](https://ai.google.dev/gemini-api/docs/grounding?lang=python#configure-search)（結合 Google 搜尋進行知識落地）的能力。`Agent` 類別與 `google_search` 工具負責處理與大型語言模型 (LLM) 及搜尋 API 的複雜互動，讓您能專注於代理（agent）的*目標*與*行為*設計。
 
 ![intro_components.png](../assets/quickstart-streaming-tool.png)
 
+伺服器與用戶端架構可實現網頁用戶端與 AI 代理間的即時雙向通訊，並確保適當的工作階段（session）隔離與資源管理。
 
-The server and client architecture enables real-time, bidirectional communication between web clients and AI agents with proper session isolation and resource management.
+## 5. 伺服器端程式碼概覽 {#5.-server-side-code-overview}
 
-## 5. Server side code overview {#5.-server-side-code-overview}
+FastAPI 伺服器提供網頁用戶端與 AI 代理間的即時通訊能力。
 
-The FastAPI server provides real-time communication between web clients and the AI agent.
+### 雙向通訊概覽 {#4.-bidi-comm-overview}
 
-### Bidirectional communication overview {#4.-bidi-comm-overview}
+#### 用戶端到代理流程：
+1. **連線建立** — 用戶端開啟到 `/events/{user_id}` 的 SSE 連線，觸發建立 session 並將請求佇列儲存於 `active_sessions`
+2. **訊息傳送** — 用戶端以 POST 請求傳送至 `/send/{user_id}`，並附帶包含 `mime_type` 與 `data` 的 JSON 載荷
+3. **佇列處理** — 伺服器取得該 session 的 `live_request_queue`，並透過 `send_content()` 或 `send_realtime()` 將訊息轉發給代理
 
-#### Client-to-Agent Flow:
-1. **Connection Establishment** - Client opens SSE connection to `/events/{user_id}`, triggering session creation and storing request queue in `active_sessions`
-2. **Message Transmission** - Client sends POST to `/send/{user_id}` with JSON payload containing `mime_type` and `data`
-3. **Queue Processing** - Server retrieves session's `live_request_queue` and forwards message to agent via `send_content()` or `send_realtime()`
+#### 代理到用戶端流程：
+1. **事件產生** — 代理處理請求並透過 `live_events` 非同步產生器產生事件
+2. **串流處理** — `agent_to_client_sse()` 過濾事件並將其格式化為 SSE 相容的 JSON
+3. **即時傳遞** — 事件透過持久性 HTTP 連線及正確的 SSE 標頭串流至用戶端
 
-#### Agent-to-Client Flow:
-1. **Event Generation** - Agent processes requests and generates events through `live_events` async generator
-2. **Stream Processing** - `agent_to_client_sse()` filters events and formats them as SSE-compatible JSON
-3. **Real-time Delivery** - Events stream to client via persistent HTTP connection with proper SSE headers
+#### 工作階段管理：
+- **每位用戶隔離** — 每位用戶都擁有獨立的 session，並儲存在 `active_sessions` 字典中
+- **生命週期管理** — 斷線時自動清理 session，並正確釋放資源
+- **並發支援** — 多位用戶可同時擁有活躍的 session
 
-#### Session Management:
-- **Per-User Isolation** - Each user gets unique session stored in `active_sessions` dict
-- **Lifecycle Management** - Sessions auto-cleanup on disconnect with proper resource disposal
-- **Concurrent Support** - Multiple users can have simultaneous active sessions
+#### 錯誤處理：
+- **Session 驗證** — POST 請求在處理前會驗證 session 是否存在
+- **串流韌性** — SSE 串流自動處理例外狀況並執行清理
+- **連線恢復** — 用戶端可重新建立 SSE 連線以恢復通訊
 
-#### Error Handling:
-- **Session Validation** - POST requests validate session existence before processing
-- **Stream Resilience** - SSE streams handle exceptions and perform cleanup automatically
-- **Connection Recovery** - Clients can reconnect by re-establishing SSE connection
+#### 工作階段恢復：
+- **即時 session 恢復** — 支援透明地重新連接中斷的即時對話
+- **Handle 快取** — 系統自動快取 session handle 以利恢復
+- **可靠性提升** — 增強串流過程中對網路不穩定的韌性
 
-#### Session Resumption:
-- **Live Session Resumption** - Enables transparent reconnection to interrupted live conversations
-- **Handle Caching** - System automatically caches session handles for recovery
-- **Reliability Enhancement** - Improves resilience against network instability during streaming
+### 代理 Session 管理
 
-
-### Agent Session Management
-
-The `start_agent_session()` function creates isolated AI agent sessions:
+`start_agent_session()` 函式可建立獨立的 AI 代理 session：
 
 ```py
 async def start_agent_session(user_id, is_audio=False):
@@ -258,19 +255,19 @@ async def start_agent_session(user_id, is_audio=False):
     return live_events, live_request_queue
 ```
 
-- **InMemoryRunner Setup** - Creates a runner instance that manages the agent lifecycle in memory, with the app name "ADK Streaming example" and the Google Search agent.
+- **InMemoryRunner 設定** - 建立一個在記憶體中管理 agent 生命週期的 runner 實例，應用程式名稱為 "ADK Streaming example"，並使用 Google Search agent。
 
-- **Session Creation** - Uses `runner.session_service.create_session()` to establish a unique session per user ID, enabling multiple concurrent users.
+- **Session 建立** - 使用 `runner.session_service.create_session()` 以每個使用者 ID 建立唯一的 session，支援多位使用者同時並行。
 
-- **Response Modality Configuration** - Sets `RunConfig` with either "AUDIO" or "TEXT" modality based on the `is_audio` parameter, determining output format.
+- **回應模式設定** - 根據 `is_audio` 參數，將 `RunConfig` 設定為 "AUDIO" 或 "TEXT" 模式，以決定輸出格式。
 
-- **LiveRequestQueue** - Creates a bidirectional communication channel that queues incoming requests and enables real-time message passing between client and agent.
+- **LiveRequestQueue** - 建立一個雙向通訊通道，負責佇列化傳入請求，並實現 client 與 agent 之間的即時訊息傳遞。
 
-- **Live Events Stream** - `runner.run_live()` returns an async generator that yields real-time events from the agent, including partial responses, turn completions, and interruptions.
+- **Live Events Stream** - `runner.run_live()` 會回傳一個非同步產生器（async generator），可即時產生 agent 的事件，包括部分回應、回合完成及中斷等。
 
-### Server-Sent Events (SSE) Streaming
+### Server-Sent Events (SSE) 串流
 
-The `agent_to_client_sse()` function handles real-time streaming from agent to client:
+`agent_to_client_sse()` 函式負責從 agent 即時串流資料到 client：
 
 ```py
 async def agent_to_client_sse(live_events):
@@ -316,27 +313,27 @@ async def agent_to_client_sse(live_events):
             print(f"[AGENT TO CLIENT]: text/plain: {message}")
 ```
 
-- **Event Processing Loop** - Iterates through `live_events` async generator, processing each event as it arrives from the agent.
+- **事件處理迴圈（Event Processing Loop）** - 迭代`live_events`非同步產生器（async generator），隨著代理（agent）傳來的每個事件逐一處理。
 
-- **Turn Management**  - Detects conversation turn completion or interruption events and sends JSON messages with `turn_complete` and `interrupted` flags to signal conversation state changes.
+- **輪次管理（Turn Management）**  - 偵測對話輪次完成或中斷事件，並傳送帶有`turn_complete`與`interrupted`旗標的 JSON 訊息，以標示對話狀態變化。
 
-- **Content Part Extraction** - Extracts the first `Part` from event content, which contains either text or audio data.
+- **內容部分擷取（Content Part Extraction）** - 從事件內容中擷取第一個`Part`，其中包含文字或音訊資料。
 
-- **Audio Streaming**  - Handles PCM audio data by:
-  - Detecting `audio/pcm` MIME type in `inline_data`
-  - Base64 encoding raw audio bytes for JSON transmission
-  - Sending with `mime_type` and `data` fields
+- **音訊串流（Audio Streaming）**  - 處理 PCM 音訊資料，方式如下：
+  - 偵測`inline_data`中的`audio/pcm` MIME 類型
+  - 將原始音訊位元組進行 Base64 編碼，以便 JSON 傳輸
+  - 以`mime_type`與`data`欄位傳送
 
-- **Text Streaming**  - Processes partial text responses by sending incremental text updates as they're generated, enabling real-time typing effects.
+- **文字串流（Text Streaming）**  - 處理部分文字回應，隨產生即時傳送增量文字更新，實現即時輸入效果。
 
-- **SSE Format** - All data is formatted as `data: {json}\n\n` following SSE specification for browser EventSource API compatibility.
+- **SSE 格式（SSE Format）** - 所有資料皆依照 SSE 規範格式化為`data: {json}\n\n`，以確保瀏覽器 EventSource API 相容性。
 
-### HTTP Endpoints and Routing
+### HTTP 端點與路由
 
-#### Root Endpoint
-**GET /** - Serves `static/index.html` as the main application interface using FastAPI's `FileResponse`.
+#### 根端點（Root Endpoint）
+**GET /** - 透過 FastAPI 的`FileResponse`，將`static/index.html`作為主要應用介面提供服務。
 
-#### SSE Events Endpoint
+#### SSE 事件端點（SSE Events Endpoint）
 
 ```py
 @app.get("/events/{user_id}")
@@ -379,34 +376,34 @@ async def sse_endpoint(user_id: int, is_audio: str = "false"):
     )
 ```
 
-**GET /events/{user_id}** - Establishes persistent SSE connection:
+**GET /events/{user_id}** - 建立持久性的 SSE 連線：
 
-- **Parameters** - Takes `user_id` (int) and optional `is_audio` query parameter (defaults to "false")
+- **參數** - 接收 `user_id`（int）以及可選的 `is_audio` 查詢參數（預設為 "false"）
 
-- **Session Initialization** - Calls `start_agent_session()` and stores the `live_request_queue` in `active_sessions` dict using `user_id` as key
+- **工作階段初始化** - 呼叫 `start_agent_session()`，並將 `live_request_queue` 儲存至 `active_sessions` 字典中，以 `user_id` 作為鍵值
 
-- **StreamingResponse** - Returns `StreamingResponse` with:
-  - `event_generator()` async function that wraps `agent_to_client_sse()`
-  - MIME type: `text/event-stream` 
-  - CORS headers for cross-origin access
-  - Cache-control headers to prevent caching
+- **StreamingResponse** - 回傳 `StreamingResponse`，內容包含：
+  - 包裝 `agent_to_client_sse()` 的 `event_generator()` 非同步函式
+  - MIME 類型：`text/event-stream`
+  - 提供跨來源存取的 CORS 標頭
+  - 防止快取的 Cache-control 標頭
 
-- **Cleanup Logic** - Handles connection termination by closing the request queue and removing from active sessions, with error handling for stream interruptions.
+- **清理邏輯** - 當連線終止時，會關閉請求佇列並從作用中工作階段中移除，並針對串流中斷進行錯誤處理。
 
-### Session Resumption Configuration
+### 工作階段恢復設定
 
-ADK supports live session resumption to improve reliability during streaming conversations. This feature enables automatic reconnection when live connections are interrupted due to network issues.
+Agent Development Kit (ADK) 支援即時工作階段恢復，以提升串流對話時的可靠性。此功能可在因網路問題導致即時連線中斷時，自動重新連線。
 
-#### Enabling Session Resumption
+#### 啟用工作階段恢復
 
-To enable session resumption, you need to:
+若要啟用工作階段恢復，您需要：
 
-1. **Import the required types**:
+1. **匯入所需型別**：
 ```py
 from google.genai import types
 ```
 
-2. **Configure session resumption in RunConfig**:
+2. **在 RunConfig 中設定工作階段恢復功能**：
 ```py
 run_config = RunConfig(
     response_modalities=[modality],
@@ -414,29 +411,29 @@ run_config = RunConfig(
 )
 ```
 
-#### Session Resumption Features
+#### 工作階段恢復功能
 
-- **Automatic Handle Caching** - The system automatically caches session resumption handles during live conversations
-- **Transparent Reconnection** - When connections are interrupted, the system attempts to resume using cached handles
-- **Context Preservation** - Conversation context and state are maintained across reconnections
-- **Network Resilience** - Provides better user experience during unstable network conditions
+- **自動 Handle 快取** - 系統會在即時對話期間自動快取工作階段恢復 handle
+- **透明式重新連線** - 當連線中斷時，系統會嘗試使用已快取的 handle 進行恢復
+- **情境保留** - 對話的情境與狀態可在重新連線後持續維持
+- **網路韌性** - 在網路不穩定的情況下，能提供更佳的使用者體驗
 
-#### Implementation Notes
+#### 實作說明
 
-- Session resumption handles are managed internally by the ADK framework
-- No additional client-side code changes are required
-- The feature is particularly beneficial for long-running streaming conversations
-- Connection interruptions become less disruptive to the user experience
+- 工作階段恢復 handle 由 Agent Development Kit (ADK) 框架於內部管理
+- 不需要額外修改客戶端程式碼
+- 此功能特別適用於長時間執行的串流對話
+- 連線中斷對使用者體驗的影響會大幅降低
 
-#### Troubleshooting
+#### 疑難排解
 
-If you encounter errors with session resumption:
+如果您在使用工作階段恢復時遇到錯誤：
 
-1. **Check model compatibility** - Ensure you're using a model that supports session resumption
-2. **API limitations** - Some session resumption features may not be available in all API versions
-3. **Remove session resumption** - If issues persist, you can disable session resumption by removing the `session_resumption` parameter from `RunConfig`
+1. **檢查模型相容性** - 請確認您使用的模型支援工作階段恢復
+2. **API 限制** - 部分工作階段恢復功能可能並非所有 API 版本皆支援
+3. **移除工作階段恢復** - 若問題持續發生，您可以透過從 `RunConfig` 移除 `session_resumption` 參數來停用工作階段恢復
 
-#### Message Sending Endpoint
+#### 訊息傳送端點
 
 ```py
 @app.post("/send/{user_id}")
@@ -470,22 +467,22 @@ async def send_message_endpoint(user_id: int, request: Request):
     return {"status": "sent"}
 ```
 
-**POST /send/{user_id}** - Receives client messages:
+**POST /send/{user_id}** - 接收用戶端訊息：
 
-- **Session Lookup** - Retrieves `live_request_queue` from `active_sessions` or returns error if session doesn't exist
+- **Session 查詢** - 從 `active_sessions` 取得 `live_request_queue`，若 session 不存在則回傳錯誤
 
-- **Message Processing** - Parses JSON with `mime_type` and `data` fields:
-  - **Text Messages** - Creates `Content` with `Part.from_text()` and sends via `send_content()`
-  - **Audio Messages** - Base64 decodes PCM data and sends via `send_realtime()` with `Blob`
+- **訊息處理** - 解析包含 `mime_type` 與 `data` 欄位的 JSON：
+  - **文字訊息** - 使用 `Part.from_text()` 建立 `Content`，並透過 `send_content()` 發送
+  - **音訊訊息** - 將 PCM 資料進行 Base64 解碼，並透過 `send_realtime()` 搭配 `Blob` 發送
 
-- **Error Handling** - Returns appropriate error responses for unsupported MIME types or missing sessions.
+- **錯誤處理** - 對於不支援的 MIME 類型或缺少 session，回傳適當的錯誤回應。
 
 
-## 6. Client side code overview {#6.-client-side-code-overview}
+## 6. 用戶端程式碼概覽 {#6.-client-side-code-overview}
 
-The client-side consists of a web interface with real-time communication and audio capabilities:
+用戶端包含一個具備即時通訊與音訊功能的網頁介面：
 
-### HTML Interface (`static/index.html`)
+### HTML 介面 (`static/index.html`)
 
 ```html
 <!doctype html>
@@ -513,14 +510,14 @@ The client-side consists of a web interface with real-time communication and aud
 </html>
 ```
 
-Simple web interface with:
-- **Messages Display** - Scrollable div for conversation history
-- **Text Input Form** - Input field and send button for text messages
-- **Audio Control** - Button to enable audio mode and microphone access
+簡易網頁介面包含：
+- **訊息顯示** - 可捲動的 div，用於顯示對話歷史
+- **文字輸入表單** - 文字輸入欄位與傳送按鈕，用於發送文字訊息
+- **音訊控制** - 按鈕可啟用音訊模式並存取麥克風
 
-### Main Application Logic (`static/js/app.js`)
+### 主要應用程式邏輯（`static/js/app.js`）
 
-#### Session Management (`app.js`)
+#### 工作階段管理（`app.js`）
 
 ```js
 const sessionId = Math.random().toString().substring(10);
@@ -531,12 +528,12 @@ const send_url =
 let is_audio = false;
 ```
 
-- **Random Session ID** - Generates unique session ID for each browser instance
-- **URL Construction** - Builds SSE and send endpoints with session ID
-- **Audio Mode Flag** - Tracks whether audio mode is enabled
+- **隨機 Session ID** - 為每個瀏覽器實例產生唯一的 session ID
+- **URL 組建** - 使用 session ID 建立 SSE 和 send 端點的 URL
+- **音訊模式旗標** - 用於追蹤是否啟用音訊模式
 
-#### Server-Sent Events Connection (`app.js`)
-**connectSSE()** function handles real-time server communication:
+#### Server-Sent Events 連線（`app.js`）
+**connectSSE()** 函式負責處理即時的伺服器通訊：
 
 ```js
 // SSE handlers
@@ -574,14 +571,14 @@ function connectSSE() {
 }
 ```
 
-- **EventSource Setup** - Creates SSE connection with audio mode parameter
-- **Connection Handlers**:
-  - **onopen** - Enables send button and form submission when connected
-  - **onmessage** - Processes incoming messages from agent
-  - **onerror** - Handles disconnections with auto-reconnect after 5 seconds
+- **EventSource 設定** - 以 audio mode 參數建立 SSE 連線
+- **連線處理程序**：
+  - **onopen** - 連線成功時啟用傳送按鈕與表單送出功能
+  - **onmessage** - 處理來自 agent 的訊息
+  - **onerror** - 處理斷線情況，並於 5 秒後自動重新連線
 
-#### Message Processing (`app.js`)
-Handles different message types from server:
+#### 訊息處理（`app.js`）
+處理來自伺服器的不同訊息類型：
 
 ```js
   // Handle incoming messages
@@ -625,12 +622,12 @@ Handles different message types from server:
     }
 ```
 
-- **Turn Management** - Detects `turn_complete` to reset message state
-- **Audio Playback** - Decodes Base64 PCM data and sends to audio worklet
-- **Text Display** - Creates new message elements and appends partial text updates for real-time typing effect
+- **輪次管理（Turn Management）** - 偵測`turn_complete`以重設訊息狀態
+- **音訊播放（Audio Playback）** - 解碼 Base64 PCM 資料並傳送至 audio worklet
+- **文字顯示（Text Display）** - 建立新的訊息元素並即時附加部分文字更新，呈現即時輸入效果
 
-#### Message Sending (`app.js`)
-**sendMessage()** function sends data to server:
+#### 訊息傳送（`app.js`）
+**sendMessage()** 函式會將資料傳送至伺服器：
 
 ```js
 async function sendMessage(message) {
@@ -652,80 +649,80 @@ async function sendMessage(message) {
 }
 ```
 
-- **HTTP POST** - Sends JSON payload to `/send/{session_id}` endpoint
-- **Error Handling** - Logs failed requests and network errors
-- **Message Format** - Standardized `{mime_type, data}` structure
+- **HTTP POST** - 傳送 JSON 載荷至 `/send/{session_id}` 端點
+- **錯誤處理** - 記錄失敗的請求與網路錯誤
+- **訊息格式** - 標準化的 `{mime_type, data}` 結構
 
-### Audio Player (`static/js/audio-player.js`)
+### 音訊播放器（`static/js/audio-player.js`）
 
-**startAudioPlayerWorklet()** function:
+**startAudioPlayerWorklet()** 函式：
 
-- **AudioContext Setup** - Creates context with 24kHz sample rate for playback
-- **Worklet Loading** - Loads PCM player processor for audio handling
-- **Audio Pipeline** - Connects worklet node to audio destination (speakers)
+- **AudioContext 設定** - 建立 24kHz 取樣率的 context 以進行播放
+- **Worklet 載入** - 載入 PCM 播放器處理器以處理音訊
+- **音訊處理流程** - 將 worklet 節點連接至音訊輸出（喇叭）
 
-### Audio Recorder (`static/js/audio-recorder.js`)
+### 音訊錄音器（`static/js/audio-recorder.js`）
 
-**startAudioRecorderWorklet()** function:
+**startAudioRecorderWorklet()** 函式：
 
-- **AudioContext Setup** - Creates context with 16kHz sample rate for recording
-- **Microphone Access** - Requests user media permissions for audio input
-- **Audio Processing** - Connects microphone to recorder worklet
-- **Data Conversion** - Converts Float32 samples to 16-bit PCM format
+- **AudioContext 設定** - 建立 16kHz 取樣率的 context 以進行錄音
+- **麥克風存取** - 請求使用者媒體權限以獲取音訊輸入
+- **音訊處理** - 將麥克風連接至錄音 worklet
+- **資料轉換** - 將 Float32 樣本轉換為 16 位元 PCM 格式
 
-### Audio Worklet Processors
+### Audio Worklet 處理器
 
-#### PCM Player Processor (`static/js/pcm-player-processor.js`)
-**PCMPlayerProcessor** class handles audio playback:
+#### PCM 播放器處理器（`static/js/pcm-player-processor.js`）
+**PCMPlayerProcessor** 類別負責音訊播放：
 
-- **Ring Buffer** - Circular buffer for 180 seconds of 24kHz audio
-- **Data Ingestion** - Converts Int16 to Float32 and stores in buffer
-- **Playback Loop** - Continuously reads from buffer to output channels
-- **Overflow Handling** - Overwrites oldest samples when buffer is full
+- **環形緩衝區** - 用於儲存 180 秒 24kHz 音訊的循環緩衝區
+- **資料擷取** - 將 Int16 轉換為 Float32 並儲存至緩衝區
+- **播放迴圈** - 持續從緩衝區讀取資料輸出至音訊通道
+- **溢位處理** - 當緩衝區已滿時覆寫最舊的樣本
 
-#### PCM Recorder Processor (`static/js/pcm-recorder-processor.js`)
-**PCMProcessor** class captures microphone input:
+#### PCM 錄音處理器（`static/js/pcm-recorder-processor.js`）
+**PCMProcessor** 類別負責擷取麥克風輸入：
 
-- **Audio Input** - Processes incoming audio frames
-- **Data Transfer** - Copies Float32 samples and posts to main thread via message port
+- **音訊輸入** - 處理接收到的音訊框架
+- **資料傳輸** - 複製 Float32 樣本並透過 message port 傳送至主執行緒
 
-#### Mode Switching:
-- **Audio Activation** - "Start Audio" button enables microphone and reconnects SSE with audio flag
-- **Seamless Transition** - Closes existing connection and establishes new audio-enabled session
+#### 模式切換：
+- **音訊啟用** - 「啟動音訊」按鈕會啟用麥克風並以 audio 標誌重新連接 SSE
+- **無縫切換** - 關閉現有連線並建立新的啟用音訊的工作階段
 
-The client architecture enables seamless real-time communication with both text and audio modalities, using modern web APIs for professional-grade audio processing.
+此用戶端架構利用現代 Web API，實現文字與音訊雙模態的即時通訊，並支援專業級音訊處理。
 
-## Summary
+## 摘要
 
-This application demonstrates a complete real-time AI agent system with the following key features:
+本應用展示了一套完整的即時 AI 智能代理系統，具備以下主要特色：
 
-**Architecture Highlights**:
-- **Real-time**: Streaming responses with partial text updates and continuous audio
-- **Robust**: Comprehensive error handling and automatic recovery mechanisms
-- **Modern**: Uses latest web standards (AudioWorklet, SSE, ES6 modules)
+**架構重點**：
+- **即時性**：支援串流回應，包含部分文字更新與持續音訊
+- **穩健性**：完善的錯誤處理與自動復原機制
+- **現代化**：採用最新 Web 標準（AudioWorklet、SSE、ES6 modules）
 
-The system provides a foundation for building sophisticated AI applications that require real-time interaction, web search capabilities, and multimedia communication.
+本系統為需要即時互動、網頁搜尋能力與多媒體通訊的進階 AI 應用提供基礎。
 
-### Next steps for production
+### 部署至生產環境的後續步驟
 
-To deploy this system in a production environment, consider implementing the following improvements:
+若要將本系統部署至生產環境，建議考慮以下改進：
 
-#### Security
-- **Authentication**: Replace random session IDs with proper user authentication
-- **API Key Security**: Use environment variables or secret management services
-- **HTTPS**: Enforce TLS encryption for all communications
-- **Rate Limiting**: Prevent abuse and control API costs
+#### 安全性
+- **身分驗證**：以正式的使用者身分驗證取代隨機工作階段 ID
+- **API 金鑰安全**：使用環境變數或機密管理服務
+- **HTTPS**：強制所有通訊採用 TLS 加密
+- **速率限制**：防止濫用並控管 API 成本
 
-#### Scalability
-- **Persistent Storage**: Replace in-memory sessions with a persistent session
-- **Load Balancing**: Support multiple server instances with shared session state
-- **Audio Optimization**: Implement compression to reduce bandwidth usage
+#### 可擴展性
+- **持久化儲存**：將記憶體中的工作階段改為持久化工作階段
+- **負載平衡**：支援多台伺服器實例並共享工作階段狀態
+- **音訊最佳化**：實作壓縮以降低頻寬使用
 
-#### Monitoring
-- **Error Tracking**: Monitor and alert on system failures
-- **API Cost Monitoring**: Track Google Search and Gemini usage to prevent budget overruns
-- **Performance Metrics**: Monitor response times and audio latency
+#### 監控
+- **錯誤追蹤**：監控並警示系統故障
+- **API 成本監控**：追蹤 Google Search 與 Gemini 使用量，避免預算超支
+- **效能指標**：監控回應時間與音訊延遲
 
-#### Infrastructure
-- **Containerization**: Package with Docker for consistent deployments with Cloud Run or Agent Engine
-- **Health Checks**: Implement endpoint monitoring for uptime tracking
+#### 基礎設施
+- **容器化**：使用 Docker 打包，方便於 Cloud Run 或 Agent Engine 部署
+- **健康檢查**：實作端點監控以追蹤服務正常運作

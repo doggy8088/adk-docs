@@ -1,56 +1,56 @@
-# Authenticating with Tools
+# 使用工具進行驗證
 
-![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="This feature is currently available for Python. Java support is planned/ coming soon."}
+![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python。Java 支援已規劃／即將推出。"}
 
-## Core Concepts
+## 核心概念
 
-Many tools need to access protected resources (like user data in Google Calendar, Salesforce records, etc.) and require authentication. ADK provides a system to handle various authentication methods securely.
+許多工具需要存取受保護的資源（例如 Google Calendar 的使用者資料、Salesforce 紀錄等），因此必須進行驗證。Agent Development Kit (ADK) 提供了一套系統，能夠安全地處理各種驗證方式。
 
-The key components involved are:
+主要涉及的元件包括：
 
-1. **`AuthScheme`**: Defines *how* an API expects authentication credentials (e.g., as an API Key in a header, an OAuth 2.0 Bearer token). ADK supports the same types of authentication schemes as OpenAPI 3.0. To know more about what each type of credential is, refer to [OpenAPI doc: Authentication](https://swagger.io/docs/specification/v3_0/authentication/). ADK uses specific classes like `APIKey`, `HTTPBearer`, `OAuth2`, `OpenIdConnectWithConfig`.  
-2. **`AuthCredential`**: Holds the *initial* information needed to *start* the authentication process (e.g., your application's OAuth Client ID/Secret, an API key value). It includes an `auth_type` (like `API_KEY`, `OAUTH2`, `SERVICE_ACCOUNT`) specifying the credential type.
+1. **`AuthScheme`**：定義 API 期望如何獲取驗證憑證（例如：作為 API 金鑰放在標頭、OAuth 2.0 Bearer token）。ADK 支援與 OpenAPI 3.0 相同類型的驗證機制。若想了解各種憑證類型，請參考 [OpenAPI doc: Authentication](https://swagger.io/docs/specification/v3_0/authentication/)。ADK 使用特定類別如 `APIKey`、`HTTPBearer`、`OAuth2`、`OpenIdConnectWithConfig`。
+2. **`AuthCredential`**：保存*啟動*驗證流程所需的*初始*資訊（例如：應用程式的 OAuth Client ID/Secret、API 金鑰值）。其中包含一個 `auth_type`（如 `API_KEY`、`OAUTH2`、`SERVICE_ACCOUNT`），用來指定憑證類型。
 
-The general flow involves providing these details when configuring a tool. ADK then attempts to automatically exchange the initial credential for a usable one (like an access token) before the tool makes an API call. For flows requiring user interaction (like OAuth consent), a specific interactive process involving the Agent Client application is triggered.
+一般流程是在設定工具時提供這些資訊。ADK 會在工具發出 API 呼叫前，自動嘗試將初始憑證交換為可用的憑證（例如 access token）。若流程需要使用者互動（如 OAuth 同意），則會觸發一個與 Agent Client 應用程式互動的特定流程。
 
-## Supported Initial Credential Types
+## 支援的初始憑證類型
 
-* **API\_KEY:** For simple key/value authentication. Usually requires no exchange.  
-* **HTTP:** Can represent Basic Auth (not recommended/supported for exchange) or already obtained Bearer tokens. If it's a Bearer token, no exchange is needed.  
-* **OAUTH2:** For standard OAuth 2.0 flows. Requires configuration (client ID, secret, scopes) and often triggers the interactive flow for user consent.  
-* **OPEN\_ID\_CONNECT:** For authentication based on OpenID Connect. Similar to OAuth2, often requires configuration and user interaction.  
-* **SERVICE\_ACCOUNT:** For Google Cloud Service Account credentials (JSON key or Application Default Credentials). Typically exchanged for a Bearer token.
+* **API\_KEY：** 用於簡單的金鑰／值驗證。通常不需要交換。
+* **HTTP：** 可用於 Basic Auth（不建議／不支援交換）或已取得的 Bearer token。若是 Bearer token，則不需交換。
+* **OAUTH2：** 用於標準 OAuth 2.0 流程。需設定（client ID、secret、scopes），且通常會觸發使用者同意的互動流程。
+* **OPEN\_ID\_CONNECT：** 基於 OpenID Connect 的驗證。與 OAuth2 類似，通常需要設定與使用者互動。
+* **SERVICE\_ACCOUNT：** 用於 Google Cloud Service Account 憑證（JSON 金鑰或 Application Default Credentials）。通常會交換為 Bearer token。
 
-## Configuring Authentication on Tools
+## 在工具上設定驗證
 
-You set up authentication when defining your tool:
+你可以在定義工具時設定驗證：
 
-* **RestApiTool / OpenAPIToolset**: Pass `auth_scheme` and `auth_credential` during initialization
+* **RestApiTool / OpenAPIToolset**：初始化時傳入 `auth_scheme` 和 `auth_credential`
 
-* **GoogleApiToolSet Tools**: ADK has built-in 1st party tools like Google Calendar, BigQuery etc,. Use the toolset's specific method.
+* **GoogleApiToolSet 工具**：ADK 內建 Google Calendar、BigQuery 等第一方工具。請使用該工具集的專屬方法。
 
-* **APIHubToolset / ApplicationIntegrationToolset**: Pass `auth_scheme` and `auth_credential`during initialization, if the API managed in API Hub / provided by Application Integration requires authentication.
+* **APIHubToolset / ApplicationIntegrationToolset**：若 API Hub 管理的 API／由 Application Integration 提供的 API 需要驗證，初始化時傳入 `auth_scheme` 和 `auth_credential`。
 
-!!! tip "WARNING" 
-    Storing sensitive credentials like access tokens and especially refresh tokens directly in the session state might pose security risks depending on your session storage backend (`SessionService`) and overall application security posture.
+!!! tip "WARNING"
+    依據你的 session 儲存後端（`SessionService`）及整體應用程式安全性，將敏感憑證（如 access token，特別是 refresh token）直接儲存在 session 狀態中可能會有安全風險。
 
-    *   **`InMemorySessionService`:** Suitable for testing and development, but data is lost when the process ends. Less risk as it's transient.
-    *   **Database/Persistent Storage:** **Strongly consider encrypting** the token data before storing it in the database using a robust encryption library (like `cryptography`) and managing encryption keys securely (e.g., using a key management service).
-    *   **Secure Secret Stores:** For production environments, storing sensitive credentials in a dedicated secret manager (like Google Cloud Secret Manager or HashiCorp Vault) is the **most recommended approach**. Your tool could potentially store only short-lived access tokens or secure references (not the refresh token itself) in the session state, fetching the necessary secrets from the secure store when needed.
+    *   **`InMemorySessionService`：** 適合測試與開發環境，但當行程結束時資料會遺失。由於屬於暫時性，風險較低。
+    *   **資料庫／持久性儲存：** **強烈建議在儲存到資料庫前先加密** token 資料，請使用穩健的加密函式庫（如 `cryptography`），並妥善管理加密金鑰（例如使用金鑰管理服務）。
+    *   **安全機密儲存服務：** 在正式環境中，將敏感憑證儲存在專用的機密管理服務（如 Google Cloud Secret Manager 或 HashiCorp Vault）是**最推薦的做法**。你的工具可僅將短效 access token 或安全參照（而非 refresh token 本身）儲存在 session 狀態，必要時再從安全儲存服務擷取所需機密。
 
 ---
 
-## Journey 1: Building Agentic Applications with Authenticated Tools
+## 旅程一：使用已驗證工具打造 Agentic 應用程式
 
-This section focuses on using pre-existing tools (like those from `RestApiTool/ OpenAPIToolset`, `APIHubToolset`, `GoogleApiToolSet`) that require authentication within your agentic application. Your main responsibility is configuring the tools and handling the client-side part of interactive authentication flows (if required by the tool).
+本節重點說明如何在你的 agentic 應用程式中，使用需要驗證的現成工具（如來自 `RestApiTool/ OpenAPIToolset`、`APIHubToolset`、`GoogleApiToolSet` 的工具）。你的主要責任是設定這些工具，並處理互動式驗證流程的用戶端部分（若工具有此需求）。
 
-### 1. Configuring Tools with Authentication
+### 1. 設定帶驗證的工具
 
-When adding an authenticated tool to your agent, you need to provide its required `AuthScheme` and your application's initial `AuthCredential`.
+當你將已驗證的工具加入 agent 時，需提供該工具所需的 `AuthScheme` 以及你的應用程式初始的 `AuthCredential`。
 
-**A. Using OpenAPI-based Toolsets (`OpenAPIToolset`, `APIHubToolset`, etc.)**
+**A. 使用基於 OpenAPI 的工具集（`OpenAPIToolset`、`APIHubToolset` 等）**
 
-Pass the scheme and credential during toolset initialization. The toolset applies them to all generated tools. Here are few ways to create tools with authentication in ADK.
+在初始化工具集時傳入 scheme 與 credential。工具集會將其套用到所有產生的工具。以下是幾種在 ADK 中建立帶驗證工具的方法。
 
 === "API Key"
 
@@ -111,7 +111,7 @@ Pass the scheme and credential during toolset initialization. The toolset applie
       )
       ```
 
-=== "Service Account"
+===「服務帳戶」
 
       Create a tool requiring Service Account.
 
@@ -162,11 +162,11 @@ Pass the scheme and credential during toolset initialization. The toolset applie
       )
       ```
 
-**B. Using Google API Toolsets (e.g., `calendar_tool_set`)**
+**B. 使用 Google API 工具集（例如：`calendar_tool_set`）**
 
-These toolsets often have dedicated configuration methods.
+這些工具集通常有專屬的設定方法。
 
-Tip: For how to create a Google OAuth Client ID & Secret, see this guide: [Get your Google API Client ID](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid#get_your_google_api_client_id)
+提示：如何建立 Google OAuth Client ID 與 Secret，請參考此指南：[Get your Google API Client ID](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid#get_your_google_api_client_id)
 
 ```py
 # Example: Configuring Google Calendar Tools
@@ -183,32 +183,32 @@ calendar_tool_set.configure_auth(
 # agent = LlmAgent(..., tools=calendar_tool_set.get_tool('calendar_tool_set'))
 ```
 
-The sequence diagram of auth request flow (where tools are requesting auth credentials) looks like below:
+當工具請求驗證憑證時，驗證請求流程的時序圖如下所示：
 
 ![Authentication](../assets/auth_part1.svg) 
 
 
-### 2. Handling the Interactive OAuth/OIDC Flow (Client-Side)
+### 2. 處理互動式 OAuth/OIDC 流程（用戶端）
 
-If a tool requires user login/consent (typically OAuth 2.0 or OIDC), the ADK framework pauses execution and signals your **Agent Client** application. There are two cases:
+如果某個工具需要使用者登入或同意（通常為 OAuth 2.0 或 OIDC），Agent Development Kit (ADK) 框架會暫停執行，並通知你的 **Agent Client** 應用程式。這裡有兩種情境：
 
-* **Agent Client** application runs the agent directly (via `runner.run_async`) in the same process. e.g. UI backend, CLI app, or Spark job etc.
-* **Agent Client** application interacts with ADK's fastapi server via `/run` or `/run_sse` endpoint. While ADK's fastapi server could be setup on the same server or different server as **Agent Client** application
+* **Agent Client** 應用程式直接在同一個程序中執行 agent（透過 `runner.run_async`），例如 UI 後端、命令列介面 (CLI) 應用程式，或 Spark 作業等。
+* **Agent Client** 應用程式透過 `/run` 或 `/run_sse` 端點與 ADK 的 fastapi server 互動。ADK 的 fastapi server 可以部署在與 **Agent Client** 應用程式相同或不同的伺服器上。
 
-The second case is a special case of first case, because `/run` or `/run_sse` endpoint also invokes `runner.run_async`. The only differences are:
+第二種情境其實是第一種情境的特例，因為 `/run` 或 `/run_sse` 端點同樣會呼叫 `runner.run_async`。兩者的差異僅在於：
 
-* Whether to call a python function to run the agent (first case) or call a service endpoint to run the agent (second case).
-* Whether the result events are in-memory objects (first case) or serialized json string in http response (second case).
+* 是呼叫 Python 函式來執行 agent（第一種情境），還是呼叫服務端點來執行 agent（第二種情境）。
+* 結果事件是記憶體中的物件（第一種情境），還是 HTTP 回應中的序列化 JSON 字串（第二種情境）。
 
-Below sections focus on the first case and you should be able to map it to the second case very straightforward. We will also describe some differences to handle for the second case if necessary.
+以下章節將著重於第一種情境，你應該可以很容易地將其對應到第二種情境。如有必要，我們也會說明第二種情境需要處理的差異。
 
-Here's the step-by-step process for your client application:
+以下是你的 client 應用程式需要遵循的步驟說明：
 
-**Step 1: Run Agent & Detect Auth Request**
+**步驟 1：執行 Agent 並偵測驗證請求**
 
-* Initiate the agent interaction using `runner.run_async`.  
-* Iterate through the yielded events.  
-* Look for a specific function call event whose function call has a special name: `adk_request_credential`. This event signals that user interaction is needed. You can use helper functions to identify this event and extract necessary information. (For the second case, the logic is similar. You deserialize the event from the http response).
+* 使用 `runner.run_async` 啟動 agent 互動。  
+* 逐步處理產生的事件。  
+* 尋找一個特定的函式呼叫事件，其函式名稱為特殊名稱：`adk_request_credential`。此事件表示需要用戶互動。你可以使用輔助函式來辨識此事件並擷取所需資訊。（對於第二種情境，邏輯類似，只是你需要從 HTTP 回應中反序列化事件。）
 
 ```py
 
@@ -240,7 +240,7 @@ if not auth_request_function_call_id:
 
 ```
 
-*Helper functions `helpers.py`:*
+*輔助函式 `helpers.py`：*
 
 ```py
 from google.adk.events import Event
@@ -273,11 +273,11 @@ def get_auth_config(auth_request_function_call: types.FunctionCall) -> AuthConfi
     return auth_config
 ```
 
-**Step 2: Redirect User for Authorization**
+**步驟 2：導引用戶進行授權**
 
-* Get the authorization URL (`auth_uri`) from the `auth_config` extracted in the previous step.  
-* **Crucially, append your application's**  redirect\_uri as a query parameter to this `auth_uri`. This `redirect_uri` must be pre-registered with your OAuth provider (e.g., [Google Cloud Console](https://developers.google.com/identity/protocols/oauth2/web-server#creatingcred), [Okta admin panel](https://developer.okta.com/docs/guides/sign-into-web-app-redirect/spring-boot/main/#create-an-app-integration-in-the-admin-console)).  
-* Direct the user to this complete URL (e.g., open it in their browser).
+* 從前一步提取的`auth_config`中取得授權 URL（`auth_uri`）。
+* **請務必將您的應用程式** 的 `redirect_uri` 以查詢參數的方式附加到此`auth_uri`。此`redirect_uri`必須事先在您的 OAuth 提供者（例如 [Google Cloud Console](https://developers.google.com/identity/protocols/oauth2/web-server#creatingcred)、[Okta admin panel](https://developer.okta.com/docs/guides/sign-into-web-app-redirect/spring-boot/main/#create-an-app-integration-in-the-admin-console)）中註冊。
+* 將用戶導向這個完整的 URL（例如：在他們的瀏覽器中開啟）。
 
 ```py
 # (Continuing after detecting auth needed)
@@ -300,22 +300,22 @@ if auth_request_function_call_id and auth_config:
 
 ```
 
-**Step 3. Handle the Redirect Callback (Client):**
+**步驟 3. 處理重導回呼（用戶端）：**
 
-* Your application must have a mechanism (e.g., a web server route at the `redirect_uri`) to receive the user after they authorize the application with the provider.  
-* The provider redirects the user to your `redirect_uri` and appends an `authorization_code` (and potentially `state`, `scope`) as query parameters to the URL.  
-* Capture the **full callback URL** from this incoming request.  
-* (This step happens outside the main agent execution loop, in your web server or equivalent callback handler.)
+* 您的應用程式必須具備一個機制（例如，在 `redirect_uri` 上的 Web 伺服器路由），以接收使用者在授權應用程式後由提供者導回的請求。  
+* 提供者會將使用者重導至您的 `redirect_uri`，並將 `authorization_code`（以及可能的 `state`、`scope`）作為查詢參數附加到 URL。  
+* 從這個傳入請求中擷取**完整的回呼 URL**。  
+* （此步驟發生在主要代理執行迴圈之外，於您的 Web 伺服器或等效的回呼處理器中。）
 
-**Step 4. Send Authentication Result Back to ADK (Client):**
+**步驟 4. 將驗證結果回傳給 Agent Development Kit (ADK)（用戶端）：**
 
-* Once you have the full callback URL (containing the authorization code), retrieve the `auth_request_function_call_id` and the `auth_config` object saved in Client Step 1\.  
-* Set the captured callback URL into the `exchanged_auth_credential.oauth2.auth_response_uri` field. Also ensure `exchanged_auth_credential.oauth2.redirect_uri` contains the redirect URI you used.  
-* Create a `types.Content` object containing a `types.Part` with a `types.FunctionResponse`.  
-      * Set `name` to `"adk_request_credential"`. (Note: This is a special name for ADK to proceed with authentication. Do not use other names.)  
-      * Set `id` to the `auth_request_function_call_id` you saved.  
-      * Set `response` to the *serialized* (e.g., `.model_dump()`) updated `AuthConfig` object.  
-* Call `runner.run_async` **again** for the same session, passing this `FunctionResponse` content as the `new_message`.
+* 當您取得包含授權碼的完整回呼 URL 後，請取回在用戶端步驟 1 儲存的 `auth_request_function_call_id` 和 `auth_config` 物件。  
+* 將擷取到的回呼 URL 設定到 `exchanged_auth_credential.oauth2.auth_response_uri` 欄位。同時請確保 `exchanged_auth_credential.oauth2.redirect_uri` 包含您所使用的 redirect URI。  
+* 建立一個 `types.Content` 物件，內容包含帶有 `types.FunctionResponse` 的 `types.Part`。  
+      * 將 `name` 設為 `"adk_request_credential"`。（注意：這是讓 Agent Development Kit (ADK) 進行驗證的特殊名稱，請勿使用其他名稱。）  
+      * 將 `id` 設為您所儲存的 `auth_request_function_call_id`。  
+      * 將 `response` 設為*序列化*（例如 `.model_dump()`）後的更新 `AuthConfig` 物件。  
+* 再次呼叫 `runner.run_async`，針對同一個 session，並將此 `FunctionResponse` 內容作為 `new_message` 傳遞。
 
 ```py
 # (Continuing after user interaction)
@@ -365,28 +365,28 @@ if auth_request_function_call_id and auth_config:
 
 ```
 
-**Step 5: ADK Handles Token Exchange & Tool Retry and gets Tool result**
+**步驟 5：Agent Development Kit (ADK) 處理 Token 交換與工具重試，並取得工具結果**
 
-* ADK receives the `FunctionResponse` for `adk_request_credential`.  
-* It uses the information in the updated `AuthConfig` (including the callback URL containing the code) to perform the OAuth **token exchange** with the provider's token endpoint, obtaining the access token (and possibly refresh token).  
-* ADK internally makes these tokens available by setting them in the session state).  
-* ADK **automatically retries** the original tool call (the one that initially failed due to missing auth).  
-* This time, the tool finds the valid tokens (via `tool_context.get_auth_response()`) and successfully executes the authenticated API call.  
-* The agent receives the actual result from the tool and generates its final response to the user.
+* ADK 收到`FunctionResponse`（針對`adk_request_credential`）。
+* 它會利用更新後的`AuthConfig`（包含帶有 code 的 callback URL）中的資訊，向提供者的 token endpoint 執行 OAuth **token 交換**，以取得 access token（以及可能的 refresh token）。
+* ADK 會在內部將這些 token 設定到 session state 中，讓後續流程可用。
+* ADK 會**自動重試**原本因缺少驗證而失敗的工具呼叫。
+* 這次，工具會透過`tool_context.get_auth_response()`找到有效的 token，並成功執行帶有驗證的 API 呼叫。
+* Agent 會從工具取得實際結果，並產生最終回應給使用者。
 
 ---
 
-The sequence diagram of auth response flow (where Agent Client send back the auth response and ADK retries tool calling) looks like below:
+認證回應流程的時序圖（Agent Client 回傳認證回應，ADK 重試工具呼叫）如下所示：
 
 ![Authentication](../assets/auth_part2.svg)
 
-## Journey 2: Building Custom Tools (`FunctionTool`) Requiring Authentication
+## 旅程 2：建構需要驗證的自訂工具（`FunctionTool`）
 
-This section focuses on implementing the authentication logic *inside* your custom Python function when creating a new ADK Tool. We will implement a `FunctionTool` as an example.
+本節重點說明當你在建立新的 ADK 工具時，如何在自訂的 Python 函式*內部*實作驗證邏輯。我們將以`FunctionTool`作為範例。
 
-### Prerequisites
+### 先決條件
 
-Your function signature *must* include [`tool_context: ToolContext`](../tools/index.md#tool-context). ADK automatically injects this object, providing access to state and auth mechanisms.
+你的函式簽章*必須*包含 [`tool_context: ToolContext`](../tools/index.md#tool-context)。ADK 會自動注入這個物件，讓你可以存取狀態與驗證機制。
 
 ```py
 from google.adk.tools import FunctionTool, ToolContext
@@ -400,13 +400,13 @@ my_tool = FunctionTool(func=my_authenticated_tool_function)
 
 ```
 
-### Authentication Logic within the Tool Function
+### 工具函式中的驗證邏輯
 
-Implement the following steps inside your function:
+請在您的函式中實作以下步驟：
 
-**Step 1: Check for Cached & Valid Credentials:**
+**步驟 1：檢查快取且有效的憑證：**
 
-Inside your tool function, first check if valid credentials (e.g., access/refresh tokens) are already stored from a previous run in this session. Credentials for the current sessions should be stored in `tool_context.invocation_context.session.state` (a dictionary of state) Check existence of existing credentials by checking `tool_context.invocation_context.session.state.get(credential_name, None)`.
+在您的工具函式內，首先檢查是否已經有從本次工作階段的先前執行中儲存的有效憑證（例如 access/refresh token）。目前工作階段的憑證應儲存在 `tool_context.invocation_context.session.state`（一個狀態字典）中。請透過檢查 `tool_context.invocation_context.session.state.get(credential_name, None)` 來確認現有憑證是否存在。
 
 ```py
 from google.oauth2.credentials import Credentials
@@ -441,10 +441,10 @@ else:
 
 ```
 
-**Step 2: Check for Auth Response from Client**
+**步驟 2：檢查來自用戶端的驗證回應**
 
-* If Step 1 didn't yield valid credentials, check if the client just completed the interactive flow by calling `exchanged_credential = tool_context.get_auth_response()`.  
-* This returns the updated `exchanged_credential` object sent back by the client (containing the callback URL in `auth_response_uri`).
+* 如果步驟 1 未取得有效的認證資訊，請檢查用戶端是否剛完成互動式流程，方法是呼叫 `exchanged_credential = tool_context.get_auth_response()`。
+* 此操作會回傳由用戶端送回的更新後 `exchanged_credential` 物件（其中包含 `auth_response_uri` 的 callback URL）。
 
 ```py
 # Use auth_scheme and auth_credential configured in the tool.
@@ -470,9 +470,9 @@ if exchanged_credential:
     # Cache the token in session state and call the API, skip to step 5
 ```
 
-**Step 3: Initiate Authentication Request**
+**步驟 3：啟動驗證請求**
 
-If no valid credentials (Step 1.) and no auth response (Step 2.) are found, the tool needs to start the OAuth flow. Define the AuthScheme and initial AuthCredential and call `tool_context.request_credential()`. Return a response indicating authorization is needed.
+如果未找到有效的認證資訊（步驟 1.）且沒有驗證回應（步驟 2.），工具需要啟動 OAuth 流程。請定義 AuthScheme 和初始 AuthCredential，並呼叫 `tool_context.request_credential()`。回傳一個回應，表示需要授權。
 
 ```py
 # Use auth_scheme and auth_credential configured in the tool.
@@ -486,13 +486,13 @@ If no valid credentials (Step 1.) and no auth response (Step 2.) are found, the 
 # By setting request_credential, ADK detects a pending authentication event. It pauses execution and ask end user to login.
 ```
 
-**Step 4: Exchange Authorization Code for Tokens**
+**步驟 4：以授權碼交換取得權杖（Tokens）**
 
-ADK automatically generates oauth authorization URL and presents it to your Agent Client application. your Agent Client application should follow the same way described in Journey 1 to redirect the user to the authorization URL (with `redirect_uri` appended). Once a user completes the login flow following the authorization URL and ADK extracts the authentication callback url from Agent Client applications, automatically parses the auth code, and generates auth token. At the next Tool call, `tool_context.get_auth_response` in step 2 will contain a valid credential to use in subsequent API calls.
+Agent Development Kit (ADK) 會自動產生 OAuth 授權 URL，並將其提供給你的 Agent Client 應用程式。你的 Agent Client 應用程式應按照 Journey 1 中描述的方式，將使用者導向該授權 URL（並附加 `redirect_uri`）。當使用者依照授權 URL 完成登入流程後，ADK 會從 Agent Client 應用程式自動擷取驗證回呼 URL，解析授權碼（auth code），並產生授權權杖（auth token）。在下一次呼叫 Tool 時，步驟 2 中的 `tool_context.get_auth_response` 會包含可用於後續 API 呼叫的有效憑證。
 
-**Step 5: Cache Obtained Credentials**
+**步驟 5：快取取得的憑證**
 
-After successfully obtaining the token from ADK (Step 2) or if the token is still valid (Step 1), **immediately store** the new `Credentials` object in `tool_context.state` (serialized, e.g., as JSON) using your cache key.
+成功從 ADK 取得權杖（步驟 2），或權杖仍然有效（步驟 1）後，請**立即將**新的 `Credentials` 物件以你的快取鍵（cache key）儲存到 `tool_context.state`（序列化，例如以 JSON 格式）。
 
 ```py
 # Inside your tool function, after obtaining 'creds' (either refreshed or newly exchanged)
@@ -503,10 +503,10 @@ print(f"DEBUG: Cached/updated tokens under key: {TOKEN_CACHE_KEY}")
 
 ```
 
-**Step 6: Make Authenticated API Call**
+**步驟 6：發送已驗證的 API 請求**
 
-* Once you have a valid `Credentials` object (`creds` from Step 1 or Step 4), use it to make the actual call to the protected API using the appropriate client library (e.g., `googleapiclient`, `requests`). Pass the `credentials=creds` argument.  
-* Include error handling, especially for `HttpError` 401/403, which might mean the token expired or was revoked between calls. If you get such an error, consider clearing the cached token (`tool_context.state.pop(...)`) and potentially returning the `auth_required` status again to force re-authentication.
+* 當你擁有有效的 `Credentials` 物件（來自步驟 1 或步驟 4 的 `creds`）時，請使用適當的用戶端函式庫（例如 `googleapiclient`、`requests`）來實際呼叫受保護的 API，並傳遞 `credentials=creds` 參數。  
+* 請務必加入錯誤處理，特別是針對 `HttpError` 401/403 錯誤，這可能表示存取權杖（token）已過期或在兩次呼叫間被撤銷。如果遇到此類錯誤，建議清除快取的權杖（`tool_context.state.pop(...)`），並視情況再次回傳 `auth_required` 狀態，以強制重新驗證。
 
 ```py
 # Inside your tool function, using the valid 'creds' object
@@ -524,10 +524,10 @@ except Exception as e:
    return {"status": "error", "error_message": f"API call failed: {e}"}
 ```
 
-**Step 7: Return Tool Result**
+**步驟 7：回傳工具結果**
 
-* After a successful API call, process the result into a dictionary format that is useful for the LLM.  
-* **Crucially, include a**  along with the data.
+* 在 API 呼叫成功後，將結果處理為對大型語言模型 (LLM) 有用的 dictionary 格式。
+* **特別重要的是，請務必與資料一併包含一個** 。
 
 ```py
 # Inside your tool function, after successful API call
@@ -536,7 +536,7 @@ except Exception as e:
 
 ```
 
-??? "Full Code"
+???「完整代碼」
 
     === "Tools and Agent"
 

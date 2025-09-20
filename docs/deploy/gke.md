@@ -1,14 +1,14 @@
-# Deploy to Google Kubernetes Engine (GKE)
+# 部署到 Google Kubernetes Engine (GKE)
 
-[GKE](https://cloud.google.com/gke) is the Google Cloud managed Kubernetes service. It allows you to deploy and manage containerized applications using Kubernetes.
+[GKE](https://cloud.google.com/gke) 是 Google Cloud 所提供的受管 Kubernetes 服務。它讓你可以使用 Kubernetes 來部署與管理容器化應用程式。
 
-To deploy your agent you will need to have a Kubernetes cluster running on GKE. You can create a cluster using the Google Cloud Console or the `gcloud` command line tool.
+要部署你的 agent，你需要在 GKE 上運行一個 Kubernetes 叢集。你可以透過 Google Cloud Console 或 `gcloud` 命令列工具來建立叢集。
 
-In this example we will deploy a simple agent to GKE. The agent will be a FastAPI application that uses `Gemini 2.0 Flash` as the LLM. We can use Vertex AI or AI Studio as the LLM provider using the Environment variable `GOOGLE_GENAI_USE_VERTEXAI`.
+在本範例中，我們將部署一個簡單的 agent 到 GKE。這個 agent 會是一個 FastAPI 應用程式，並使用 `Gemini 2.0 Flash` 作為大型語言模型 (LLM)。我們可以透過設定環境變數 `GOOGLE_GENAI_USE_VERTEXAI`，選擇 Vertex AI 或 AI Studio 作為 LLM 提供者。
 
-## Environment variables
+## 環境變數
 
-Set your environment variables as described in the [Setup and Installation](../get-started/installation.md) guide. You also need to install the `kubectl` command line tool. You can find instructions to do so in the [Google Kubernetes Engine Documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl).
+請依照 [Setup and Installation](../get-started/installation.md) 指南所述設定你的環境變數。你還需要安裝 `kubectl` 命令列工具。相關安裝說明可參考 [Google Kubernetes Engine Documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl)。
 
 ```bash
 export GOOGLE_CLOUD_PROJECT=your-project-id # Your GCP project ID
@@ -17,13 +17,13 @@ export GOOGLE_GENAI_USE_VERTEXAI=true # Set to true if using Vertex AI
 export GOOGLE_CLOUD_PROJECT_NUMBER=$(gcloud projects describe --format json $GOOGLE_CLOUD_PROJECT | jq -r ".projectNumber")
 ```
 
-If you don't have `jq` installed, you can use the following command to get the project number:
+如果你尚未安裝`jq`，可以使用以下指令來取得專案編號：
 
 ```bash
 gcloud projects describe $GOOGLE_CLOUD_PROJECT
 ```
 
-And copy the project number from the output.
+並從輸出結果中複製專案編號（project number）。
 
 ```bash
 export GOOGLE_CLOUD_PROJECT_NUMBER=YOUR_PROJECT_NUMBER
@@ -31,11 +31,11 @@ export GOOGLE_CLOUD_PROJECT_NUMBER=YOUR_PROJECT_NUMBER
 
 
 
-## Enable APIs and Permissions
+## 啟用 API 與權限
 
-Ensure you have authenticated with Google Cloud (`gcloud auth login` and `gcloud config set project <your-project-id>`).
+請確保你已經完成 Google Cloud 的驗證（`gcloud auth login` 和 `gcloud config set project <your-project-id>`）。
 
-Enable the necessary APIs for your project. You can do this using the `gcloud` command line tool.
+為你的專案啟用必要的 API。你可以使用 `gcloud` 命令列工具來完成這個步驟。
 
 ```bash
 gcloud services enable \
@@ -45,7 +45,7 @@ gcloud services enable \
     aiplatform.googleapis.com
 ```
 
-Grant necessary roles to the default compute engine service account required by the `gcloud builds submit` command.
+將執行 `gcloud builds submit` 指令所需的必要角色授予預設的 Compute Engine 服務帳戶。
 
 
 
@@ -64,31 +64,27 @@ for ROLE in "${ROLES_TO_ASSIGN[@]}"; do
 done
 ```
 
-## Deployment payload {#payload}
+## 部署內容（Deployment payload） {#payload}
 
-When you deploy your ADK agent workflow to the Google Cloud GKE,
-the following content is uploaded to the service:
+當你將 Agent Development Kit (ADK)（ADK）agent 工作流程部署到 Google Cloud GKE 時，下列內容會被上傳到服務：
 
-- Your ADK agent code
-- Any dependencies declared in your ADK agent code
-- ADK API server code version used by your agent
+- 你的 ADK agent 程式碼
+- 你在 ADK agent 程式碼中宣告的所有相依套件
+- 你的 agent 所使用的 ADK API server 程式碼版本
 
-The default deployment *does not* include the ADK web user interface libraries,
-unless you specify it as deployment setting, such as the `--with_ui` option for
-`adk deploy gke` command.
+預設部署*不會*包含 ADK 網頁 UI 函式庫，除非你在部署設定中指定，例如在 `adk deploy gke` 指令中使用 `--with_ui` 選項。
 
-## Deployment options
+## 部署選項（Deployment options）
 
-You can deploy your agent to GKE either **manually using Kubernetes manifests** or **automatically using the `adk deploy gke` command**. Choose the approach that best suits your workflow.
+你可以選擇**使用 Kubernetes manifests 手動部署**，或是**使用 `adk deploy gke` 指令自動部署**你的 agent 到 GKE。請依據你的工作流程選擇最合適的方式。
 
+## 選項 1：使用 gcloud 與 kubectl 進行手動部署
 
-## Option 1: Manual Deployment using gcloud and kubectl
+### 建立 GKE 叢集
 
-### Create a GKE cluster
+你可以使用 `gcloud` 命令列工具建立 GKE 叢集。以下範例會在 `us-central1` 區域建立一個名為 `adk-cluster` 的 Autopilot 叢集。
 
-You can create a GKE cluster using the `gcloud` command line tool. This example creates an Autopilot cluster named `adk-cluster` in the `us-central1` region.
-
-> If creating a GKE Standard cluster, make sure [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) is enabled. Workload Identity is enabled by default in an AutoPilot cluster.
+> 如果你要建立 GKE Standard 叢集，請確保已啟用 [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)。在 AutoPilot 叢集中，Workload Identity 預設即為啟用狀態。
 
 ```bash
 gcloud container clusters create-auto adk-cluster \
@@ -96,7 +92,7 @@ gcloud container clusters create-auto adk-cluster \
     --project=$GOOGLE_CLOUD_PROJECT
 ```
 
-After creating the cluster, you need to connect to it using `kubectl`. This command configures `kubectl` to use the credentials for your new cluster.
+建立叢集後，您需要使用 `kubectl` 來連線至該叢集。此指令會將 `kubectl` 設定為使用新叢集的認證資訊。
 
 ```bash
 gcloud container clusters get-credentials adk-cluster \
@@ -104,11 +100,11 @@ gcloud container clusters get-credentials adk-cluster \
     --project=$GOOGLE_CLOUD_PROJECT
 ```
 
-### Create Your Agent
+### 建立您的代理（agent）
 
-We will reference the `capital_agent` example defined on the [LLM agents](../agents/llm-agents.md) page.
+我們將參考 [大型語言模型 (LLM) 代理](../agents/llm-agents.md) 頁面中定義的 `capital_agent` 範例。
 
-To proceed, organize your project files as follows:
+接下來，請將您的專案檔案組織如下：
 
 ```txt
 your-project-directory/
@@ -122,11 +118,11 @@ your-project-directory/
 
 
 
-### Code files
+### 程式碼檔案
 
-Create the following files (`main.py`, `requirements.txt`, `Dockerfile`, `capital_agent/agent.py`, `capital_agent/__init__.py`) in the root of `your-project-directory/`.
+請在 `your-project-directory/` 的根目錄下建立以下檔案（`main.py`、`requirements.txt`、`Dockerfile`、`capital_agent/agent.py`、`capital_agent/__init__.py`）。
 
-1. This is the Capital Agent example inside the `capital_agent` directory
+1. 這是在 `capital_agent` 目錄下的 Capital Agent 範例
 
     ```python title="capital_agent/agent.py"
     from google.adk.agents import LlmAgent 
@@ -151,7 +147,7 @@ Create the following files (`main.py`, `requirements.txt`, `Dockerfile`, `capita
     root_agent = capital_agent
     ```
     
-    Mark your directory as a python package
+    將你的目錄標記為 Python 套件
 
     ```python title="capital_agent/__init__.py"
 
@@ -159,6 +155,10 @@ Create the following files (`main.py`, `requirements.txt`, `Dockerfile`, `capita
     ```
 
 2. This file sets up the FastAPI application using `get_fast_api_app()` from ADK:
+
+
+譯文：
+2. 此檔案使用 Agent Development Kit (ADK) 的 `get_fast_api_app()` 來建立 FastAPI 應用程式：
 
     ```python title="main.py"
     import os
@@ -196,9 +196,9 @@ Create the following files (`main.py`, `requirements.txt`, `Dockerfile`, `capita
         uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
     ```
 
-    *Note: We specify `agent_dir` to the directory `main.py` is in and use `os.environ.get("PORT", 8080)` for Cloud Run compatibility.*
+    *注意：我們將 `agent_dir` 指定為 `main.py` 所在的目錄，並使用 `os.environ.get("PORT", 8080)` 以確保 Cloud Run 相容性。*
 
-3. List the necessary Python packages:
+3. 列出所需的 Python 套件：
 
     ```txt title="requirements.txt"
     google-adk
@@ -206,6 +206,9 @@ Create the following files (`main.py`, `requirements.txt`, `Dockerfile`, `capita
     ```
 
 4. Define the container image:
+
+
+4. 定義容器映像檔：
 
     ```dockerfile title="Dockerfile"
     FROM python:3.13-slim
@@ -226,9 +229,9 @@ Create the following files (`main.py`, `requirements.txt`, `Dockerfile`, `capita
     CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
     ```
 
-### Build the container image
+### 建立容器映像檔
 
-You need to create a Google Artifact Registry repository to store your container images. You can do this using the `gcloud` command line tool.
+你需要建立一個 Google Artifact Registry 儲存庫來儲存你的容器映像檔。你可以使用 `gcloud` 命令列工具來完成這個操作。
 
 ```bash
 gcloud artifacts repositories create adk-repo \
@@ -237,7 +240,7 @@ gcloud artifacts repositories create adk-repo \
     --description="ADK repository"
 ```
 
-Build the container image using the `gcloud` command line tool. This example builds the image and tags it as `adk-repo/adk-agent:latest`.
+使用 `gcloud` 命令列工具來建置容器映像檔。此範例會建置映像檔並將其標記為 `adk-repo/adk-agent:latest`。
 
 ```bash
 gcloud builds submit \
@@ -246,7 +249,7 @@ gcloud builds submit \
     .
 ```
 
-Verify the image is built and pushed to the Artifact Registry:
+驗證映像檔已經建置並推送到 Artifact Registry：
 
 ```bash
 gcloud artifacts docker images list \
@@ -254,16 +257,17 @@ gcloud artifacts docker images list \
   --project=$GOOGLE_CLOUD_PROJECT
 ```
 
-### Configure Kubernetes Service Account for Vertex AI
+### 為 Vertex AI 設定 Kubernetes Service Account
 
-If your agent uses Vertex AI, you need to create a Kubernetes service account with the necessary permissions. This example creates a service account named `adk-agent-sa` and binds it to the `Vertex AI User` role.
+如果你的 agent 使用 Vertex AI，你需要建立一個具有必要權限的 Kubernetes service account。以下範例會建立一個名為 `adk-agent-sa` 的 service account，並將其綁定到 `Vertex AI User` 角色。
 
-> If you are using AI Studio and accessing the model with an API key you can skip this step.
+> 如果你使用的是 AI Studio，並且透過 API KEY 存取模型，可以跳過此步驟。
 
 ```bash
 kubectl create serviceaccount adk-agent-sa
 ```
 
+請提供原文、初始譯文、品質分析與改進建議內容，這樣我才能根據品質分析意見改進翻譯。
 ```bash
 gcloud projects add-iam-policy-binding projects/${GOOGLE_CLOUD_PROJECT} \
     --role=roles/aiplatform.user \
@@ -271,9 +275,9 @@ gcloud projects add-iam-policy-binding projects/${GOOGLE_CLOUD_PROJECT} \
     --condition=None
 ```
 
-### Create the Kubernetes manifest files
+### 建立 Kubernetes manifest 檔案
 
-Create a Kubernetes deployment manifest file named `deployment.yaml` in your project directory. This file defines how to deploy your application on GKE.
+在你的專案目錄中建立一個名為 `deployment.yaml` 的 Kubernetes 部署 manifest 檔案。此檔案用於定義如何在 GKE 上部署你的應用程式。
 
 ```yaml title="deployment.yaml"
 cat <<  EOF > deployment.yaml
@@ -335,105 +339,105 @@ spec:
 EOF
 ```
 
-### Deploy the Application
+### 部署應用程式
 
-Deploy the application using the `kubectl` command line tool. This command applies the deployment and service manifest files to your GKE cluster.
+使用 `kubectl` 命令列工具（CLI）來部署應用程式。此指令會將部署與服務的 manifest 檔案套用到你的 GKE 叢集。
 
 ```bash
 kubectl apply -f deployment.yaml
 ```
 
-After a few moments, you can check the status of your deployment using:
+在幾秒鐘後，您可以使用以下指令來檢查您的部署狀態：
 
 ```bash
 kubectl get pods -l=app=adk-agent
 ```
 
-This command lists the pods associated with your deployment. You should see a pod with a status of `Running`.
+此指令會列出與您的部署相關聯的 pod。您應該會看到一個狀態為 `Running` 的 pod。
 
-Once the pod is running, you can check the status of the service using:
+當 pod 執行中後，您可以使用以下指令檢查 service 的狀態：
 
 ```bash
 kubectl get service adk-agent
 ```
 
-If the output shows a `External IP`, it means your service is accessible from the internet. It may take a few minutes for the external IP to be assigned.
+如果輸出顯示`External IP`，表示您的服務已可從網際網路存取。指派外部 IP 可能需要幾分鐘的時間。
 
-You can get the external IP address of your service using:
+您可以使用以下指令取得服務的外部 IP 位址：
 
 ```bash
 kubectl get svc adk-agent -o=jsonpath='{.status.loadBalancer.ingress[0].ip}'
 ```
 
-## Option 2: Automated Deployment using `adk deploy gke`
+## 選項 2：使用 `adk deploy gke` 進行自動化部署
 
-ADK provides a CLI command to streamline GKE deployment. This avoids the need to manually build images, write Kubernetes manifests, or push to Artifact Registry.
+Agent Development Kit (ADK) 提供了一個命令列介面 (CLI) 指令，可簡化 GKE 部署流程。這樣可以避免手動建置映像檔、撰寫 Kubernetes 清單，或將映像推送到 Artifact Registry。
 
-#### Prerequisites
+#### 先決條件
 
-Before you begin, ensure you have the following set up:
+在開始之前，請確保已完成以下設定：
 
-1. **A running GKE cluster:** You need an active Kubernetes cluster on Google Cloud.
+1. **已運作的 GKE 叢集：** 你需要在 Google Cloud 上有一個啟用中的 Kubernetes 叢集。
 
-2. **Required CLIs:** 
-    * **`gcloud` CLI:** The Google Cloud CLI must be installed, authenticated, and configured to use your target project. Run `gcloud auth login` and `gcloud config set project [YOUR_PROJECT_ID]`.
-    * **kubectl:** The Kubernetes CLI must be installed to deploy the application to your cluster.
+2. **必要的命令列介面 (CLI)：** 
+    * **`gcloud` CLI：** 必須安裝 Google Cloud 命令列介面 (CLI)，並已驗證身份且設定為使用目標專案。請執行 `gcloud auth login` 和 `gcloud config set project [YOUR_PROJECT_ID]`。
+    * **kubectl：** 必須安裝 Kubernetes 命令列介面 (CLI)，才能將應用程式部署到你的叢集。
 
-3. **Enabled Google Cloud APIs:** Make sure the following APIs are enabled in your Google Cloud project:
+3. **已啟用 Google Cloud API：** 請確認你的 Google Cloud 專案已啟用下列 API：
     * Kubernetes Engine API (`container.googleapis.com`)
     * Cloud Build API (`cloudbuild.googleapis.com`)
     * Container Registry API (`containerregistry.googleapis.com`)
 
-4. **Required IAM Permissions:** The user or Compute Engine default service account running the command needs, at a minimum, the following roles:
+4. **必要的 IAM 權限：** 執行指令的使用者或 Compute Engine 預設服務帳戶，至少需要以下角色：
 
-   * **Kubernetes Engine Developer** (`roles/container.developer`): To interact with the GKE cluster.
+   * **Kubernetes Engine Developer** (`roles/container.developer`)：用於與 GKE 叢集互動。
 
-   * **Storage Object Viewer** (`roles/storage.objectViewer`): To allow Cloud Build to download the source code from the Cloud Storage bucket where gcloud builds submit uploads it.
+   * **Storage Object Viewer** (`roles/storage.objectViewer`)：允許 Cloud Build 從 Cloud Storage 儲存貯體下載原始碼，該原始碼是由 gcloud builds submit 上傳的。
 
-   * **Artifact Registry Create on Push Writer** (`roles/artifactregistry.createOnPushWriter`): To allow Cloud Build to push the built container image to Artifact Registry. This role also permits the on-the-fly creation of the special gcr.io repository within Artifact Registry if needed on the first push.
+   * **Artifact Registry Create on Push Writer** (`roles/artifactregistry.createOnPushWriter`)：允許 Cloud Build 將建置完成的容器映像推送至 Artifact Registry。此角色也允許在首次推送時，於 Artifact Registry 中即時建立特殊的 gcr.io 儲存庫（repository）。
 
-   * **Logs Writer**  (`roles/logging.logWriter`): To allow Cloud Build to write build logs to Cloud Logging.
+   * **Logs Writer**  (`roles/logging.logWriter`)：允許 Cloud Build 將建置日誌寫入 Cloud Logging。
 
-### The `deploy gke` Command
+### `deploy gke` 指令
 
-The command takes the path to your agent and parameters specifying the target GKE cluster.
+此指令會接收你的 agent 路徑及目標 GKE 叢集的相關參數。
 
-#### Syntax
+#### 語法
 
 ```bash
 adk deploy gke [OPTIONS] AGENT_PATH
 ```
 
-### Arguments & Options
+### 參數與選項
 
-| Argument    | Description | Required |
+| 參數        | 說明 | 是否必填 |
 | -------- | ------- | ------  |
-| AGENT_PATH  | The local file path to your agent's root directory.    |Yes |
-| --project | The Google Cloud Project ID where your GKE cluster is located.     | Yes | 
-| --cluster_name   | The name of your GKE cluster.    | Yes |
-| --region    | The Google Cloud region of your cluster (e.g., us-central1).    | Yes |
-| --with_ui   | Deploys both the agent's back-end API and a companion front-end user interface.    | No |
-| --log_level   | Sets the logging level for the deployment process. Options: debug, info, warning, error.     | No |
+| AGENT_PATH  | 你的 agent 根目錄在本機的檔案路徑。    |是 |
+| --project | 你的 GKE 叢集所屬的 Google Cloud 專案 ID。     | 是 | 
+| --cluster_name   | 你的 GKE 叢集名稱。    | 是 |
+| --region    | 叢集所在的 Google Cloud 區域（例如：us-central1）。    | 是 |
+| --with_ui   | 同時部署 agent 的後端 API 以及配套的前端網頁 UI。    | 否 |
+| --log_level   | 設定部署流程的日誌等級。可選項目：debug、info、warning、error。     | 否 |
 
 
-### How It Works
-When you run the `adk deploy gke` command, the ADK performs the following steps automatically:
+### 運作方式說明
+當你執行 `adk deploy gke` 指令時，Agent Development Kit (ADK)（ADK）會自動執行以下步驟：
 
-- Containerization: It builds a Docker container image from your agent's source code.
+- 容器化（Containerization）：從你的 agent 原始碼建構 Docker 容器映像檔。
 
-- Image Push: It tags the container image and pushes it to your project's Artifact Registry.
+- 映像檔推送（Image Push）：標記該容器映像檔，並推送到你的專案 Artifact Registry。
 
-- Manifest Generation: It dynamically generates the necessary Kubernetes manifest files (a `Deployment` and a `Service`).
+- 清單產生（Manifest Generation）：動態產生所需的 Kubernetes 清單檔案（`Deployment` 與 `Service`）。
 
-- Cluster Deployment: It applies these manifests to your specified GKE cluster, which triggers the following:
+- 叢集部署（Cluster Deployment）：將這些清單套用到你指定的 GKE 叢集，觸發以下動作：
 
-The `Deployment` instructs GKE to pull the container image from Artifact Registry and run it in one or more Pods.
+`Deployment` 會指示 GKE 從 Artifact Registry 拉取容器映像檔，並在一個或多個 Pod 中執行。
 
-The `Service` creates a stable network endpoint for your agent. By default, this is a LoadBalancer service, which provisions a public IP address to expose your agent to the internet.
+`Service` 會為你的 agent 建立一個穩定的網路端點。預設情況下，這是一個 LoadBalancer 服務，會配置一個公開 IP 位址，讓你的 agent 能對外網路開放存取。
 
 
-### Example Usage
-Here is a practical example of deploying an agent located at `~/agents/multi_tool_agent/` to a GKE cluster named test.
+### 使用範例
+以下是一個將位於 `~/agents/multi_tool_agent/` 的 agent 部署到名為 test 的 GKE 叢集的實用範例。
 
 ```bash
 adk deploy gke \
@@ -445,17 +449,18 @@ adk deploy gke \
     ~/agents/multi_tool_agent/
 ```
 
-### Verifying Your Deployment
-If you used `adk deploy gke`, verify the deployment using `kubectl`:
+### 驗證您的部署
 
-1. Check the Pods: Ensure your agent's pods are in the Running state.
+如果您使用了`adk deploy gke`，請使用`kubectl`來驗證部署：
+
+1. 檢查 Pods：確保您的 agent 的 pods 處於 Running 狀態。
 
 ```bash
 kubectl get pods
 ```
-You should see output like `adk-default-service-name-xxxx-xxxx ... 1/1 Running` in the default namespace.
+你應該會在預設命名空間中看到類似 `adk-default-service-name-xxxx-xxxx ... 1/1 Running` 的輸出。
 
-2. Find the External IP: Get the public IP address for your agent's service.
+2. 查找 External IP：取得你的 agent 服務的公開 IP 位址。
 
 ```bash
 kubectl get service
@@ -463,14 +468,14 @@ NAME                       TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S
 adk-default-service-name   LoadBalancer   34.118.228.70   34.63.153.253   80:32581/TCP   5d20h
 ```
 
-We can navigate to the external IP and interact with the agent via UI
+我們可以前往 external IP，並透過 UI 與 agent 互動  
 ![alt text](../assets/agent-gke-deployment.png)
 
-## Testing your agent
+## 測試你的 agent
 
-Once your agent is deployed to GKE, you can interact with it via the deployed UI (if enabled) or directly with its API endpoints using tools like `curl`. You'll need the service URL provided after deployment.
+當你的 agent 部署到 GKE 後，你可以透過已部署的 UI（如果已啟用）或使用像是 `curl` 這類工具，直接與其 API 端點互動。你將需要在部署後提供的服務 URL。
 
-=== "UI Testing"
+=== "UI 測試"
 
     ### UI Testing
 
@@ -492,6 +497,9 @@ Once your agent is deployed to GKE, you can interact with it via the deployed UI
     ```
 
 === "API Testing (curl)"
+
+
+=== "API 測試（curl）"
 
     ### API Testing (curl)
 
@@ -550,17 +558,17 @@ Once your agent is deployed to GKE, you can interact with it via the deployed UI
     * Set `"streaming": true` if you want to receive Server-Sent Events (SSE).
     * The response will contain the agent's execution events, including the final answer.
 
-## Troubleshooting
+## 疑難排解
 
-These are some common issues you might encounter when deploying your agent to GKE:
+以下是將您的 agent 部署到 GKE 時，可能會遇到的一些常見問題：
 
-### 403 Permission Denied for `Gemini 2.0 Flash`
+### `Gemini 2.0 Flash` 出現 403 Permission Denied
 
-This usually means that the Kubernetes service account does not have the necessary permission to access the Vertex AI API. Ensure that you have created the service account and bound it to the `Vertex AI User` role as described in the [Configure Kubernetes Service Account for Vertex AI](#configure-kubernetes-service-account-for-vertex-ai) section. If you are using AI Studio, ensure that you have set the `GOOGLE_API_KEY` environment variable in the deployment manifest and it is valid.
+這通常表示 Kubernetes 服務帳戶沒有存取 Vertex AI API 所需的權限。請確認您已依照 [Configure Kubernetes Service Account for Vertex AI](#configure-kubernetes-service-account-for-vertex-ai) 章節的說明，建立服務帳戶並將其綁定到 `Vertex AI User` 角色。如果您使用的是 AI Studio，請確保已在部署 manifest 中設定 `GOOGLE_API_KEY` 環境變數，且該值有效。
 
-### 404 or Not Found response
+### 404 或 Not Found 回應
 
-This usually means there is an error in your request. Check the application logs to diagnose the problem. 
+這通常表示您的請求有錯誤。請檢查應用程式日誌以診斷問題。 
 
 ```bash
 
@@ -568,48 +576,48 @@ export POD_NAME=$(kubectl get pod -l app=adk-agent -o jsonpath='{.items[0].metad
 kubectl logs $POD_NAME
 ```
 
-### Attempt to write a readonly database
+### 嘗試寫入唯讀資料庫
 
-You might see there is no session id created in the UI and the agent does not respond to any messages. This is usually caused by the SQLite database being read-only. This can happen if you run the agent locally and then create the container image which copies the SQLite database into the container. The database is then read-only in the container.
+你可能會發現在網頁 UI 中沒有建立 session id，且 agent 不會回應任何訊息。這通常是因為 SQLite 資料庫為唯讀所導致。這種情況可能發生在你先在本機執行 agent，然後建立容器映像檔，將 SQLite 資料庫複製進容器時。此時，資料庫在容器內會變成唯讀狀態。
 
 ```bash
 sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) attempt to write a readonly database
 [SQL: UPDATE app_states SET state=?, update_time=CURRENT_TIMESTAMP WHERE app_states.app_name = ?]
 ```
 
-To fix this issue, you can either:
+為了解決這個問題，您可以採取以下其中一種方式：
 
-Delete the SQLite database file from your local machine before building the container image. This will create a new SQLite database when the container is started.
+在建立容器映像檔之前，從本機刪除 SQLite 資料庫檔案。這樣當容器啟動時，會自動建立一個新的 SQLite 資料庫。
 
 ```bash
 rm -f sessions.db
 ```
 
-or (recommended) you can add a `.dockerignore` file to your project directory to exclude the SQLite database from being copied into the container image.
+或者（建議做法）你可以在你的專案目錄中新增一個 `.dockerignore` 檔案，以排除將 SQLite 資料庫複製到容器映像檔中。
 
 ```txt title=".dockerignore"
 sessions.db
 ```
 
-Build the container image abd deploy the application again.
+建置容器映像檔並再次部署應用程式。
 
-### Insufficent Permission to Stream Logs `ERROR: (gcloud.builds.submit)`
+### 沒有足夠權限串流日誌 `ERROR: (gcloud.builds.submit)`
 
-This error can occur when you don't have sufficient permissions to stream build logs, or your VPC-SC security policy restricts access to the default logs bucket.
+當您沒有足夠的權限來串流建置日誌，或您的 VPC-SC 安全性政策限制了對預設日誌儲存桶的存取時，可能會出現此錯誤。
 
-To check the progress of the build, follow the link provided in the error message or navigate to the Cloud Build page in the Google Cloud Console.
+若要檢查建置進度，請依照錯誤訊息中提供的連結，或前往 Google Cloud Console 的 Cloud Build 頁面。
 
-You can also verify the image was built and pushed to the Artifact Registry using the command under the [Build the container image](#build-the-container-image) section.
+您也可以使用 [Build the container image](#build-the-container-image) 章節下的指令，驗證映像檔是否已建置並推送至 Artifact Registry。
 
-### Gemini-2.0-Flash Not Supported in Live Api
+### Gemini-2.0-Flash 不支援於 Live API
 
-When using the ADK Dev UI for your deployed agent, text-based chat works, but voice (e.g., clicking the microphone button) fail. You might see a `websockets.exceptions.ConnectionClosedError` in the pod logs indicating that your model is "not supported in the live api".
+當您在已部署的 agent 上使用 Agent Development Kit (ADK) Dev UI 時，文字聊天功能可以正常運作，但語音（例如點擊麥克風按鈕）會失敗。您可能會在 pod 日誌中看到 `websockets.exceptions.ConnectionClosedError`，指出您的模型「not supported in the live api」。
 
-This error occurs because the agent is configured with a model (like `gemini-2.0-flash` in the example) that does not support the Gemini Live API. The Live API is required for real-time, bidirectional streaming of audio and video.
+此錯誤發生的原因是 agent 設定使用了不支援 Gemini Live API 的模型（如範例中的 `gemini-2.0-flash`）。Live API 是實現即時、雙向音訊與視訊串流所必須的。
 
-## Cleanup
+## 清理資源
 
-To delete the GKE cluster and all associated resources, run:
+若要刪除 GKE 叢集及所有相關資源，請執行：
 
 ```bash
 gcloud container clusters delete adk-cluster \
@@ -617,7 +625,7 @@ gcloud container clusters delete adk-cluster \
     --project=$GOOGLE_CLOUD_PROJECT
 ```
 
-To delete the Artifact Registry repository, run:
+要刪除 Artifact Registry 儲存庫，請執行：
 
 ```bash
 gcloud artifacts repositories delete adk-repo \
@@ -625,7 +633,7 @@ gcloud artifacts repositories delete adk-repo \
     --project=$GOOGLE_CLOUD_PROJECT
 ```
 
-You can also delete the project if you no longer need it. This will delete all resources associated with the project, including the GKE cluster, Artifact Registry repository, and any other resources you created.
+您也可以在不再需要時刪除該專案。這將會刪除與該專案相關的所有資源，包括 GKE 叢集、Artifact Registry 儲存庫，以及您所建立的其他所有資源。
 
 ```bash
 gcloud projects delete $GOOGLE_CLOUD_PROJECT

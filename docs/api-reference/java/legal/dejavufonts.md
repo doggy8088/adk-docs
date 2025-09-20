@@ -1,191 +1,78 @@
-## DejaVu fonts v2.37
+## DejaVu 字型 v2.37
 
-### DejaVu License
+### DejaVu 授權條款
 <pre>
-Fonts are (c) Bitstream (see below). DejaVu changes are in public domain.
-Glyphs imported from Arev fonts are (c) Tavmjong Bah (see below)
+字型由 Bitstream 版權所有（見下文）。DejaVu 的修改部分屬於公有領域。
+從 Arev 字型匯入的字形由 Tavmjong Bah 版權所有（見下文）
 
-
-Bitstream Vera Fonts Copyright
+Bitstream Vera 字型版權
 ------------------------------
 
-Copyright (c) 2003 by Bitstream, Inc. All Rights Reserved. Bitstream Vera is
-a trademark of Bitstream, Inc.
+Copyright (c) 2003 by Bitstream, Inc. 保留所有權利。Bitstream Vera 是 Bitstream, Inc. 的商標。
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of the fonts accompanying this license ("Fonts") and associated
-documentation files (the "Font Software"), to reproduce and distribute the
-Font Software, including without limitation the rights to use, copy, merge,
-publish, distribute, and/or sell copies of the Font Software, and to permit
-persons to whom the Font Software is furnished to do so, subject to the
-following conditions:
+特此免費授權，允許任何取得本授權所附字型（「字型」）及相關文件（「字型軟體」）的人員，重製及散布字型軟體，包括但不限於使用、複製、合併、發佈、散布及／或銷售字型軟體的副本，並允許獲得字型軟體的人員也能這麼做，惟須遵守下列條件：
 
-The above copyright and trademark notices and this permission notice shall
-be included in all copies of one or more of the Font Software typefaces.
+上述版權及商標聲明以及本授權聲明，必須包含於所有字型軟體字型的副本中。
 
-The Font Software may be modified, altered, or added to, and in particular
-the designs of glyphs or characters in the Fonts may be modified and
-additional glyphs or characters may be added to the Fonts, only if the fonts
-are renamed to names not containing either the words "Bitstream" or the word
-"Vera".
+字型軟體可以被修改、變更或增補，特別是字型中的字形或字元設計可以被修改，並可新增字形或字元，但僅限於字型重新命名為不含「Bitstream」或「Vera」字樣的名稱。
 
-This License becomes null and void to the extent applicable to Fonts or Font
-Software that has been modified and is distributed under the "Bitstream
-Vera" names.
+若字型或字型軟體經過修改並以「Bitstream Vera」名稱散布，則本授權對該部分即告失效。
 
-The Font Software may be sold as part of a larger software package but no
-copy of one or more of the Font Software typefaces may be sold by itself.
+字型軟體可以作為大型軟體套件的一部分銷售，但不得單獨銷售一種或多種字型軟體字型的副本。
 
-THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF COPYRIGHT, PATENT,
-TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL BITSTREAM OR THE GNOME
-FOUNDATION BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, INCLUDING
-ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
-THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM OTHER DEALINGS IN THE
-FONT SOFTWARE.
+本字型軟體係「按現狀」提供，不附帶任何明示或暗示之保證，包括但不限於對適售性、特定用途適用性及不侵害著作權、專利、商標或其他權利的任何保證。在任何情況下，Bitstream 或 GNOME 基金會均不對因使用、無法使用本字型軟體或與本字型軟體之其他交易而引起的任何索賠、損害或其他責任承擔責任，包括但不限於一般性、特殊性、間接性、附帶性或衍生性損害，無論係基於契約、侵權或其他原因。
 
-Except as contained in this notice, the names of Gnome, the Gnome
-Foundation, and Bitstream Inc., shall not be used in advertising or
-otherwise to promote the sale, use or other dealings in this Font Software
-without prior written authorization from the Gnome Foundation or Bitstream
-Inc., respectively. For further information, contact: fonts at gnome dot
-org.
+除本聲明所載內容外，未經 GNOME 基金會或 Bitstream Inc. 事先書面授權，不得在廣告或其他推廣本字型軟體的行為中使用 Gnome、Gnome Foundation 及 Bitstream Inc. 的名稱。如需進一步資訊，請聯絡：fonts at gnome dot org。
 
-Arev Fonts Copyright
+Arev 字型版權
 ------------------------------
 
-Copyright (c) 2006 by Tavmjong Bah. All Rights Reserved.
+Copyright (c) 2006 by Tavmjong Bah. 保留所有權利。
 
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of the fonts accompanying this license ("Fonts") and
-associated documentation files (the "Font Software"), to reproduce
-and distribute the modifications to the Bitstream Vera Font Software,
-including without limitation the rights to use, copy, merge, publish,
-distribute, and/or sell copies of the Font Software, and to permit
-persons to whom the Font Software is furnished to do so, subject to
-the following conditions:
+特此免費授權，允許任何取得本授權所附字型（「字型」）及相關文件（「字型軟體」）的人員，重製及散布對 Bitstream Vera 字型軟體的修改，包括但不限於使用、複製、合併、發佈、散布及／或銷售字型軟體的副本，並允許獲得字型軟體的人員也能這麼做，惟須遵守下列條件：
 
-The above copyright and trademark notices and this permission notice
-shall be included in all copies of one or more of the Font Software
-typefaces.
+上述版權及商標聲明以及本授權聲明，必須包含於所有字型軟體字型的副本中。
 
-The Font Software may be modified, altered, or added to, and in
-particular the designs of glyphs or characters in the Fonts may be
-modified and additional glyphs or characters may be added to the
-Fonts, only if the fonts are renamed to names not containing either
-the words "Tavmjong Bah" or the word "Arev".
+字型軟體可以被修改、變更或增補，特別是字型中的字形或字元設計可以被修改，並可新增字形或字元，但僅限於字型重新命名為不含「Tavmjong Bah」或「Arev」字樣的名稱。
 
-This License becomes null and void to the extent applicable to Fonts
-or Font Software that has been modified and is distributed under the
-"Tavmjong Bah Arev" names.
+若字型或字型軟體經過修改並以「Tavmjong Bah Arev」名稱散布，則本授權對該部分即告失效。
 
-The Font Software may be sold as part of a larger software package but
-no copy of one or more of the Font Software typefaces may be sold by
-itself.
+字型軟體可以作為大型軟體套件的一部分銷售，但不得單獨銷售一種或多種字型軟體字型的副本。
 
-THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
-OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL
-TAVMJONG BAH BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
-DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
-OTHER DEALINGS IN THE FONT SOFTWARE.
+本字型軟體係「按現狀」提供，不附帶任何明示或暗示之保證，包括但不限於對適售性、特定用途適用性及不侵害著作權、專利、商標或其他權利的任何保證。在任何情況下，Tavmjong Bah 均不對因使用、無法使用本字型軟體或與本字型軟體之其他交易而引起的任何索賠、損害或其他責任承擔責任，包括但不限於一般性、特殊性、間接性、附帶性或衍生性損害，無論係基於契約、侵權或其他原因。
 
-Except as contained in this notice, the name of Tavmjong Bah shall not
-be used in advertising or otherwise to promote the sale, use or other
-dealings in this Font Software without prior written authorization
-from Tavmjong Bah. For further information, contact: tavmjong @ free
-. fr.
+除本聲明所載內容外，未經 Tavmjong Bah 事先書面授權，不得在廣告或其他推廣本字型軟體的行為中使用 Tavmjong Bah 的名稱。如需進一步資訊，請聯絡：tavmjong @ free . fr。
 
 TeX Gyre DJV Math
 -----------------
-Fonts are (c) Bitstream (see below). DejaVu changes are in public domain.
+字型由 Bitstream 版權所有（見下文）。DejaVu 的修改部分屬於公有領域。
 
-Math extensions done by B. Jackowski, P. Strzelczyk and P. Pianowski
-(on behalf of TeX users groups) are in public domain.
+由 B. Jackowski、P. Strzelczyk 及 P. Pianowski（代表 TeX 使用者團體）所做的數學擴充部分屬於公有領域。
 
-Letters imported from Euler Fraktur from AMSfonts are (c) American
-Mathematical Society (see below).
-Bitstream Vera Fonts Copyright
-Copyright (c) 2003 by Bitstream, Inc. All Rights Reserved. Bitstream Vera
-is a trademark of Bitstream, Inc.
+從 AMSfonts 的 Euler Fraktur 匯入的字母由 American Mathematical Society 版權所有（見下文）。
+Bitstream Vera 字型版權
+Copyright (c) 2003 by Bitstream, Inc. 保留所有權利。Bitstream Vera 是 Bitstream, Inc. 的商標。
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of the fonts accompanying this license ("Fonts") and associated
-documentation
-files (the "Font Software"), to reproduce and distribute the Font Software,
-including without limitation the rights to use, copy, merge, publish,
-distribute,
-and/or sell copies of the Font Software, and to permit persons  to whom
-the Font Software is furnished to do so, subject to the following
-conditions:
+特此免費授權，允許任何取得本授權所附字型（「字型」）及相關文件（「字型軟體」）的人員，重製及散布字型軟體，包括但不限於使用、複製、合併、發佈、散布及／或銷售字型軟體的副本，並允許獲得字型軟體的人員也能這麼做，惟須遵守下列條件：
 
-The above copyright and trademark notices and this permission notice
-shall be
-included in all copies of one or more of the Font Software typefaces.
+上述版權及商標聲明以及本授權聲明，必須包含於所有字型軟體字型的副本中。
 
-The Font Software may be modified, altered, or added to, and in particular
-the designs of glyphs or characters in the Fonts may be modified and
-additional
-glyphs or characters may be added to the Fonts, only if the fonts are
-renamed
-to names not containing either the words "Bitstream" or the word "Vera".
+字型軟體可以被修改、變更或增補，特別是字型中的字形或字元設計可以被修改，並可新增字形或字元，但僅限於字型重新命名為不含「Bitstream」或「Vera」字樣的名稱。
 
-This License becomes null and void to the extent applicable to Fonts or
-Font Software
-that has been modified and is distributed under the "Bitstream Vera"
-names.
+若字型或字型軟體經過修改並以「Bitstream Vera」名稱散布，則本授權對該部分即告失效。
 
-The Font Software may be sold as part of a larger software package but
-no copy
-of one or more of the Font Software typefaces may be sold by itself.
+字型軟體可以作為大型軟體套件的一部分銷售，但不得單獨銷售一種或多種字型軟體字型的副本。
 
-THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF COPYRIGHT, PATENT,
-TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL BITSTREAM OR THE GNOME
-FOUNDATION
-BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, INCLUDING ANY GENERAL,
-SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, WHETHER IN AN
-ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF THE USE OR
-INABILITY TO USE
-THE FONT SOFTWARE OR FROM OTHER DEALINGS IN THE FONT SOFTWARE.
-Except as contained in this notice, the names of GNOME, the GNOME
-Foundation,
-and Bitstream Inc., shall not be used in advertising or otherwise to promote
-the sale, use or other dealings in this Font Software without prior written
-authorization from the GNOME Foundation or Bitstream Inc., respectively.
-For further information, contact: fonts at gnome dot org.
+本字型軟體係「按現狀」提供，不附帶任何明示或暗示之保證，包括但不限於對適售性、特定用途適用性及不侵害著作權、專利、商標或其他權利的任何保證。在任何情況下，Bitstream 或 GNOME 基金會均不對因使用、無法使用本字型軟體或與本字型軟體之其他交易而引起的任何索賠、損害或其他責任承擔責任，包括但不限於一般性、特殊性、間接性、附帶性或衍生性損害，無論係基於契約、侵權或其他原因。
 
-AMSFonts (v. 2.2) copyright
+除本聲明所載內容外，未經 GNOME 基金會或 Bitstream Inc. 事先書面授權，不得在廣告或其他推廣本字型軟體的行為中使用 GNOME、GNOME Foundation 及 Bitstream Inc. 的名稱。如需進一步資訊，請聯絡：fonts at gnome dot org。
 
-The PostScript Type 1 implementation of the AMSFonts produced by and
-previously distributed by Blue Sky Research and Y&Y, Inc. are now freely
-available for general use. This has been accomplished through the
-cooperation
-of a consortium of scientific publishers with Blue Sky Research and Y&Y.
-Members of this consortium include:
+AMSFonts（v. 2.2）版權
 
-Elsevier Science IBM Corporation Society for Industrial and Applied
-Mathematics (SIAM) Springer-Verlag American Mathematical Society (AMS)
+由 Blue Sky Research 和 Y&Y, Inc. 製作並先前發行的 AMSFonts PostScript Type 1 實作，現已開放供一般使用。這是透過一個科學出版商聯盟與 Blue Sky Research 及 Y&Y 的合作實現的。該聯盟成員包括：
 
-In order to assure the authenticity of these fonts, copyright will be
-held by
-the American Mathematical Society. This is not meant to restrict in any way
-the legitimate use of the fonts, such as (but not limited to) electronic
-distribution of documents containing these fonts, inclusion of these fonts
-into other public domain or commercial font collections or computer
-applications, use of the outline data to create derivative fonts and/or
-faces, etc. However, the AMS does require that the AMS copyright notice be
-removed from any derivative versions of the fonts which have been altered in
-any way. In addition, to ensure the fidelity of TeX documents using Computer
-Modern fonts, Professor Donald Knuth, creator of the Computer Modern faces,
-has requested that any alterations which yield different font metrics be
-given a different name.
+Elsevier Science、IBM Corporation、Society for Industrial and Applied Mathematics (SIAM)、Springer-Verlag、American Mathematical Society (AMS)
+
+為確保這些字型的真實性，版權將由 American Mathematical Society 持有。這並不以任何方式限制對字型的合法使用，例如（但不限於）包含這些字型的文件之電子散布、將這些字型納入其他公有領域或商業字型集或電腦應用程式、使用外框資料製作衍生字型及／或字型樣式等。然而，AMS 要求對任何經過修改的衍生字型，必須移除 AMS 的版權聲明。此外，為確保使用 Computer Modern 字型的 TeX 文件的一致性，Computer Modern 字型設計者 Donald Knuth 教授要求，任何導致字型度量（metrics）變動的修改，必須給予不同的名稱。
 
 </pre>

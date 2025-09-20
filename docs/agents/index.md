@@ -1,50 +1,50 @@
-# Agents
+# 代理（Agent）
 
-In the Agent Development Kit (ADK), an **Agent** is a self-contained execution unit designed to act autonomously to achieve specific goals. Agents can perform tasks, interact with users, utilize external tools, and coordinate with other agents.
+在 Agent Development Kit (ADK)（ADK）中，**代理（Agent）**是一個自我封裝的執行單元，設計用於自主行動以達成特定目標。代理可以執行任務、與使用者互動、運用外部工具，並與其他代理協同作業。
 
-The foundation for all agents in ADK is the `BaseAgent` class. It serves as the fundamental blueprint. To create functional agents, you typically extend `BaseAgent` in one of three main ways, catering to different needs – from intelligent reasoning to structured process control.
+所有 ADK 代理的基礎是 `BaseAgent` 類別。它作為最基本的藍圖。要建立可運作的代理，通常會以三種主要方式之一擴充 `BaseAgent`，以滿足不同需求——從智慧推理到結構化流程控制。
 
 <img src="../assets/agent-types.png" alt="Types of agents in ADK">
 
-## Core Agent Categories
+## 核心代理類型
 
-ADK provides distinct agent categories to build sophisticated applications:
+ADK 提供多種不同的代理類型，協助你打造複雜的應用：
 
-1. [**LLM Agents (`LlmAgent`, `Agent`)**](llm-agents.md): These agents utilize Large Language Models (LLMs) as their core engine to understand natural language, reason, plan, generate responses, and dynamically decide how to proceed or which tools to use, making them ideal for flexible, language-centric tasks. [Learn more about LLM Agents...](llm-agents.md)
+1. [**大型語言模型 (LLM) 代理（`LlmAgent`、`Agent`）**](llm-agents.md)：這些代理以大型語言模型（Large Language Model, LLM）為核心引擎，能理解自然語言、進行推理、規劃、產生回應，並動態決定後續步驟或選擇使用哪些工具，非常適合彈性高、以語言為中心的任務。[深入了解 LLM 代理...](llm-agents.md)
 
-2. [**Workflow Agents (`SequentialAgent`, `ParallelAgent`, `LoopAgent`)**](workflow-agents/index.md): These specialized agents control the execution flow of other agents in predefined, deterministic patterns (sequence, parallel, or loop) without using an LLM for the flow control itself, perfect for structured processes needing predictable execution. [Explore Workflow Agents...](workflow-agents/index.md)
+2. [**工作流程代理（`SequentialAgent`、`ParallelAgent`、`LoopAgent`）**](workflow-agents/index.md)：這類專用代理以預先定義、可預測的模式（序列、平行或迴圈）來控制其他代理的執行流程，本身不使用 LLM 進行流程控制，特別適合需要可預期執行的結構化流程。[探索工作流程代理...](workflow-agents/index.md)
 
-3. [**Custom Agents**](custom-agents.md): Created by extending `BaseAgent` directly, these agents allow you to implement unique operational logic, specific control flows, or specialized integrations not covered by the standard types, catering to highly tailored application requirements. [Discover how to build Custom Agents...](custom-agents.md)
+3. [**自訂代理**](custom-agents.md)：直接繼承 `BaseAgent` 所建立的代理，讓你能實作獨特的操作邏輯、特定控制流程，或進行標準類型未涵蓋的特殊整合，滿足高度客製化的應用需求。[了解如何打造自訂代理...](custom-agents.md)
 
-## Choosing the Right Agent Type
+## 如何選擇合適的代理類型
 
-The following table provides a high-level comparison to help distinguish between the agent types. As you explore each type in more detail in the subsequent sections, these distinctions will become clearer.
+下表提供高層次比較，協助你區分各種代理類型。隨著你在後續章節深入探索每種類型，這些差異將會更加明確。
 
-| Feature              | LLM Agent (`LlmAgent`)              | Workflow Agent                              | Custom Agent (`BaseAgent` subclass)      |
+| 功能                  | LLM 代理（`LlmAgent`）                  | 工作流程代理                                 | 自訂代理（`BaseAgent` 子類別）              |
 | :------------------- | :---------------------------------- | :------------------------------------------ |:-----------------------------------------|
-| **Primary Function** | Reasoning, Generation, Tool Use     | Controlling Agent Execution Flow            | Implementing Unique Logic/Integrations   |
-| **Core Engine**  | Large Language Model (LLM)          | Predefined Logic (Sequence, Parallel, Loop) | Custom Code                              |
-| **Determinism**  | Non-deterministic (Flexible)        | Deterministic (Predictable)                 | Can be either, based on implementation   |
-| **Primary Use**  | Language tasks, Dynamic decisions   | Structured processes, Orchestration         | Tailored requirements, Specific workflows|
+| **主要功能**         | 推理、生成、工具運用                | 控制代理執行流程                            | 實作獨特邏輯／整合                      |
+| **核心引擎**         | 大型語言模型（LLM）                 | 預設邏輯（序列、平行、迴圈）                | 自訂程式碼                               |
+| **決定性**           | 非決定性（彈性高）                  | 決定性（可預測）                            | 依實作而定，可為任一                     |
+| **主要用途**         | 語言任務、動態決策                  | 結構化流程、協作調度                        | 客製需求、特定工作流程                   |
 
-## Agents Working Together: Multi-Agent Systems
+## 代理協同運作：多代理系統
 
-While each agent type serves a distinct purpose, the true power often comes from combining them. Complex applications frequently employ [multi-agent architectures](multi-agents.md) where:
+雖然每種代理類型各有其用途，但真正的威力往往來自於組合運用。複雜應用經常採用[多代理系統架構](multi-agents.md)，其中：
 
-* **LLM Agents** handle intelligent, language-based task execution.
-* **Workflow Agents** manage the overall process flow using standard patterns.
-* **Custom Agents** provide specialized capabilities or rules needed for unique integrations.
+* **LLM 代理**負責智慧、語言相關的任務執行。
+* **工作流程代理**以標準模式管理整體流程。
+* **自訂代理**則提供特殊能力或規則，支援獨特整合需求。
 
-Understanding these core types is the first step toward building sophisticated, capable AI applications with ADK.
+了解這些核心類型，是你用 ADK 打造高階 AI 應用的第一步。
 
 ---
 
-## What's Next?
+## 接下來？
 
-Now that you have an overview of the different agent types available in ADK, dive deeper into how they work and how to use them effectively:
+現在你已經了解 ADK 提供的各種代理類型，接下來可以深入學習它們的運作方式與實際應用：
 
-* [**LLM Agents:**](llm-agents.md) Explore how to configure agents powered by large language models, including setting instructions, providing tools, and enabling advanced features like planning and code execution.
-* [**Workflow Agents:**](workflow-agents/index.md) Learn how to orchestrate tasks using `SequentialAgent`, `ParallelAgent`, and `LoopAgent` for structured and predictable processes.
-* [**Custom Agents:**](custom-agents.md) Discover the principles of extending `BaseAgent` to build agents with unique logic and integrations tailored to your specific needs.
-* [**Multi-Agents:**](multi-agents.md) Understand how to combine different agent types to create sophisticated, collaborative systems capable of tackling complex problems.
-* [**Models:**](models.md) Learn about the different LLM integrations available and how to select the right model for your agents.
+* [**LLM 代理：**](llm-agents.md) 探索如何設定以大型語言模型為核心的代理，包括指令設置、工具提供，以及啟用進階功能如規劃與程式碼執行。
+* [**工作流程代理：**](workflow-agents/index.md) 學習如何運用 `SequentialAgent`、`ParallelAgent` 和 `LoopAgent` 來協調結構化且可預測的流程。
+* [**自訂代理：**](custom-agents.md) 了解如何擴充 `BaseAgent`，打造具備獨特邏輯與整合能力的代理，滿足你的專屬需求。
+* [**多代理：**](multi-agents.md) 理解如何組合不同代理類型，建立能解決複雜問題的協作系統。
+* [**模型：**](models.md) 了解各種 LLM 整合方式，並學會如何為你的代理選擇合適的模型。

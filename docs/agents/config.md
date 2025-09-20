@@ -1,9 +1,6 @@
-# Build agents with Agent Config
+# 使用 Agent Config 建立代理（agent）
 
-The ADK Agent Config feature lets you build an ADK workflow without writing
-code. An Agent Config uses a YAML format text file with a brief description of
-the agent, allowing just about anyone to assemble and run an ADK agent. The
-following is a simple example of an basic Agent Config definition:
+Agent Development Kit (ADK) 的 Agent Config 功能，讓你可以在不撰寫程式碼的情況下建立 ADK 工作流程。Agent Config 採用 YAML 格式的文字檔，並包含對代理（agent）的簡要描述，使幾乎任何人都能組裝並執行 ADK 代理（agent）。以下是一個基本 Agent Config 定義的簡單範例：
 
 ```
 name: assistant_agent
@@ -12,96 +9,77 @@ description: A helper agent that can answer users' questions.
 instruction: You are an agent to help answer users' various questions.
 ```
 
-You can use Agent Config files to build more complex agents which can
-incorporate Functions, Tools, Sub-Agents, and more. This page describes how to
-build and run ADK workflows with the Agent Config feature. For detailed
-information on the syntax and settings supported by the Agent Config format,
-see the
-[Agent Config syntax reference](/adk-docs/api-reference/agentconfig/).
+你可以使用 Agent Config 檔案來建立更複雜的 agent，這些 agent 可以整合 Functions、Tools、Sub-Agents 等功能。本頁將說明如何利用 Agent Config 功能來建立並執行 Agent Development Kit (ADK) 工作流程。如需 Agent Config 格式所支援的語法與設定詳細資訊，請參閱
+[Agent Config syntax reference](/adk-docs/api-reference/agentconfig/)。
 
-!!! example "Experimental"
-    The Agent Config feature is experimental and has some
-    [known limitations](#known-limitations). We welcome your
-    [feedback](https://github.com/google/adk-python/issues/new?template=feature_request.md&labels=agent%20config)!
+!!! example "實驗性功能"
+    Agent Config 功能目前為實驗性，且有一些
+    [已知限制](#known-limitations)。歡迎提供您的
+    [意見回饋](https://github.com/google/adk-python/issues/new?template=feature_request.md&labels=agent%20config)！
 
-## Get started
+## 開始使用
 
-This section describes how to set up and start building agents with the ADK and
-the Agent Config feature, including installation setup, building an agent, and
-running your agent.
+本節將說明如何使用 ADK 及 Agent Config 功能來設定並開始建立 agent，包括安裝設定、建立 agent 以及執行您的 agent。
 
-### Setup
+### 安裝設定
 
-You need to install the Google Agent Development Kit libraries, and provide an
-access key for a generative AI model such as Gemini API. This section provides
-details on what you must install and configure before you can run agents with
-the Agent Config files.
+你需要安裝 Google Agent Development Kit (ADK) 函式庫，並提供像是 Gemini API 這類生成式 AI 模型的存取金鑰。本節將說明在你能使用 Agent Config 檔案執行 agent 前，必須安裝與設定的項目。
 
 !!! note
-    The Agent Config feature currently only supports Gemini models. For more
-    information about additional; functional restrictions, see
-    [Known limitations](#known-limitations).
+    Agent Config 功能目前僅支援 Gemini 模型。關於其他功能限制，請參閱
+    [Known limitations](#known-limitations)。
 
-To setup ADK for use with Agent Config:
+要設定 ADK 以搭配 Agent Config 使用，請依下列步驟操作：
 
-1.  Install the ADK Python libraries by following the
+1.  依照
     [Installation](/adk-docs/get-started/installation/#python)
-    instructions. *Python is currently required.* For more information, see the
-    [Known limitations](?tab=t.0#heading=h.xefmlyt7zh0i).
-1.  Verify that ADK is installed by running the following command in your
-    terminal:
+    指南安裝 ADK Python 函式庫。*目前僅支援 Python。* 詳細資訊請參閱
+    [Known limitations](?tab=t.0#heading=h.xefmlyt7zh0i)。
+1.  在終端機執行以下指令，確認 ADK 已安裝：
 
         adk --version
 
-    This command should show the ADK version you have installed.
+    此指令會顯示你已安裝的 ADK 版本。
 
 !!! Tip
-    If the `adk` command fails to run and the version is not listed in step 2, make
-    sure your Python environment is active. Execute `source .venv/bin/activate` in
-    your terminal on Mac and Linux. For other platform commands, see the
+    如果 `adk` 指令無法執行，且第 2 步未顯示版本，請確保你的 Python 虛擬環境已啟用。在 macOS 或 Linux 終端機輸入 `source .venv/bin/activate`。如需其他平台的指令，請參閱
     [Installation](/adk-docs/get-started/installation/#python)
-    page.
+    頁面。
 
-### Build an agent
+### 建立 agent
 
-You build an agent with Agent Config using the `adk create` command to create
-the project files for an agent, and then editing the `root_agent.yaml` file it
-generates for you.
+你可以使用 `adk create` 指令搭配 Agent Config 來建立 agent 的專案檔案，然後編輯它自動產生的 `root_agent.yaml` 檔案。
 
-To create an ADK project for use with Agent Config:
+建立可用於 Agent Config 的 ADK 專案步驟如下：
 
-1.  In your terminal window, run the following command to create a
-    config-based agent:
+1.  在終端機視窗執行以下指令，建立以 config 為基礎的 agent：
 
         adk create --type=config my_agent
 
-    This command generates a `my_agent/` folder, containing a
-    `root_agent.yaml` file and an `.env` file.
+    此指令會產生一個 `my_agent/` 資料夾，內含
+    `root_agent.yaml` 檔案和 `.env` 檔案。
 
-1.  In the `my_agent/.env` file, set environment variables for your agent to
-    access generative AI models and other services:
+1.  在 `my_agent/.env` 檔案中，設定 agent 存取生成式 AI 模型及其他服務所需的環境變數：
 
-    1.  For Gemini model access through Google API, add a line to the
-        file with your API key:
+    1.  若要透過 Google API 存取 Gemini 模型，在檔案中新增一行，填入你的 API 金鑰：
 
             GOOGLE_GENAI_USE_VERTEXAI=0
             GOOGLE_API_KEY=<your-Google-Gemini-API-key>
 
-        You can get an API key from the Google AI Studio 
-        [API Keys](https://aistudio.google.com/app/apikey) page.
+        你可以從 Google AI Studio 的
+        [API Keys](https://aistudio.google.com/app/apikey) 頁面取得 API 金鑰。
 
-    1.  For Gemini model access through Google Cloud, add these lines to the file:
+    1.  若要透過 Google Cloud 存取 Gemini 模型，在檔案中新增以下內容：
 
             GOOGLE_GENAI_USE_VERTEXAI=1
             GOOGLE_CLOUD_PROJECT=<your_gcp_project>
             GOOGLE_CLOUD_LOCATION=us-central1
 
-        For information on creating a Cloud Project, see the Google Cloud docs
-        for
-        [Creating and managing projects](https://cloud.google.com/resource-manager/docs/creating-managing-projects).
+        關於如何建立 Cloud Project，請參閱 Google Cloud 文件
+        [Creating and managing projects](https://cloud.google.com/resource-manager/docs/creating-managing-projects)。
 
-1.  Using text editor, edit the Agent Config file
-    `my_agent/root_agent.yaml`, as shown below:
+1.  使用文字編輯器編輯 Agent Config 檔案
+    `my_agent/root_agent.yaml`，如下所示：
 
 ```
 # yaml-language-server: $schema=https://raw.githubusercontent.com/google/adk-python/refs/heads/main/src/google/adk/agents/config_schemas/AgentConfig.json
@@ -111,46 +89,38 @@ description: A helper agent that can answer users' questions.
 instruction: You are an agent to help answer users' various questions.
 ```
 
-You can discover more configuration options for your `root_agent.yaml` agent
-configuration file by referring to the ADK
+你可以參考 Agent Development Kit (ADK) 的
 [samples repository](https://github.com/search?q=repo%3Agoogle%2Fadk-python+path%3A%2F%5Econtributing%5C%2Fsamples%5C%2F%2F+.yaml&type=code)
-or the
+或
 [Agent Config syntax](/adk-docs/api-reference/agentconfig/)
-reference.
+參考文件，來瞭解更多`root_agent.yaml` agent 設定檔的其他設定選項。
 
-### Run the agent
+### 執行 agent
 
-Once you have completed editing your Agent Config, you can run your agent using
-the web interface, command line terminal execution, or API server mode.
+完成編輯 Agent Config 後，你可以透過網頁 UI、命令列終端機執行，或 API server 模式來啟動你的 agent。
 
-To run your Agent Config-defined agent:
+要執行你以 Agent Config 定義的 agent，請依下列步驟操作：
 
-1.  In your terminal, navigate to the `my_agent/` directory containing the 
-    `root_agent.yaml` file.
-1.  Type one of the following commands to run your agent:
-    -   `adk web` - Run web UI interface for your agent.
-    -   `adk run` - Run your agent in the terminal without a user
-        interface.
-    -   `adk api_server` - Run your agent as a service that can be
-        used by other applications.
+1.  在終端機中，切換到包含`root_agent.yaml`檔案的`my_agent/`目錄。
+1.  輸入以下其中一個指令來執行你的 agent：
+    -   `adk web` - 啟動 agent 的網頁 UI 介面。
+    -   `adk run` - 在終端機中執行 agent，不啟用使用者介面。
+    -   `adk api_server` - 以服務模式執行 agent，讓其他應用程式可以使用。
 
-For more information on the ways to run your agent, see the *Run Your Agent*
-topic in the
-[Quickstart](/adk-docs/get-started/quickstart/#run-your-agent).
-For more information about the ADK command line options, see the 
-[ADK CLI reference](/adk-docs/api-reference/cli/).
+如需更多有關執行 agent 方式的資訊，請參閱
+[快速開始](/adk-docs/get-started/quickstart/#run-your-agent)
+中的 *Run Your Agent* 主題。
+如需 ADK 命令列介面 (CLI) 相關選項的詳細說明，請參閱
+[ADK CLI 參考](/adk-docs/api-reference/cli/)。
 
-## Example configs
+## 設定檔範例
 
-This section shows examples of Agent Config files to get you started building
-agents. For additional and more complete examples, see the ADK
-[samples repository](https://github.com/search?q=repo%3Agoogle%2Fadk-python+path%3A%2F%5Econtributing%5C%2Fsamples%5C%2F%2F+root_agent.yaml&type=code).
+本節提供 Agent Config 設定檔的範例，協助你開始建立 agent。如需更多完整的範例，請參考 ADK
+[samples repository](https://github.com/search?q=repo%3Agoogle%2Fadk-python+path%3A%2F%5Econtributing%5C%2Fsamples%5C%2F%2F+root_agent.yaml&type=code)。
 
-### Built-in tool example
+### 內建工具範例
 
-The following example uses a built-in ADK tool function for using google search
-to provide functionality to the agent. This agent automatically uses the search
-tool to reply to user requests.
+以下範例使用 ADK 內建工具函式，透過 Google 搜尋功能為 agent 提供服務。此 agent 會自動使用搜尋工具來回應使用者請求。
 
 ```
 # yaml-language-server: $schema=https://raw.githubusercontent.com/google/adk-python/refs/heads/main/src/google/adk/agents/config_schemas/AgentConfig.json
@@ -162,14 +132,12 @@ tools:
   - name: google_search
 ```
 
-For more details, see the full code for this sample in the
-[ADK sample repository](https://github.com/google/adk-python/blob/main/contributing/samples/tool_builtin_config/root_agent.yaml).
+如需更多細節，請參閱
+[ADK sample repository](https://github.com/google/adk-python/blob/main/contributing/samples/tool_builtin_config/root_agent.yaml) 中此範例的完整程式碼。
 
-### Custom tool example
+### 自訂工具範例
 
-The following example uses a custom tool built with Python code and listed in
-the `tools:` section of the config file. The agent uses this tool to check if a
-list of numbers provided by the user are prime numbers.
+以下範例使用一個以 Python 程式碼實作的自訂工具，並在 config 檔案的 `tools:` 區段中列出。agent 會使用這個工具來檢查使用者提供的數字清單是否為質數。
 
 ```
 # yaml-language-server: $schema=https://raw.githubusercontent.com/google/adk-python/refs/heads/main/src/google/adk/agents/config_schemas/AgentConfig.json
@@ -186,16 +154,12 @@ tools:
   - name: ma_llm.check_prime
 ```
 
-For more details, see the full code for this sample in the
-[ADK sample repository](https://github.com/google/adk-python/blob/main/contributing/samples/multi_agent_llm_config/prime_agent.yaml).
+如需更多細節，請參閱
+[ADK 範例程式庫](https://github.com/google/adk-python/blob/main/contributing/samples/multi_agent_llm_config/prime_agent.yaml) 中此範例的完整程式碼。
 
-### Sub-agents example
+### 子代理（sub-agents）範例
 
-The following example shows an agent defined with two sub-agents in the
-`sub_agents:` section, and an example tool in the `tools:` section of the config
-file. This agent determines what the user wants, and delegates to one of the
-sub-agents to resolve the request. The sub-agents are defined using Agent Config
-YAML files.
+以下範例展示了一個在設定檔的 `sub_agents:` 區段中定義了兩個子代理（sub-agents），以及在 `tools:` 區段中定義了一個範例工具（tool）的 agent。這個 agent 會判斷使用者的需求，並委派給其中一個子代理來處理請求。子代理是透過 Agent Config YAML 檔案來定義的。
 
 ```
 # yaml-language-server: $schema=https://raw.githubusercontent.com/google/adk-python/refs/heads/main/src/google/adk/agents/config_schemas/AgentConfig.json
@@ -217,31 +181,29 @@ sub_agents:
   - config_path: math_tutor_agent.yaml
 ```
 
-For more details, see the full code for this sample in the
-[ADK sample repository](https://github.com/google/adk-python/blob/main/contributing/samples/multi_agent_basic_config/root_agent.yaml).
+如需更多細節，請參閱
+[ADK 範例程式庫](https://github.com/google/adk-python/blob/main/contributing/samples/multi_agent_basic_config/root_agent.yaml)
+中的完整範例程式碼。
 
-## Deploy agent configs
+## 部署 Agent Config
 
-You can deploy Agent Config agents with 
-[Cloud Run](/adk-docs/deploy/cloud-run/) and 
-[Agent Engine](/adk-docs/deploy/agent-engine/), 
-using the same procedure as code-based agents. For more information on how 
-to prepare and deploy Agent Config-based agents, see the 
-[Cloud Run](/adk-docs/deploy/cloud-run/) and 
+你可以使用
+[Cloud Run](/adk-docs/deploy/cloud-run/)
+和
 [Agent Engine](/adk-docs/deploy/agent-engine/)
-deployment guides.
+來部署 Agent Config 代理（agent），其流程與程式碼型代理（agent）相同。關於如何準備與部署基於 Agent Config 的代理（agent），請參閱
+[Cloud Run](/adk-docs/deploy/cloud-run/)
+和
+[Agent Engine](/adk-docs/deploy/agent-engine/)
+的部署指南。
 
-## Known limitations {#known-limitations}
+## 已知限制 {#known-limitations}
 
-The Agent Config feature is experimental and includes the following
-limitations:
+Agent Config 功能目前為實驗性質，並包含以下限制：
 
--   **Model support:** Only Gemini models are currently supported.
-    Integration with third-party models is in progress.
--   **Programming language:** The Agent Config feature currently supports
-    only Python code for tools and other functionality requiring programming code.
--   **ADK Tool support:** The following ADK tools are supported by the Agent
-    Config feature, but *not all tools are fully supported*:
+-   **模型支援：** 目前僅支援 Gemini 模型。與第三方模型的整合尚在進行中。
+-   **程式語言：** Agent Config 功能目前僅支援 Python 程式碼，用於工具（tools）及其他需要程式碼的功能。
+-   **ADK 工具支援：** Agent Config 功能支援下列 ADK 工具，但*並非所有工具皆完全支援*：
     -   `google_search`
     -   `load_artifacts`
     -   `url_context`
@@ -249,10 +211,8 @@ limitations:
     -   `preload_memory`
     -   `get_user_choice`
     -   `enterprise_web_search`
-    -   `load_web_page`: Requires a fully-qualified path to access web
-        pages.
--   **Agent Type Support:** The `LangGraphAgent` and `A2aAgent` types are 
-    not yet supported.
+    -   `load_web_page`：需提供完整路徑才能存取網頁。
+-   **代理（agent）類型支援：** `LangGraphAgent` 與 `A2aAgent` 類型目前尚未支援。
     -   `AgentTool`
     -   `LongRunningFunctionTool`
     -   `VertexAiSearchTool`
@@ -261,11 +221,9 @@ limitations:
     -   `LangchainTool`
     -   `ExampleTool`
 
-## Next steps
+## 下一步
 
-For ideas on how and what to build with ADK Agent Configs, see the yaml-based
-agent definitions in the ADK
+如需使用 Agent Development Kit (ADK) Agent Config 的應用靈感，請參閱 ADK
 [adk-samples](https://github.com/search?q=repo:google/adk-python+path:/%5Econtributing%5C/samples%5C//+root_agent.yaml&type=code)
-repository. For detailed information on the syntax and settings supported by 
-the Agent Config format, see the
-[Agent Config syntax reference](/adk-docs/api-reference/agentconfig/).
+程式庫中的 yaml 格式代理（agent）定義。關於 Agent Config 格式所支援的語法與設定，請參閱
+[Agent Config 語法參考](/adk-docs/api-reference/agentconfig/)。

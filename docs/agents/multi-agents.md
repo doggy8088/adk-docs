@@ -1,31 +1,31 @@
-# Multi-Agent Systems in ADK
+# Agent Development Kit (ADK) 多代理系統
 
-As agentic applications grow in complexity, structuring them as a single, monolithic agent can become challenging to develop, maintain, and reason about. The Agent Development Kit (ADK) supports building sophisticated applications by composing multiple, distinct `BaseAgent` instances into a **Multi-Agent System (MAS)**.
+隨著 agent 應用程式的複雜度提升，將其設計為單一、龐大的 agent 會使開發、維護與理解變得困難。Agent Development Kit (ADK)（ADK）支援透過組合多個不同的 `BaseAgent` 實例，來構建進階的應用程式，形成**多代理系統（Multi-Agent System, MAS）**。
 
-In ADK, a multi-agent system is an application where different agents, often forming a hierarchy, collaborate or coordinate to achieve a larger goal. Structuring your application this way offers significant advantages, including enhanced modularity, specialization, reusability, maintainability, and the ability to define structured control flows using dedicated workflow agents.
+在 ADK 中，多代理系統是一種應用程式架構，不同的 agent（通常形成階層結構）彼此協作或協調，以達成更高層次的目標。以這種方式組織你的應用程式，能帶來顯著優勢，包括更佳的模組化、專業分工、可重用性、可維護性，以及能透過專屬工作流程 agent 定義結構化控制流程的能力。
 
-You can compose various types of agents derived from `BaseAgent` to build these systems:
+你可以組合各種從 `BaseAgent` 衍生的 agent 來建構這些系統：
 
-* **LLM Agents:** Agents powered by large language models. (See [LLM Agents](llm-agents.md))
-* **Workflow Agents:** Specialized agents (`SequentialAgent`, `ParallelAgent`, `LoopAgent`) designed to manage the execution flow of their sub-agents. (See [Workflow Agents](workflow-agents/index.md))
-* **Custom agents:** Your own agents inheriting from `BaseAgent` with specialized, non-LLM logic. (See [Custom Agents](custom-agents.md))
+* **大型語言模型 (LLM) agent：** 由大型語言模型（Large Language Model, LLM）驅動的 agent。（參見 [LLM Agents](llm-agents.md)）
+* **工作流程 agent：** 專門設計用來管理其子 agent 執行流程的 agent（`SequentialAgent`、`ParallelAgent`、`LoopAgent`）。（參見 [Workflow Agents](workflow-agents/index.md)）
+* **自訂 agent：** 你自行繼承 `BaseAgent`，並實作特殊（非 LLM）邏輯的 agent。（參見 [Custom Agents](custom-agents.md)）
 
-The following sections detail the core ADK primitives—such as agent hierarchy, workflow agents, and interaction mechanisms—that enable you to construct and manage these multi-agent systems effectively.
+以下章節將詳細說明 ADK 的核心原語（primitives），如 agent 階層結構、工作流程 agent 及互動機制，協助你有效建構與管理多代理系統。
 
-## 1. ADK Primitives for Agent Composition { #adk-primitives-for-agent-composition }
+## 1. ADK 多代理組成原語 { #adk-primitives-for-agent-composition }
 
-ADK provides core building blocks—primitives—that enable you to structure and manage interactions within your multi-agent system.
+ADK 提供了核心的建構基礎（原語），讓你能夠組織與管理多代理系統中的互動。
 
 !!! Note
-    The specific parameters or method names for the primitives may vary slightly by SDK language (e.g., `sub_agents` in Python, `subAgents` in Java). Refer to the language-specific API documentation for details.
+    這些原語的具體參數或方法名稱，可能會因 SDK 語言（例如 Python 的 `sub_agents`、Java 的 `subAgents`）而略有不同。請參閱對應語言的 API 文件以取得詳細資訊。
 
-### 1.1. Agent Hierarchy (Parent agent, Sub Agents) { #agent-hierarchy-parent-agent-sub-agents }
+### 1.1. Agent 階層結構（父 agent、子 agent） { #agent-hierarchy-parent-agent-sub-agents }
 
-The foundation for structuring multi-agent systems is the parent-child relationship defined in `BaseAgent`.
+多代理系統的基礎，是在 `BaseAgent` 中定義的父子關係。
 
-* **Establishing Hierarchy:** You create a tree structure by passing a list of agent instances to the `sub_agents` argument when initializing a parent agent. ADK automatically sets the `parent_agent` attribute on each child agent during initialization.
-* **Single Parent Rule:** An agent instance can only be added as a sub-agent once. Attempting to assign a second parent will result in a `ValueError`.
-* **Importance:** This hierarchy defines the scope for [Workflow Agents](#12-workflow-agents-as-orchestrators) and influences the potential targets for LLM-Driven Delegation. You can navigate the hierarchy using `agent.parent_agent` or find descendants using `agent.find_agent(name)`.
+* **建立階層結構：** 當初始化父 agent 時，將一組 agent 實例傳入 `sub_agents` 參數，即可建立樹狀結構。ADK 會在初始化時自動為每個子 agent 設定 `parent_agent` 屬性。
+* **單一父層規則：** 一個 agent 實例只能被加入為子 agent 一次。若嘗試指定第二個父層，將會導致 `ValueError`。
+* **重要性：** 此階層結構決定了 [Workflow Agents](#12-workflow-agents-as-orchestrators) 的作用範圍，也影響 LLM 驅動委派（LLM-Driven Delegation）的潛在目標。你可以透過 `agent.parent_agent` 導覽階層，或用 `agent.find_agent(name)` 尋找所有子孫 agent。
 
 === "Python"
 
@@ -79,10 +79,10 @@ The foundation for structuring multi-agent systems is the parent-child relations
 
 ### 1.2. Workflow Agents as Orchestrators { #workflow-agents-as-orchestrators }
 
-ADK includes specialized agents derived from `BaseAgent` that don't perform tasks themselves but orchestrate the execution flow of their `sub_agents`.
+Agent Development Kit (ADK)（ADK）包含從 `BaseAgent` 衍生的特殊代理（agent），這些代理本身不直接執行任務，而是協調其 `sub_agents` 的執行流程。
 
-* **[`SequentialAgent`](workflow-agents/sequential-agents.md):** Executes its `sub_agents` one after another in the order they are listed.
-    * **Context:** Passes the *same* [`InvocationContext`](../runtime/index.md) sequentially, allowing agents to easily pass results via shared state.
+* **[`SequentialAgent`](workflow-agents/sequential-agents.md)：** 依照列出的順序，依次執行其 `sub_agents`。
+    * **Context：** 會依序傳遞*相同*的 [`InvocationContext`](../runtime/index.md)，讓代理（agent）能夠透過共享狀態輕鬆傳遞結果。
 
 === "Python"
 
@@ -111,9 +111,9 @@ ADK includes specialized agents derived from `BaseAgent` that don't perform task
     // When pipeline runs, Step2 can access the state.get("data") set by Step1.
     ```
 
-* **[`ParallelAgent`](workflow-agents/parallel-agents.md):** Executes its `sub_agents` in parallel. Events from sub-agents may be interleaved.
-    * **Context:** Modifies the `InvocationContext.branch` for each child agent (e.g., `ParentBranch.ChildName`), providing a distinct contextual path which can be useful for isolating history in some memory implementations.
-    * **State:** Despite different branches, all parallel children access the *same shared* `session.state`, enabling them to read initial state and write results (use distinct keys to avoid race conditions).
+* **[`ParallelAgent`](workflow-agents/parallel-agents.md)：** 以平行方式執行其 `sub_agents`。子代理（sub-agent）的事件可能會交錯發生。
+    * **Context（情境）：** 會為每個子代理（例如 `ParentBranch.ChildName`）修改 `InvocationContext.branch`，提供獨立的情境路徑，這在某些記憶體實作中有助於隔離歷史紀錄。
+    * **State（狀態）：** 儘管有不同的分支，所有平行的子代理都存取*相同的共享*`session.state`，使它們能讀取初始狀態並寫入結果（請使用不同的 key 以避免競爭條件）。
 
 === "Python"
 
@@ -155,9 +155,9 @@ ADK includes specialized agents derived from `BaseAgent` that don't perform task
     // A subsequent agent could read state['weather'] and state['news'].
     ```
 
-  * **[`LoopAgent`](workflow-agents/loop-agents.md):** Executes its `sub_agents` sequentially in a loop.
-      * **Termination:** The loop stops if the optional `max_iterations` is reached, or if any sub-agent returns an [`Event`](../events/index.md) with `escalate=True` in it's Event Actions.
-      * **Context & State:** Passes the *same* `InvocationContext` in each iteration, allowing state changes (e.g., counters, flags) to persist across loops.
+  * **[`LoopAgent`](workflow-agents/loop-agents.md)：** 會在迴圈中依序執行其 `sub_agents`。
+      * **終止條件：** 當達到選用的 `max_iterations` 時，或當任何子代理（sub-agent）在其 Event Actions 中回傳 [`Event`](../events/index.md) 且包含 `escalate=True` 時，該迴圈會停止。
+      * **Context 與狀態：** 每次迴圈都傳遞*相同*的 `InvocationContext`，使狀態變化（例如計數器、旗標）能在多次迴圈間持續保留。
 
 === "Python"
 
@@ -223,21 +223,21 @@ ADK includes specialized agents derived from `BaseAgent` that don't perform task
     // until Checker escalates (state.get("status") == "completed") or 10 iterations pass.
     ```
 
-### 1.3. Interaction & Communication Mechanisms { #interaction-communication-mechanisms }
+### 1.3. 互動與通訊機制 { #interaction-communication-mechanisms }
 
-Agents within a system often need to exchange data or trigger actions in one another. ADK facilitates this through:
+在一個系統中，代理（agent）之間經常需要交換資料或觸發彼此的動作。Agent Development Kit (ADK)（ADK）透過以下方式協助這類需求：
 
-#### a) Shared Session State (`session.state`)
+#### a) 共用 Session 狀態（`session.state`）
 
-The most fundamental way for agents operating within the same invocation (and thus sharing the same [`Session`](../sessions/session.md) object via the `InvocationContext`) to communicate passively.
+對於在同一次呼叫中運作的代理（agent）（因此透過 `InvocationContext` 共用同一個 [`Session`](../sessions/session.md) 物件），這是最基本的被動通訊方式。
 
-* **Mechanism:** One agent (or its tool/callback) writes a value (`context.state['data_key'] = processed_data`), and a subsequent agent reads it (`data = context.state.get('data_key')`). State changes are tracked via [`CallbackContext`](../callbacks/index.md).
-* **Convenience:** The `output_key` property on [`LlmAgent`](llm-agents.md) automatically saves the agent's final response text (or structured output) to the specified state key.
-* **Nature:** Asynchronous, passive communication. Ideal for pipelines orchestrated by `SequentialAgent` or passing data across `LoopAgent` iterations.
-* **See Also:** [State Management](../sessions/state.md)
+* **機制：** 一個代理（agent）（或其工具／回呼）寫入一個值（`context.state['data_key'] = processed_data`），後續的代理（agent）則讀取該值（`data = context.state.get('data_key')`）。狀態變更會透過 [`CallbackContext`](../callbacks/index.md) 進行追蹤。
+* **便利性：** [`LlmAgent`](llm-agents.md) 上的 `output_key` 屬性，會自動將代理（agent）的最終回應文字（或結構化輸出）儲存到指定的狀態鍵值中。
+* **特性：** 非同步、被動通訊。非常適合由 `SequentialAgent` 所協調的資料處理流程，或在 `LoopAgent` 多次迭代中傳遞資料。
+* **延伸閱讀：** [State Management](../sessions/state.md)
 
-!!! note "Invocation Context and `temp:` State"
-    When a parent agent invokes a sub-agent, it passes the same `InvocationContext`. This means they share the same temporary (`temp:`) state, which is ideal for passing data that is only relevant for the current turn.
+!!! note "呼叫情境與 `temp:` 狀態"
+    當父代理（agent）呼叫子代理（agent）時，會傳遞相同的 `InvocationContext`。這表示他們共用同一個暫存（`temp:`）狀態，非常適合傳遞僅在本次輪次有效的資料。
 
 === "Python"
 
@@ -277,14 +277,14 @@ The most fundamental way for agents operating within the same invocation (and th
     // AgentB runs, its instruction processor reads state.get("capital_city") to get "Paris".
     ```
 
-#### b) LLM-Driven Delegation (Agent Transfer)
+#### b) LLM 驅動的委派（Agent Transfer）
 
-Leverages an [`LlmAgent`](llm-agents.md)'s understanding to dynamically route tasks to other suitable agents within the hierarchy.
+利用 [`LlmAgent`](llm-agents.md) 的理解能力，動態地將任務路由給階層中其他合適的代理（agent）。
 
-* **Mechanism:** The agent's LLM generates a specific function call: `transfer_to_agent(agent_name='target_agent_name')`.
-* **Handling:** The `AutoFlow`, used by default when sub-agents are present or transfer isn't disallowed, intercepts this call. It identifies the target agent using `root_agent.find_agent()` and updates the `InvocationContext` to switch execution focus.
-* **Requires:** The calling `LlmAgent` needs clear `instructions` on when to transfer, and potential target agents need distinct `description`s for the LLM to make informed decisions. Transfer scope (parent, sub-agent, siblings) can be configured on the `LlmAgent`.
-* **Nature:** Dynamic, flexible routing based on LLM interpretation.
+* **機制：** 該代理（agent）的大型語言模型 (LLM) 會產生特定的函式呼叫：`transfer_to_agent(agent_name='target_agent_name')`。
+* **處理方式：** 當存在子代理（sub-agent）或未禁止轉移時，預設會由 `AutoFlow` 截獲此呼叫。它會利用 `root_agent.find_agent()` 辨識目標代理（agent），並更新 `InvocationContext`，以切換執行焦點。
+* **需求：** 呼叫端的 `LlmAgent` 需明確定義何時進行轉移（transfer），而潛在目標代理（agent）則需有明確的 `description`，以便 LLM 做出明智決策。轉移範圍（父層、子代理、同層代理）可於 `LlmAgent` 進行設定。
+* **特性：** 根據 LLM 的判斷進行動態且彈性的路由。
 
 === "Python"
 
@@ -340,14 +340,14 @@ Leverages an [`LlmAgent`](llm-agents.md)'s understanding to dynamically route ta
     // ADK framework then routes execution to bookingAgent.
     ```
 
-#### c) Explicit Invocation (`AgentTool`)
+#### c) 明確呼叫（`AgentTool`）
 
-Allows an [`LlmAgent`](llm-agents.md) to treat another `BaseAgent` instance as a callable function or [Tool](../tools/index.md).
+允許一個 [`LlmAgent`](llm-agents.md) 將另一個 `BaseAgent` 實例視為可呼叫的函式或 [Tool](../tools/index.md)。
 
-* **Mechanism:** Wrap the target agent instance in `AgentTool` and include it in the parent `LlmAgent`'s `tools` list. `AgentTool` generates a corresponding function declaration for the LLM.
-* **Handling:** When the parent LLM generates a function call targeting the `AgentTool`, the framework executes `AgentTool.run_async`. This method runs the target agent, captures its final response, forwards any state/artifact changes back to the parent's context, and returns the response as the tool's result.
-* **Nature:** Synchronous (within the parent's flow), explicit, controlled invocation like any other tool.
-* **(Note:** `AgentTool` needs to be imported and used explicitly).
+* **機制：** 將目標 agent 實例包裝在 `AgentTool` 中，並將其加入父層 `LlmAgent` 的 tools 清單。`AgentTool` 會為大型語言模型 (LLM) 產生相應的函式宣告。
+* **處理方式：** 當父層 LLM 產生針對 `AgentTool` 的函式呼叫時，框架會執行 `AgentTool.run_async`。此方法會執行目標 agent，擷取其最終回應，並將任何狀態／產物（artifact）變更回傳至父層的 context，並將該回應作為工具的結果返回。
+* **特性：** 同步（在父流程內）、明確且可控的呼叫，與其他工具相同。
+* **（注意：** 需要明確匯入並使用 `AgentTool`）。
 
 === "Python"
 
@@ -445,19 +445,19 @@ Allows an [`LlmAgent`](llm-agents.md) to treat another `BaseAgent` instance as a
     // The resulting image Part is returned to the Artist agent as the tool result.
     ```
 
-These primitives provide the flexibility to design multi-agent interactions ranging from tightly coupled sequential workflows to dynamic, LLM-driven delegation networks.
+這些基礎元件（primitives）提供了靈活性，可設計從高度耦合的序列化工作流程到動態、由大型語言模型（LLM）驅動的委派網路等多代理（multi-agent）互動。
 
-## 2. Common Multi-Agent Patterns using ADK Primitives { #common-multi-agent-patterns-using-adk-primitives }
+## 2. 使用 ADK 基礎元件的常見多代理模式 { #common-multi-agent-patterns-using-adk-primitives }
 
-By combining ADK's composition primitives, you can implement various established patterns for multi-agent collaboration.
+透過組合 Agent Development Kit (ADK) 的組成基礎元件，你可以實作各種既有的多代理協作模式。
 
-### Coordinator/Dispatcher Pattern
+### 協調者／分派者（Coordinator/Dispatcher）模式
 
-* **Structure:** A central [`LlmAgent`](llm-agents.md) (Coordinator) manages several specialized `sub_agents`.
-* **Goal:** Route incoming requests to the appropriate specialist agent.
-* **ADK Primitives Used:**
-    * **Hierarchy:** Coordinator has specialists listed in `sub_agents`.
-    * **Interaction:** Primarily uses **LLM-Driven Delegation** (requires clear `description`s on sub-agents and appropriate `instruction` on Coordinator) or **Explicit Invocation (`AgentTool`)** (Coordinator includes `AgentTool`-wrapped specialists in its `tools`).
+* **結構：** 一個中央 [`LlmAgent`](llm-agents.md)（協調者，Coordinator）管理多個專門的`sub_agents`。
+* **目標：** 將進來的請求路由到適當的專家代理（specialist agent）。
+* **所用 ADK 基礎元件：**
+    * **階層結構：** 協調者會在`sub_agents`中列出專家代理。
+    * **互動方式：** 主要使用**由大型語言模型（LLM）驅動的委派**（需在子代理上明確設定`description`，並在協調者上設定適當的`instruction`），或**明確呼叫（Explicit Invocation，`AgentTool`）**（協調者會在其`tools`中包含`AgentTool`包裝的專家代理）。
 
 === "Python"
 
@@ -512,13 +512,13 @@ By combining ADK's composition primitives, you can implement various established
     // transferToAgent(agentName='Support')
     ```
 
-### Sequential Pipeline Pattern
+### 順序式管線模式（Sequential Pipeline Pattern）
 
-* **Structure:** A [`SequentialAgent`](workflow-agents/sequential-agents.md) contains `sub_agents` executed in a fixed order.
-* **Goal:** Implement a multi-step process where the output of one step feeds into the next.
-* **ADK Primitives Used:**
-    * **Workflow:** `SequentialAgent` defines the order.
-    * **Communication:** Primarily uses **Shared Session State**. Earlier agents write results (often via `output_key`), later agents read those results from `context.state`.
+* **結構：**一個 [`SequentialAgent`](workflow-agents/sequential-agents.md) 包含依固定順序執行的 `sub_agents`。
+* **目標：**實作一個多步驟流程，使每個步驟的輸出作為下一步的輸入。
+* **所使用的 Agent Development Kit (ADK)（ADK）原語：**
+    * **Workflow：**`SequentialAgent` 定義執行順序。
+    * **Communication（通訊）：**主要使用 **Shared Session State**。前面的代理（agent）會寫入結果（通常透過 `output_key`），後續的代理（agent）則從 `context.state` 讀取這些結果。
 
 === "Python"
 
@@ -572,13 +572,13 @@ By combining ADK's composition primitives, you can implement various established
     // reporter runs -> reads state['result']
     ```
 
-### Parallel Fan-Out/Gather Pattern
+### 平行分流／聚合（Fan-Out/Gather）模式
 
-* **Structure:** A [`ParallelAgent`](workflow-agents/parallel-agents.md) runs multiple `sub_agents` concurrently, often followed by a later agent (in a `SequentialAgent`) that aggregates results.
-* **Goal:** Execute independent tasks simultaneously to reduce latency, then combine their outputs.
-* **ADK Primitives Used:**
-    * **Workflow:** `ParallelAgent` for concurrent execution (Fan-Out). Often nested within a `SequentialAgent` to handle the subsequent aggregation step (Gather).
-    * **Communication:** Sub-agents write results to distinct keys in **Shared Session State**. The subsequent "Gather" agent reads multiple state keys.
+* **結構：** 一個 [`ParallelAgent`](workflow-agents/parallel-agents.md) 會同時執行多個 `sub_agents`，通常後續會有另一個 agent（在 `SequentialAgent` 中）負責彙整結果。
+* **目標：** 同步執行多個獨立任務以降低延遲，然後將它們的輸出合併。
+* **使用的 Agent Development Kit (ADK) 原語：**
+    * **工作流程（Workflow）：** `ParallelAgent` 用於平行執行（Fan-Out）。通常會嵌套在 `SequentialAgent` 中，以處理後續的聚合步驟（Gather）。
+    * **通訊（Communication）：** 子代理會將結果寫入 **Shared Session State** 的不同鍵值。後續的「Gather」agent 會讀取多個狀態鍵。
 
 === "Python"
 
@@ -646,13 +646,13 @@ By combining ADK's composition primitives, you can implement various established
     ```
 
 
-### Hierarchical Task Decomposition
+### 階層式任務拆解
 
-* **Structure:** A multi-level tree of agents where higher-level agents break down complex goals and delegate sub-tasks to lower-level agents.
-* **Goal:** Solve complex problems by recursively breaking them down into simpler, executable steps.
-* **ADK Primitives Used:**
-    * **Hierarchy:** Multi-level `parent_agent`/`sub_agents` structure.
-    * **Interaction:** Primarily **LLM-Driven Delegation** or **Explicit Invocation (`AgentTool`)** used by parent agents to assign tasks to subagents. Results are returned up the hierarchy (via tool responses or state).
+* **結構：** 由多層級代理（agent）組成的樹狀結構，高層級代理會將複雜目標拆解並將子任務委派給較低層級的代理。
+* **目標：** 透過遞迴方式將複雜問題拆解為更簡單、可執行的步驟來解決問題。
+* **使用的 Agent Development Kit (ADK) 原語：**
+    * **階層結構：** 多層級 `parent_agent`/`sub_agents` 結構。
+    * **互動方式：** 主要由父代理透過**大型語言模型 (LLM) 驅動的委派（LLM-Driven Delegation）**或**明確呼叫（Explicit Invocation, `AgentTool`）**來分派任務給子代理。結果會透過工具回應或狀態傳遞回階層上層。
 
 === "Python"
 
@@ -728,13 +728,13 @@ By combining ADK's composition primitives, you can implement various established
     // Results flow back up.
     ```
 
-### Review/Critique Pattern (Generator-Critic)
+### 審查／評論模式（Generator-Critic）
 
-* **Structure:** Typically involves two agents within a [`SequentialAgent`](workflow-agents/sequential-agents.md): a Generator and a Critic/Reviewer.
-* **Goal:** Improve the quality or validity of generated output by having a dedicated agent review it.
-* **ADK Primitives Used:**
-    * **Workflow:** `SequentialAgent` ensures generation happens before review.
-    * **Communication:** **Shared Session State** (Generator uses `output_key` to save output; Reviewer reads that state key). The Reviewer might save its feedback to another state key for subsequent steps.
+* **結構：** 通常在[`SequentialAgent`](workflow-agents/sequential-agents.md)中包含兩個 agent：一個 Generator（生成器）和一個 Critic／Reviewer（評論者／審查者）。
+* **目標：** 透過專門的 agent 進行審查，以提升生成輸出的品質或有效性。
+* **使用的 Agent Development Kit (ADK) 原語：**
+    * **Workflow：** `SequentialAgent` 確保生成步驟在審查步驟之前執行。
+    * **Communication：** **共享 Session 狀態**（Generator 使用 `output_key` 儲存輸出；Reviewer 讀取該狀態鍵）。Reviewer 也可能將其回饋儲存到另一個狀態鍵，供後續步驟使用。
 
 === "Python"
 
@@ -794,14 +794,14 @@ By combining ADK's composition primitives, you can implement various established
     // reviewer runs -> reads state['draft_text'], saves status to state['review_status']
     ```
 
-### Iterative Refinement Pattern
+### 反覆精煉（Iterative Refinement）模式
 
-* **Structure:** Uses a [`LoopAgent`](workflow-agents/loop-agents.md) containing one or more agents that work on a task over multiple iterations.
-* **Goal:** Progressively improve a result (e.g., code, text, plan) stored in the session state until a quality threshold is met or a maximum number of iterations is reached.
-* **ADK Primitives Used:**
-    * **Workflow:** `LoopAgent` manages the repetition.
-    * **Communication:** **Shared Session State** is essential for agents to read the previous iteration's output and save the refined version.
-    * **Termination:** The loop typically ends based on `max_iterations` or a dedicated checking agent setting `escalate=True` in the `Event Actions` when the result is satisfactory.
+* **結構：** 使用一個 [`LoopAgent`](workflow-agents/loop-agents.md)，其中包含一個或多個代理（agent），這些代理會在多次迭代中處理任務。
+* **目標：** 持續改進儲存在 session 狀態中的結果（例如：程式碼、文字、計畫），直到達到品質門檻或達到最大迭代次數為止。
+* **使用的 Agent Development Kit (ADK) 原語：**
+    * **工作流程（Workflow）：** 由 `LoopAgent` 負責管理重複執行。
+    * **溝通（Communication）：** **共用 session 狀態** 對於代理（agent）讀取前一次迭代的輸出並儲存精煉後的版本至關重要。
+    * **終止條件（Termination）：** 這個迴圈通常會根據 `max_iterations`，或由專門的檢查代理（agent）在 `Event Actions` 中設定 `escalate=True` 當結果令人滿意時結束。
 
 === "Python"
 
@@ -899,15 +899,15 @@ By combining ADK's composition primitives, you can implement various established
     // iterations.
     ```
 
-### Human-in-the-Loop Pattern
+### Human-in-the-Loop 模式
 
-* **Structure:** Integrates human intervention points within an agent workflow.
-* **Goal:** Allow for human oversight, approval, correction, or tasks that AI cannot perform.
-* **ADK Primitives Used (Conceptual):**
-    * **Interaction:** Can be implemented using a custom **Tool** that pauses execution and sends a request to an external system (e.g., a UI, ticketing system) waiting for human input. The tool then returns the human's response to the agent.
-    * **Workflow:** Could use **LLM-Driven Delegation** (`transfer_to_agent`) targeting a conceptual "Human Agent" that triggers the external workflow, or use the custom tool within an `LlmAgent`.
-    * **State/Callbacks:** State can hold task details for the human; callbacks can manage the interaction flow.
-    * **Note:** ADK doesn't have a built-in "Human Agent" type, so this requires custom integration.
+* **結構（Structure）：** 在 agent 工作流程中整合人工介入點。
+* **目標（Goal）：** 允許人工監督、審核、修正，或處理 AI 無法執行的任務。
+* **所用 Agent Development Kit (ADK) 原語（概念性）（ADK Primitives Used (Conceptual)）：**
+    * **互動（Interaction）：** 可透過自訂的 **Tool** 實作，該工具會暫停執行並向外部系統（例如：網頁 UI、工單系統）發送請求，等待人工輸入。該工具再將人工回覆結果返回給 agent。
+    * **工作流程（Workflow）：** 可以使用 **大型語言模型 (LLM) 驅動的委派（LLM-Driven Delegation）**（`transfer_to_agent`），針對概念上的「Human Agent」來觸發外部工作流程，或是在 `LlmAgent` 中使用自訂工具。
+    * **狀態／回呼（State/Callbacks）：** 狀態可保存給人工處理的任務細節；回呼則可管理互動流程。
+    * **注意（Note）：** Agent Development Kit (ADK) 並未內建「Human Agent」型別，因此需要自訂整合。
 
 === "Python"
 
@@ -996,4 +996,4 @@ By combining ADK's composition primitives, you can implement various established
         .build();
     ```
 
-These patterns provide starting points for structuring your multi-agent systems. You can mix and match them as needed to create the most effective architecture for your specific application.
+這些模式為你構建多代理系統（multi-agent system）提供了起點。你可以根據需求自由組合這些模式，以打造最適合你特定應用的架構。

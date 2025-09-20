@@ -1,173 +1,173 @@
-# Design Patterns and Best Practices for Callbacks
+# 回呼函式的設計模式與最佳實踐
 
-Callbacks offer powerful hooks into the agent lifecycle. Here are common design patterns illustrating how to leverage them effectively in ADK, followed by best practices for implementation.
+回呼函式（Callback）為代理（agent）生命週期提供了強大的擴充點。以下介紹在 Agent Development Kit (ADK)（ADK）中有效運用回呼函式的常見設計模式，並說明實作時的最佳實踐。
 
-## Design Patterns
+## 設計模式
 
-These patterns demonstrate typical ways to enhance or control agent behavior using callbacks:
+這些模式展示了如何透過回呼函式強化或控制代理（agent）行為的典型做法：
 
-### 1. Guardrails & Policy Enforcement { #guardrails-policy-enforcement }
+### 1. 防護欄與政策強制執行 { #guardrails-policy-enforcement }
 
-**Pattern Overview:**
-Intercept requests before they reach the LLM or tools to enforce rules.
+**模式概述：**  
+在請求到達大型語言模型 (LLM) 或工具前，攔截請求以強制執行規則。
 
-**Implementation:**
-- Use `before_model_callback` to inspect the `LlmRequest` prompt
-- Use `before_tool_callback` to inspect tool arguments
-- If a policy violation is detected (e.g., forbidden topics, profanity):
-  - Return a predefined response (`LlmResponse` or `dict`/`Map`) to block the operation
-  - Optionally update `context.state` to log the violation
+**實作方式：**
+- 使用 `before_model_callback` 檢查 `LlmRequest` 提示詞（prompt）
+- 使用 `before_tool_callback` 檢查工具參數
+- 若偵測到政策違規（如：禁止主題、髒話）：
+  - 回傳預設回應（`LlmResponse` 或 `dict`/`Map`）以阻擋操作
+  - 可選擇性地更新 `context.state` 以記錄違規行為
 
-**Example Use Case:**
-A `before_model_callback` checks `llm_request.contents` for sensitive keywords and returns a standard "Cannot process this request" `LlmResponse` if found, preventing the LLM call.
+**範例應用情境：**  
+`before_model_callback` 會檢查 `llm_request.contents` 是否包含敏感關鍵字，若有則回傳標準的「無法處理此請求」`LlmResponse`，阻止 LLM 呼叫。
 
-### 2. Dynamic State Management { #dynamic-state-management }
+### 2. 動態狀態管理 { #dynamic-state-management }
 
-**Pattern Overview:**
-Read from and write to session state within callbacks to make agent behavior context-aware and pass data between steps.
+**模式概述：**  
+在回呼函式中讀取與寫入 session 狀態，讓代理（agent）行為具備情境感知，並可於步驟間傳遞資料。
 
-**Implementation:**
-- Access `callback_context.state` or `tool_context.state`
-- Modifications (`state['key'] = value`) are automatically tracked in the subsequent `Event.actions.state_delta`
-- Changes are persisted by the `SessionService`
+**實作方式：**
+- 存取 `callback_context.state` 或 `tool_context.state`
+- 修改（`state['key'] = value`）會自動被追蹤於後續的 `Event.actions.state_delta`
+- 變更內容會由 `SessionService` 持久化
 
-**Example Use Case:**
-An `after_tool_callback` saves a `transaction_id` from the tool's result to `tool_context.state['last_transaction_id']`. A later `before_agent_callback` might read `state['user_tier']` to customize the agent's greeting.
+**範例應用情境：**  
+`after_tool_callback` 將工具結果中的 `transaction_id` 儲存到 `tool_context.state['last_transaction_id']`。稍後的 `before_agent_callback` 可讀取 `state['user_tier']`，用以客製化代理的問候語。
 
-### 3. Logging and Monitoring { #logging-and-monitoring }
+### 3. 日誌紀錄與監控 { #logging-and-monitoring }
 
-**Pattern Overview:**
-Add detailed logging at specific lifecycle points for observability and debugging.
+**模式概述：**  
+於特定生命週期階段新增詳細日誌，提升可觀察性與除錯能力。
 
-**Implementation:**
-- Implement callbacks (e.g., `before_agent_callback`, `after_tool_callback`, `after_model_callback`)
-- Print or send structured logs containing:
-  - Agent name
-  - Tool name
-  - Invocation ID
-  - Relevant data from the context or arguments
+**實作方式：**
+- 實作回呼函式（如 `before_agent_callback`、`after_tool_callback`、`after_model_callback`）
+- 輸出或傳送結構化日誌，內容包含：
+  - 代理（agent）名稱
+  - 工具名稱
+  - 執行 ID
+  - 來自 context 或參數的相關資料
 
-**Example Use Case:**
-Log messages like `INFO: [Invocation: e-123] Before Tool: search_api - Args: {'query': 'ADK'}`.
+**範例應用情境：**  
+記錄如 `INFO: [Invocation: e-123] Before Tool: search_api - Args: {'query': 'ADK'}` 的日誌訊息。
 
-### 4. Caching { #caching }
+### 4. 快取機制 { #caching }
 
-**Pattern Overview:**
-Avoid redundant LLM calls or tool executions by caching results.
+**模式概述：**  
+藉由快取結果，避免重複的大型語言模型 (LLM) 呼叫或工具執行。
 
-**Implementation Steps:**
-1. **Before Operation:** In `before_model_callback` or `before_tool_callback`:
-   - Generate a cache key based on the request/arguments
-   - Check `context.state` (or an external cache) for this key
-   - If found, return the cached `LlmResponse` or result directly
+**實作步驟：**
+1. **操作前：** 在 `before_model_callback` 或 `before_tool_callback` 中：
+   - 根據請求/參數產生快取鍵
+   - 檢查 `context.state`（或外部快取）是否已有此鍵
+   - 若有，直接回傳快取的 `LlmResponse` 或結果
 
-2. **After Operation:** If cache miss occurred:
-   - Use the corresponding `after_` callback to store the new result in the cache using the key
+2. **操作後：** 若為快取未命中：
+   - 使用對應的 `after_` 回呼函式，將新結果以該鍵存入快取
 
-**Example Use Case:**
-`before_tool_callback` for `get_stock_price(symbol)` checks `state[f"cache:stock:{symbol}"]`. If present, returns the cached price; otherwise, allows the API call and `after_tool_callback` saves the result to the state key.
+**範例應用情境：**  
+`before_tool_callback` 針對 `get_stock_price(symbol)` 檢查 `state[f"cache:stock:{symbol}"]`，若有則回傳快取價格，否則允許 API 呼叫，並由 `after_tool_callback` 將結果儲存至狀態鍵。
 
-### 5. Request/Response Modification { #request-response-modification }
+### 5. 請求/回應修改 { #request-response-modification }
 
-**Pattern Overview:**
-Alter data just before it's sent to the LLM/tool or just after it's received.
+**模式概述：**  
+在資料送出至 LLM/工具前或接收後進行調整。
 
-**Implementation Options:**
-- **`before_model_callback`:** Modify `llm_request` (e.g., add system instructions based on `state`)
-- **`after_model_callback`:** Modify the returned `LlmResponse` (e.g., format text, filter content)
-- **`before_tool_callback`:** Modify the tool `args` dictionary (or Map in Java)
-- **`after_tool_callback`:** Modify the `tool_response` dictionary (or Map in Java)
+**實作選項：**
+- **`before_model_callback`：** 修改 `llm_request`（例如根據 `state` 增加系統指令）
+- **`after_model_callback`：** 修改回傳的 `LlmResponse`（如格式化文字、過濾內容）
+- **`before_tool_callback`：** 修改工具 `args` 字典（或 Java 中的 Map）
+- **`after_tool_callback`：** 修改 `tool_response` 字典（或 Java 中的 Map）
 
-**Example Use Case:**
-`before_model_callback` appends "User language preference: Spanish" to `llm_request.config.system_instruction` if `context.state['lang'] == 'es'`.
+**範例應用情境：**  
+`before_model_callback` 若偵測到 `context.state['lang'] == 'es'`，則在 `llm_request.config.system_instruction` 後方加上「User language preference: Spanish」。
 
-### 6. Conditional Skipping of Steps { #conditional-skipping-of-steps }
+### 6. 條件式跳過步驟 { #conditional-skipping-of-steps }
 
-**Pattern Overview:**
-Prevent standard operations (agent run, LLM call, tool execution) based on certain conditions.
+**模式概述：**  
+根據特定條件，阻止標準操作（代理運行、LLM 呼叫、工具執行）。
 
-**Implementation:**
-- Return a value from a `before_` callback to skip the normal execution:
-  - `Content` from `before_agent_callback`
-  - `LlmResponse` from `before_model_callback`
-  - `dict` from `before_tool_callback`
-- The framework interprets this returned value as the result for that step
+**實作方式：**
+- 於 `before_` 回呼函式中回傳值以跳過正常執行：
+  - `Content` 來自 `before_agent_callback`
+  - `LlmResponse` 來自 `before_model_callback`
+  - `dict` 來自 `before_tool_callback`
+- 框架會將此回傳值視為該步驟的結果
 
-**Example Use Case:**
-`before_tool_callback` checks `tool_context.state['api_quota_exceeded']`. If `True`, it returns `{'error': 'API quota exceeded'}`, preventing the actual tool function from running.
+**範例應用情境：**  
+`before_tool_callback` 檢查 `tool_context.state['api_quota_exceeded']`。若 `True`，則回傳 `{'error': 'API quota exceeded'}`，阻止實際工具函式執行。
 
-### 7. Tool-Specific Actions (Authentication & Summarization Control) { #tool-specific-actions-authentication-summarization-control }
+### 7. 工具專屬行為（認證與摘要控制） { #tool-specific-actions-authentication-summarization-control }
 
-**Pattern Overview:**
-Handle actions specific to the tool lifecycle, primarily authentication and controlling LLM summarization of tool results.
+**模式概述：**  
+處理工具生命週期專屬行為，主要為認證（Authentication）與控制 LLM 對工具結果的摘要。
 
-**Implementation:**
-Use `ToolContext` within tool callbacks (`before_tool_callback`, `after_tool_callback`):
+**實作方式：**  
+在工具回呼函式（`before_tool_callback`、`after_tool_callback`）中使用 `ToolContext`：
 
-- **Authentication:** Call `tool_context.request_credential(auth_config)` in `before_tool_callback` if credentials are required but not found (e.g., via `tool_context.get_auth_response` or state check). This initiates the auth flow.
-- **Summarization:** Set `tool_context.actions.skip_summarization = True` if the raw dictionary output of the tool should be passed back to the LLM or potentially displayed directly, bypassing the default LLM summarization step.
+- **認證：** 若需要憑證但未找到（例如透過 `tool_context.get_auth_response` 或狀態檢查），則於 `before_tool_callback` 中呼叫 `tool_context.request_credential(auth_config)`，啟動認證流程。
+- **摘要控制：** 若希望將工具的原始字典輸出直接傳回 LLM 或直接顯示，跳過預設的 LLM 摘要步驟，則設定 `tool_context.actions.skip_summarization = True`。
 
-**Example Use Case:**
-A `before_tool_callback` for a secure API checks for an auth token in state; if missing, it calls `request_credential`. An `after_tool_callback` for a tool returning structured JSON might set `skip_summarization = True`.
+**範例應用情境：**  
+針對安全 API 的 `before_tool_callback` 會檢查狀態中是否有認證權杖；若無則呼叫 `request_credential`。針對回傳結構化 JSON 的工具，`after_tool_callback` 可能會設定 `skip_summarization = True`。
 
-### 8. Artifact Handling { #artifact-handling }
+### 8. 檔案與大型資料處理 { #artifact-handling }
 
-**Pattern Overview:**
-Save or load session-related files or large data blobs during the agent lifecycle.
+**模式概述：**  
+於代理（agent）生命週期中儲存或載入與 session 相關的檔案或大型資料。
 
-**Implementation:**
-- **Saving:** Use `callback_context.save_artifact` / `await tool_context.save_artifact` to store data:
-  - Generated reports
-  - Logs
-  - Intermediate data
-- **Loading:** Use `load_artifact` to retrieve previously stored artifacts
-- **Tracking:** Changes are tracked via `Event.actions.artifact_delta`
+**實作方式：**
+- **儲存：** 使用 `callback_context.save_artifact` / `await tool_context.save_artifact` 儲存資料：
+  - 產生的報告
+  - 日誌
+  - 中間資料
+- **載入：** 使用 `load_artifact` 讀取先前儲存的 artifact
+- **追蹤：** 變更會透過 `Event.actions.artifact_delta` 追蹤
 
-**Example Use Case:**
-An `after_tool_callback` for a "generate_report" tool saves the output file using `await tool_context.save_artifact("report.pdf", report_part)`. A `before_agent_callback` might load a configuration artifact using `callback_context.load_artifact("agent_config.json")`.
+**範例應用情境：**  
+「generate_report」工具的 `after_tool_callback` 會用 `await tool_context.save_artifact("report.pdf", report_part)` 儲存輸出檔案。`before_agent_callback` 可能會用 `callback_context.load_artifact("agent_config.json")` 載入設定檔 artifact。
 
-## Best Practices for Callbacks
+## 回呼函式的最佳實踐
 
-### Design Principles
+### 設計原則
 
-**Keep Focused:**
-Design each callback for a single, well-defined purpose (e.g., just logging, just validation). Avoid monolithic callbacks.
+**保持專注：**  
+每個回呼函式應只針對單一、明確的目的設計（例如僅做日誌、僅做驗證），避免設計成龐大的多功能回呼函式。
 
-**Mind Performance:**
-Callbacks execute synchronously within the agent's processing loop. Avoid long-running or blocking operations (network calls, heavy computation). Offload if necessary, but be aware this adds complexity.
+**注意效能：**  
+回呼函式會在代理（agent）處理流程中同步執行。避免執行長時間或阻塞性操作（如網路呼叫、重度運算）。如有必要請另行分流，但需注意這會增加複雜度。
 
-### Error Handling
+### 錯誤處理
 
-**Handle Errors Gracefully:**
-- Use `try...except/catch` blocks within your callback functions
-- Log errors appropriately
-- Decide if the agent invocation should halt or attempt recovery
-- Don't let callback errors crash the entire process
+**優雅處理錯誤：**
+- 在回呼函式中使用 `try...except/catch` 區塊
+- 適當記錄錯誤
+- 決定代理（agent）呼叫是否應中止或嘗試復原
+- 不要讓回呼函式錯誤導致整個流程崩潰
 
-### State Management
+### 狀態管理
 
-**Manage State Carefully:**
-- Be deliberate about reading from and writing to `context.state`
-- Changes are immediately visible within the _current_ invocation and persisted at the end of the event processing
-- Use specific state keys rather than modifying broad structures to avoid unintended side effects
-- Consider using state prefixes (`State.APP_PREFIX`, `State.USER_PREFIX`, `State.TEMP_PREFIX`) for clarity, especially with persistent `SessionService` implementations
+**謹慎管理狀態：**
+- 有意識地讀寫 `context.state`
+- 變更會立即於「當前」呼叫中可見，並於事件處理結束時持久化
+- 儘量使用明確的狀態鍵，避免修改過於廣泛的結構，以免產生非預期副作用
+- 建議使用狀態前綴（`State.APP_PREFIX`、`State.USER_PREFIX`、`State.TEMP_PREFIX`）以提升可讀性，特別是在持久化 `SessionService` 實作時
 
-### Reliability
+### 可靠性
 
-**Consider Idempotency:**
-If a callback performs actions with external side effects (e.g., incrementing an external counter), design it to be idempotent (safe to run multiple times with the same input) if possible, to handle potential retries in the framework or your application.
+**考慮冪等性（Idempotency）：**  
+若回呼函式會對外部產生副作用（如遞增外部計數器），請盡量設計為冪等（相同輸入多次執行結果一致），以因應框架或應用程式可能的重試情境。
 
-### Testing & Documentation
+### 測試與文件
 
-**Test Thoroughly:**
-- Unit test your callback functions using mock context objects
-- Perform integration tests to ensure callbacks function correctly within the full agent flow
+**充分測試：**
+- 使用模擬 context 物件對回呼函式進行單元測試
+- 進行整合測試，確保回呼函式在完整代理流程中運作正常
 
-**Ensure Clarity:**
-- Use descriptive names for your callback functions
-- Add clear docstrings explaining their purpose, when they run, and any side effects (especially state modifications)
+**確保清晰：**
+- 為回呼函式命名具描述性
+- 加上清楚的註解，說明用途、觸發時機及副作用（特別是狀態變更）
 
-**Use Correct Context Type:**
-Always use the specific context type provided (`CallbackContext` for agent/model, `ToolContext` for tools) to ensure access to the appropriate methods and properties.
+**使用正確的 context 類型：**  
+務必使用提供的專屬 context 類型（代理/模型用 `CallbackContext`，工具用 `ToolContext`），以確保能存取正確的方法與屬性。
 
-By applying these patterns and best practices, you can effectively use callbacks to create more robust, observable, and customized agent behaviors in ADK.
+善用這些設計模式與最佳實踐，能讓你在 Agent Development Kit (ADK)（ADK）中有效運用回呼函式，打造更強健、可觀察且可自訂的代理（agent）行為。

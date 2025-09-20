@@ -1,39 +1,39 @@
-# Third Party Tools
+# 第三方工具
 
-![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="This feature is currently available for Python. Java support is planned/ coming soon."}
+![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python，Java 支援計畫中／即將推出。"}
 
-ADK is designed to be **highly extensible, allowing you to seamlessly integrate tools from other AI Agent frameworks** like CrewAI and LangChain. This interoperability is crucial because it allows for faster development time and allows you to reuse existing tools.
+Agent Development Kit (ADK) 設計上**高度可擴充，讓你能無縫整合來自其他 AI Agent 框架**（如 CrewAI 與 LangChain）的工具。這種互通性非常關鍵，因為它能加速開發流程，並讓你重複利用現有工具。
 
-## 1. Using LangChain Tools
+## 1. 使用 LangChain 工具
 
-ADK provides the `LangchainTool` wrapper to integrate tools from the LangChain ecosystem into your agents.
+ADK 提供 `LangchainTool` 包裝器，讓你可以將 LangChain 生態系的工具整合進你的 agent 中。
 
-### Example: Web Search using LangChain's Tavily tool
+### 範例：使用 LangChain 的 Tavily 工具進行網頁搜尋
 
-[Tavily](https://tavily.com/) provides a search API that returns answers derived from real-time search results, intended for use by applications like AI agents.
+[Tavily](https://tavily.com/) 提供一個搜尋 API，能根據即時搜尋結果回傳答案，適用於 AI agent 等應用。
 
-1. Follow [ADK installation and setup](../get-started/installation.md) guide.
+1. 請依照 [ADK 安裝與設定](../get-started/installation.md) 指引進行。
 
-2. **Install Dependencies:** Ensure you have the necessary LangChain packages installed. For example, to use the Tavily search tool, install its specific dependencies:
+2. **安裝相依套件：**請確保已安裝所需的 LangChain 套件。例如，若要使用 Tavily 搜尋工具，請安裝其專屬相依套件：
 
     ```bash
     pip install langchain_community tavily-python
     ```
 
-3. Obtain a [Tavily](https://tavily.com/) API KEY and export it as an environment variable.
+3. 取得一組 [Tavily](https://tavily.com/) API KEY，並將其作為環境變數匯出。
 
     ```bash
     export TAVILY_API_KEY=<REPLACE_WITH_API_KEY>
     ```
 
-4. **Import:** Import the `LangchainTool` wrapper from ADK and the specific `LangChain` tool you wish to use (e.g, `TavilySearchResults`).
+4. **匯入：** 從 Agent Development Kit (ADK) 匯入 `LangchainTool` 包裝器，以及你想要使用的特定 `LangChain` 工具（例如，`TavilySearchResults`）。
 
     ```py
     from google.adk.tools.langchain_tool import LangchainTool
     from langchain_community.tools import TavilySearchResults
     ```
 
-5. **Instantiate & Wrap:** Create an instance of your LangChain tool and pass it to the `LangchainTool` constructor.
+5. **實例化與包裝：** 建立你的 LangChain 工具實例，並將其傳遞給 `LangchainTool` 建構子。
 
     ```py
     # Instantiate the LangChain tool
@@ -49,7 +49,7 @@ ADK provides the `LangchainTool` wrapper to integrate tools from the LangChain e
     adk_tavily_tool = LangchainTool(tool=tavily_tool_instance)
     ```
 
-6. **Add to Agent:** Include the wrapped `LangchainTool` instance in your agent's `tools` list during definition.
+6. **加入至 Agent：** 在定義時，將包裝後的 `LangchainTool` 實例加入你的 agent 的 `tools` 清單中。
 
     ```py
     from google.adk import Agent
@@ -64,44 +64,44 @@ ADK provides the `LangchainTool` wrapper to integrate tools from the LangChain e
     )
     ```
 
-### Full Example: Tavily Search
+### 完整範例：Tavily Search
 
-Here's the full code combining the steps above to create and run an agent using the LangChain Tavily search tool.
+以下是結合上述步驟，使用 LangChain Tavily 搜尋工具來建立並執行 agent 的完整程式碼。
 
 ```py
 --8<-- "examples/python/snippets/tools/third-party/langchain_tavily_search.py"
 ```
 
-## 2. Using CrewAI tools
+## 2. 使用 CrewAI 工具
 
-ADK provides the `CrewaiTool` wrapper to integrate tools from the CrewAI library.
+Agent Development Kit (ADK) 提供了 `CrewaiTool` 包裝器，用於整合 CrewAI 函式庫中的工具。
 
-### Example: Web Search using CrewAI's Serper API
+### 範例：使用 CrewAI 的 Serper API 進行網頁搜尋
 
-[Serper API](https://serper.dev/) provides access to Google Search results programmatically. It allows applications, like AI agents, to perform real-time Google searches (including news, images, etc.) and get structured data back without needing to scrape web pages directly.
+[Serper API](https://serper.dev/) 可讓你以程式化方式存取 Google 搜尋結果。這讓應用程式（如 AI agent）能夠即時執行 Google 搜尋（包含新聞、圖片等），並取得結構化資料，無需直接爬取網頁。
 
-1. Follow [ADK installation and setup](../get-started/installation.md) guide.
+1. 請依照 [ADK 安裝與設定](../get-started/installation.md) 指南操作。
 
-2. **Install Dependencies:** Install the necessary CrewAI tools package. For example, to use the SerperDevTool:
+2. **安裝相依套件：** 安裝所需的 CrewAI 工具套件。例如，若要使用 SerperDevTool：
 
     ```bash
     pip install crewai-tools
     ```
 
-3. Obtain a [Serper API KEY](https://serper.dev/) and export it as an environment variable.
+3. 取得 [Serper API KEY](https://serper.dev/)，並將其作為環境變數匯出。
 
     ```bash
     export SERPER_API_KEY=<REPLACE_WITH_API_KEY>
     ```
 
-4. **Import:** Import `CrewaiTool` from ADK and the desired CrewAI tool (e.g, `SerperDevTool`).
+4. **匯入：** 從 Agent Development Kit (ADK) 匯入 `CrewaiTool`，以及所需的 CrewAI 工具（例如 `SerperDevTool`）。
 
     ```py
     from google.adk.tools.crewai_tool import CrewaiTool
     from crewai_tools import SerperDevTool
     ```
 
-5. **Instantiate & Wrap:** Create an instance of the CrewAI tool. Pass it to the `CrewaiTool` constructor. **Crucially, you must provide a name and description** to the ADK wrapper, as these are used by ADK's underlying model to understand when to use the tool.
+5. **實例化與包裝：** 建立一個 CrewAI 工具的實例，並將其傳遞給 `CrewaiTool` 建構子。**特別重要的是，你必須為 ADK 包裝器提供名稱與描述**，因為這些資訊會被 Agent Development Kit (ADK) 的底層模型用來判斷何時該使用此工具。
 
     ```py
     # Instantiate the CrewAI tool
@@ -119,7 +119,7 @@ ADK provides the `CrewaiTool` wrapper to integrate tools from the CrewAI library
     )
     ```
 
-6. **Add to Agent:** Include the wrapped `CrewaiTool` instance in your agent's `tools` list.
+6. **加入至 Agent：** 將封裝後的 `CrewaiTool` 實例加入你的 agent 的 `tools` 清單中。
 
     ```py
     from google.adk import Agent
@@ -134,9 +134,9 @@ ADK provides the `CrewaiTool` wrapper to integrate tools from the CrewAI library
     )
     ```
 
-### Full Example: Serper API
+### 完整範例：Serper API
 
-Here's the full code combining the steps above to create and run an agent using the CrewAI Serper API search tool.
+以下是結合上述步驟，使用 CrewAI Serper API 搜尋工具來建立並執行 agent 的完整程式碼。
 
 ```py
 --8<-- "examples/python/snippets/tools/third-party/crewai_serper_search.py"

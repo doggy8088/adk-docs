@@ -1,85 +1,56 @@
-# Introduction to Conversational Context: Session, State, and Memory
+# 對話情境介紹：Session、State 與 Memory
 
-## Why Context Matters
+## 為什麼情境很重要
 
-Meaningful, multi-turn conversations require agents to understand context. Just
-like humans, they need to recall the conversation history: what's been said and
-done to maintain continuity and avoid repetition. The Agent Development Kit
-(ADK) provides structured ways to manage this context through `Session`,
-`State`, and `Memory`.
+有意義的多輪對話需要 agent 能夠理解情境。就像人類一樣，agent 需要記住對話歷史：已經說過什麼、做過什麼，才能維持連貫性並避免重複。Agent Development Kit (ADK) 提供了結構化的方式，透過 `Session`、`State` 和 `Memory` 來管理這些情境。
 
-## Core Concepts
+## 核心概念
 
-Think of different instances of your conversations with the agent as distinct
-**conversation threads**, potentially drawing upon **long-term knowledge**.
+你可以將與 agent 的不同對話實例想像成獨立的**對話線程**，這些線程有時會引用**長期知識**。
 
-1.  **`Session`**: The Current Conversation Thread
+1.  **`Session`**：當前對話線程
 
-    *   Represents a *single, ongoing interaction* between a user and your agent
-        system.
-    *   Contains the chronological sequence of messages and actions taken by the
-        agent (referred to `Events`) during *that specific interaction*.
-    *   A `Session` can also hold temporary data (`State`) relevant only *during
-        this conversation*.
+    *   代表使用者與你的 agent 系統之間*單一且持續進行中的互動*。
+    *   包含 agent 在*該次互動*期間，依時間順序產生的訊息與動作（稱為 `Events`）。
+    *   `Session` 也可以保存僅*在本次對話期間*有效的暫存資料（`State`）。
 
-2.  **`State` (`session.state`)**: Data Within the Current Conversation
+2.  **`State`（`session.state`）**：當前對話中的資料
 
-    *   Data stored within a specific `Session`.
-    *   Used to manage information relevant *only* to the *current, active*
-        conversation thread (e.g., items in a shopping cart *during this chat*,
-        user preferences mentioned *in this session*).
+    *   儲存在特定 `Session` 內的資料。
+    *   用來管理*僅與目前這條對話線程*相關的資訊（例如：*本次聊天*中的購物車項目、*本次 session*中提及的使用者偏好）。
 
-3.  **`Memory`**: Searchable, Cross-Session Information
+3.  **`Memory`**：可搜尋、跨 Session 的資訊
 
-    *   Represents a store of information that might span *multiple past
-        sessions* or include external data sources.
-    *   It acts as a knowledge base the agent can *search* to recall information
-        or context beyond the immediate conversation.
+    *   代表一個資訊儲存區，可能涵蓋*多個過去的 session*，或包含外部資料來源。
+    *   它就像 agent 可用來*搜尋*、回憶超越當前對話範圍的資訊或情境的知識庫。
 
-## Managing Context: Services
+## 情境管理：服務
 
-ADK provides services to manage these concepts:
+ADK 提供服務來管理這些概念：
 
-1.  **`SessionService`**: Manages the different conversation threads (`Session`
-    objects)
+1.  **`SessionService`**：管理不同的對話線程（`Session` 物件）
 
-    *   Handles the lifecycle: creating, retrieving, updating (appending
-        `Events`, modifying `State`), and deleting individual `Session`s.
+    *   處理生命週期：建立、取得、更新（新增 `Events`、修改 `State`），以及刪除個別 `Session`。
 
-2.  **`MemoryService`**: Manages the Long-Term Knowledge Store (`Memory`)
+2.  **`MemoryService`**：管理長期知識儲存（`Memory`）
 
-    *   Handles ingesting information (often from completed `Session`s) into the
-        long-term store.
-    *   Provides methods to search this stored knowledge based on queries.
+    *   處理將資訊（通常來自已結束的 `Session`）匯入長期儲存區。
+    *   提供根據查詢搜尋這些已儲存知識的方法。
 
-**Implementations**: ADK offers different implementations for both
-`SessionService` and `MemoryService`, allowing you to choose the storage backend
-that best fits your application's needs. Notably, **in-memory implementations**
-are provided for both services; these are designed specifically for **local
-testing and fast development**. It's important to remember that **all data
-stored using these in-memory options (sessions, state, or long-term knowledge)
-is lost when your application restarts**. For persistence and scalability beyond
-local testing, ADK also offers cloud-based and database service options.
+**實作方式**：ADK 為 `SessionService` 和 `MemoryService` 都提供了不同的實作選擇，讓你可以根據應用需求選擇最合適的儲存後端。特別值得一提的是，兩種服務都提供了**記憶體內（in-memory）實作**，這些設計專為**本機測試與快速開發**而打造。請注意，**所有使用這些記憶體內選項（sessions、state 或長期知識）儲存的資料，在應用程式重新啟動時都會遺失**。若需持久化與可擴展性超越本機測試，ADK 也提供雲端及資料庫服務選項。
 
-**In Summary:**
+**總結：**
 
-*   **`Session` & `State`**: Focus on the **current interaction** – the history
-    and data of the *single, active conversation*. Managed primarily by a
-    `SessionService`.
-*   **Memory**: Focuses on the **past and external information** – a *searchable
-    archive* potentially spanning across conversations. Managed by a
-    `MemoryService`.
+*   **`Session` & `State`**：聚焦於**當前互動**——*單一、主動對話*的歷史與資料。主要由 `SessionService` 管理。
+*   **Memory**：聚焦於**過去與外部資訊**——*可搜尋的歸檔*，可能跨越多次對話。由 `MemoryService` 管理。
 
-## What's Next?
+## 接下來？
 
-In the following sections, we'll dive deeper into each of these components:
+在接下來的章節中，我們將更深入探討這些元件：
 
-*   **`Session`**: Understanding its structure and `Events`.
-*   **`State`**: How to effectively read, write, and manage session-specific
-    data.
-*   **`SessionService`**: Choosing the right storage backend for your sessions.
-*   **`MemoryService`**: Exploring options for storing and retrieving broader
-    context.
+*   **`Session`**：理解其結構與 `Events`。
+*   **`State`**：如何有效讀取、寫入與管理 session 專屬資料。
+*   **`SessionService`**：為你的 session 選擇合適的儲存後端。
+*   **`MemoryService`**：探索儲存與取得更廣泛情境的選項。
 
-Understanding these concepts is fundamental to building agents that can engage
-in complex, stateful, and context-aware conversations.
+理解這些概念，是打造能夠進行複雜、有狀態且具情境感知對話 agent 的基礎。

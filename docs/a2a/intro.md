@@ -1,101 +1,52 @@
-# Introduction to A2A
+# A2A 介紹
 
-As you build more complex agentic systems, you will find that a single agent
-is often not enough. You will want to create specialized agents that can
-collaborate to solve a problem. The [**Agent2Agent (A2A) Protocol**](https://a2a-protocol.org) is the
-standard that allows these agents to communicate with each other.
+隨著你建立越來越複雜的代理（agent）系統，你會發現單一 agent 往往無法滿足需求。你可能希望建立專門化的 agent，讓它們能夠協作解決問題。[**Agent2Agent (A2A) Protocol**](https://a2a-protocol.org) 就是一套標準，讓這些 agent 能夠彼此通訊。
 
-## When to Use A2A vs. Local Sub-Agents
+## 何時使用 A2A 與本地子代理（Local Sub-Agents）
 
-- **Local Sub-Agents:** These are agents that run *within the same application
-  process* as your main agent. They are like internal modules or libraries, used
-  to organize your code into logical, reusable components. Communication between
-  a main agent and its local sub-agents is very fast because it happens
-  directly in memory, without network overhead.
+- **本地子代理（Local Sub-Agents）：** 這些 agent *在與你的主 agent 相同的應用程式程序內* 執行。它們就像內部模組或函式庫一樣，用來將你的程式碼組織成有邏輯、可重複使用的元件。主 agent 與本地子代理之間的通訊非常快速，因為它們直接在記憶體中運作，沒有網路負擔。
 
-- **Remote Agents (A2A):** These are independent agents that run as separate
-  services, communicating over a network. A2A defines the standard protocol
-  for this communication.
+- **遠端代理（Remote Agents，A2A）：** 這些是作為獨立服務運行的 agent，透過網路進行通訊。A2A 定義了這種通訊的標準協議。
 
-Consider using **A2A** when:
+當你遇到以下情境時，建議考慮使用 **A2A**：
 
-- The agent you need to talk to is a **separate, standalone service** (e.g., a
-  specialized financial modeling agent).
-- The agent is maintained by a **different team or organization**.
-- You need to connect agents written in **different programming languages or
-  agent frameworks**.
-- You want to enforce a **strong, formal contract** (the A2A protocol) between
-  your system's components.
+- 你需要溝通的 agent 是**獨立、可單獨運作的服務**（例如：專門的財務建模 agent）。
+- 該 agent 由**不同的團隊或組織**維護。
+- 你需要連接**使用不同程式語言或 agent 框架**編寫的 agent。
+- 你希望在系統元件間強制執行**嚴謹、正式的合約**（即 A2A 協議）。
 
-### When to Use A2A: Concrete Examples
+### 何時使用 A2A：具體範例
 
-- **Integrating with a Third-Party Service:** Your main agent needs to get
-  real-time stock prices from an external financial data provider. This
-  provider exposes its data through an A2A-compatible agent.
-- **Microservices Architecture:** You have a large system broken down into
-  smaller, independent services (e.g., an Order Processing Agent, an Inventory
-  Management Agent, a Shipping Agent). A2A is ideal for these services to
-  communicate with each other across network boundaries.
-- **Cross-Language Communication:** Your core business logic is in a Python
-  agent, but you have a legacy system or a specialized component written in Java
-  that you want to integrate as an agent. A2A provides the standardized
-  communication layer.
-- **Formal API Enforcement:** You are building a platform where different teams
-  contribute agents, and you need a strict contract for how these agents
-  interact to ensure compatibility and stability.
+- **整合第三方服務：** 你的主 agent 需要從外部金融資料供應商即時取得股價。該供應商透過支援 A2A 的 agent 提供資料。
+- **微服務架構：** 你的大型系統被拆分為多個小型、獨立服務（例如：訂單處理 agent、庫存管理 agent、出貨 agent）。A2A 非常適合讓這些服務跨網路邊界彼此通訊。
+- **跨語言通訊：** 你的核心商業邏輯在 Python agent 中，但你有一個舊系統或專門元件是用 Java 編寫，想要以 agent 方式整合。A2A 提供標準化的通訊層。
+- **正式 API 合約：** 你正在建立一個平台，不同團隊會貢獻 agent，你需要嚴格規範這些 agent 如何互動，以確保相容性與穩定性。
 
-### When NOT to Use A2A: Concrete Examples (Prefer Local Sub-Agents)
+### 何時**不**要使用 A2A：具體範例（建議使用本地子代理）
 
-- **Internal Code Organization:** You are breaking down a complex task within a
-  single agent into smaller, manageable functions or modules (e.g., a
-  `DataValidator` sub-agent that cleans input data before processing). These are
-  best handled as local sub-agents for performance and simplicity.
-- **Performance-Critical Internal Operations:** A sub-agent is responsible for a
-  high-frequency, low-latency operation that is tightly coupled with the main
-  agent's execution (e.g., a `RealTimeAnalytics` sub-agent that processes data
-  streams within the same application).
-- **Shared Memory/Context:** When sub-agents need direct access to the main
-  agent's internal state or shared memory for efficiency, A2A's network
-  overhead and serialization/deserialization would be counterproductive.
-- **Simple Helper Functions:** For small, reusable pieces of logic that don't
-  require independent deployment or complex state management, a simple function
-  or class within the same agent is more appropriate than a separate A2A agent.
+- **內部程式碼組織：** 你將單一 agent 內的複雜任務拆分為較小、易於管理的函式或模組（例如：`DataValidator` 子代理負責在處理前清理輸入資料）。這類情境為了效能與簡單性，建議使用本地子代理。
+- **效能關鍵的內部操作：** 某個子代理負責高頻率、低延遲且與主 agent 執行緊密耦合的操作（例如：`RealTimeAnalytics` 子代理在同一應用程式中處理資料流）。這類操作適合本地子代理。
+- **共用記憶體／上下文：** 當子代理需要直接存取主 agent 的內部狀態或共用記憶體以提升效率時，A2A 的網路負擔與序列化／反序列化反而會造成反效果。
+- **簡單輔助函式：** 對於不需要獨立部署或複雜狀態管理的小型、可重複使用邏輯，直接在同一 agent 中實作函式或類別會比建立獨立的 A2A agent 更合適。
 
-## The A2A Workflow in ADK: A Simplified View
+## ADK 中的 A2A 工作流程：簡化說明
 
-Agent Development Kit (ADK) simplifies the process of building and connecting
-agents using the A2A protocol. Here's a straightforward breakdown of how it
-works:
+Agent Development Kit (ADK)（ADK）簡化了使用 A2A 協議建立與連接 agent 的流程。以下是其運作方式的簡明說明：
 
-1. **Making an Agent Accessible (Exposing):** You start with an existing ADK
-    agent that you want other agents to be able to interact with. The ADK
-    provides a simple way to "expose" this agent, turning it into an
-    **A2AServer**. This server acts as a public interface, allowing other agents
-    to send requests to your agent over a network. Think of it like setting up a
-    web server for your agent.
+1. **讓 agent 可被存取（暴露）：** 你有一個現有的 ADK agent，希望其他 agent 能與之互動。ADK 提供簡單的方法來「暴露」這個 agent，將其轉換為 **A2AServer**。這個 server 就像公開介面，允許其他 agent 透過網路向你的 agent 發送請求。你可以把它想像成為你的 agent 架設一個網頁伺服器。
 
-2. **Connecting to an Accessible Agent (Consuming):** In a separate agent
-    (which could be running on the same machine or a different one), you'll use
-    a special ADK component called `RemoteA2aAgent`. This `RemoteA2aAgent` acts
-    as a client that knows how to communicate with the **A2AServer** you
-    exposed earlier. It handles all the complexities of network communication,
-    authentication, and data formatting behind the scenes.
+2. **連接到可存取的 agent（消費）：** 在另一個 agent（可以在同一台機器或不同機器上運行）中，你會使用一個特殊的 ADK 元件 `RemoteA2aAgent`。這個 `RemoteA2aAgent` 會作為 client，知道如何與你先前暴露的 **A2AServer** 通訊。它會在背後處理所有網路通訊、認證與資料格式化的複雜細節。
 
-From your perspective as a developer, once you've set up this connection,
-interacting with the remote agent feels just like interacting with a local tool
-or function. The ADK abstracts away the network layer, making distributed agent
-systems as easy to work with as local ones.
+從開發者的角度來看，一旦你設置好這個連線，與遠端 agent 的互動就像操作本地工具或函式一樣簡單。ADK 幫你抽象掉網路層，讓分散式 agent 系統的使用體驗就像本地系統一樣容易。
 
-## Visualizing the A2A Workflow
+## A2A 工作流程視覺化
 
-To further clarify the A2A workflow, let's look at the "before and after" for
-both exposing and consuming agents, and then the combined system.
+為了進一步說明 A2A 的工作流程，我們來看看「暴露」與「消費」 agent 前後的狀態，以及它們組合成的系統。
 
-### Exposing an Agent
+### 暴露 agent
 
-**Before Exposing:**
-Your agent code runs as a standalone component, but in this scenario, you want
-to expose it so that other remote agents can interact with your agent.
+**暴露前：**
+你的 agent 程式碼以獨立元件運行，但在這個情境下，你希望將它暴露出來，讓其他遠端 agent 能夠與你的 agent 互動。
 
 ```text
 +-------------------+
@@ -104,9 +55,8 @@ to expose it so that other remote agents can interact with your agent.
 +-------------------+
 ```
 
-**After Exposing:**
-Your agent code is integrated with an `A2AServer` (an ADK component), making it
-accessible over a network to other remote agents.
+**對外公開後：**
+您的 agent 程式碼已與`A2AServer`（一個 Agent Development Kit (ADK) 元件）整合，使其能夠透過網路被其他遠端 agent 存取。
 
 ```text
 +-----------------+
@@ -128,12 +78,10 @@ accessible over a network to other remote agents.
 +-----------------------------+
 ```
 
-### Consuming an Agent
+### 使用 agent
 
-**Before Consuming:**
-Your agent (referred to as the "Root Agent" in this context) is the application
-you are developing that needs to interact with a remote agent. Before
-consuming, it lacks the direct mechanism to do so.
+**開始使用前：**
+你的 agent（在此情境下稱為「Root Agent」）是你正在開發、需要與遠端 agent 互動的應用程式。在開始使用前，它尚未具備直接互動的機制。
 
 ```text
 +----------------------+         +-------------------------------------------------------------+
@@ -142,10 +90,8 @@ consuming, it lacks the direct mechanism to do so.
 +----------------------+         +-------------------------------------------------------------+
 ```
 
-**After Consuming:**
-Your Root Agent uses a `RemoteA2aAgent` (an ADK component that acts as a
-client-side proxy for the remote agent) to establish communication with the
-remote agent.
+**消費後：**
+您的 Root Agent 會使用 `RemoteA2aAgent`（一個作為遠端 agent 用戶端代理的 Agent Development Kit (ADK) 元件）來建立與遠端 agent 的通訊。
 
 ```text
 +----------------------+         +-----------------------------------+
@@ -160,10 +106,9 @@ remote agent.
       (Now talks to remote agent via RemoteA2aAgent)
 ```
 
-### Final System (Combined View)
+### 最終系統（整合視圖）
 
-This diagram shows how the consuming and exposing parts connect to form a
-complete A2A system.
+此圖說明了消費端與公開端如何連接，形成一個完整的 A2A 系統。
 
 ```text
 Consuming Side:
@@ -192,16 +137,13 @@ Exposing Side:
                                                +-------------------+
 ```
 
-## Concrete Use Case: Customer Service and Product Catalog Agents
+## 具體使用案例：客服代理與產品目錄代理
 
-Let's consider a practical example: a **Customer Service Agent** that needs to
-retrieve product information from a separate **Product Catalog Agent**.
+我們來看一個實際範例：一個**客服代理（Customer Service Agent）**需要從另一個**產品目錄代理（Product Catalog Agent）**取得產品資訊。
 
-### Before A2A
+### 在 A2A 之前
 
-Initially, your Customer Service Agent might not have a direct, standardized
-way to query the Product Catalog Agent, especially if it's a separate service
-or managed by a different team.
+一開始，您的客服代理可能沒有直接且標準化的方式來查詢產品目錄代理，特別是當它是一個獨立服務或由不同團隊管理時。
 
 ```text
 +-------------------------+         +--------------------------+
@@ -211,11 +153,9 @@ or managed by a different team.
       (No direct, standardized communication)
 ```
 
-### After A2A
+### A2A 之後
 
-By using the A2A Protocol, the Product Catalog Agent can expose its
-functionality as an A2A service. Your Customer Service Agent can then easily
-consume this service using ADK's `RemoteA2aAgent`.
+透過使用 A2A Protocol，Product Catalog Agent 可以將其功能作為 A2A 服務對外提供。您的 Customer Service Agent 便能輕鬆地透過 Agent Development Kit (ADK) 的 `RemoteA2aAgent` 來存取此服務。
 
 ```text
 +-------------------------+         +-----------------------------------+
@@ -242,15 +182,11 @@ consume this service using ADK's `RemoteA2aAgent`.
                                                +------------------------+
 ```
 
-In this setup, first, the Product Catalog Agent needs to be exposed via an A2A
-Server. Then, the Customer Service Agent can simply call methods on the
-`RemoteA2aAgent` as if it were a tool, and the ADK handles all the underlying
-communication to the Product Catalog Agent. This allows for clear separation of
-concerns and easy integration of specialized agents.
+在這個設定中，首先需要透過 A2A Server 將 Product Catalog Agent 對外公開。接著，Customer Service Agent 就可以像使用工具一樣，直接呼叫 `RemoteA2aAgent` 上的方法，而所有與 Product Catalog Agent 的底層通訊都由 Agent Development Kit (ADK) 處理。這樣可以明確區分各自的職責，並且讓專業代理（agent）的整合變得簡單。
 
-## Next Steps
+## 下一步
 
-Now that you understand the "why" of A2A, let's dive into the "how."
+現在你已經了解 A2A 的「為什麼」，接下來讓我們深入「如何做」。
 
-- **Continue to the next guide:**
-  [Quickstart: Exposing Your Agent](./quickstart-exposing.md)
+- **繼續閱讀下一份指南：**
+  [快速開始：公開你的代理](./quickstart-exposing.md)

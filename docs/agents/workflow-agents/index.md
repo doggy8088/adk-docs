@@ -1,47 +1,47 @@
-# Workflow Agents
+# Workflow Agents（工作流程代理）
 
-This section introduces "*workflow agents*" - **specialized agents that control the execution flow of its sub-agents**.  
+本節介紹「*Workflow Agents（工作流程代理）*」——**專門用於控制其子代理（sub-agents）執行流程的特殊代理**。
 
-Workflow agents are specialized components in ADK designed purely for **orchestrating the execution flow of sub-agents**. Their primary role is to manage *how* and *when* other agents run, defining the control flow of a process.
+Workflow Agents（工作流程代理）是 Agent Development Kit (ADK)（ADK）中專為**協調子代理執行流程**而設計的特殊元件。它們的主要角色是管理其他代理如何（how）以及何時（when）執行，並定義整個流程的控制邏輯。
 
-Unlike [LLM Agents](../llm-agents.md), which use Large Language Models for dynamic reasoning and decision-making, Workflow Agents operate based on **predefined logic**. They determine the execution sequence according to their type (e.g., sequential, parallel, loop) without consulting an LLM for the orchestration itself. This results in **deterministic and predictable execution patterns**.
+與[LLM Agents（大型語言模型代理）](../llm-agents.md)不同，LLM Agents 會利用大型語言模型（Large Language Model, LLM）進行動態推理與決策，Workflow Agents 則是根據**預先定義的邏輯**運作。它們會依據自身類型（例如：順序、平行、迴圈）來決定執行順序，流程協調本身不會諮詢 LLM，因此具有**可預測且確定性的執行模式**。
 
-ADK provides three core workflow agent types, each implementing a distinct execution pattern:
+ADK 提供三種核心的 Workflow Agent（工作流程代理）類型，每一種都實現了不同的執行模式：
 
 <div class="grid cards" markdown>
 
-- :material-console-line: **Sequential Agents**
+- :material-console-line: **Sequential Agents（順序代理）**
 
     ---
 
-    Executes sub-agents one after another, in **sequence**.
+    依**順序**一個接一個地執行子代理。
 
-    [:octicons-arrow-right-24: Learn more](sequential-agents.md)
+    [:octicons-arrow-right-24: 進一步了解](sequential-agents.md)
 
-- :material-console-line: **Loop Agents**
-
-    ---
-
-    **Repeatedly** executes its sub-agents until a specific termination condition is met.
-
-    [:octicons-arrow-right-24: Learn more](loop-agents.md)
-
-- :material-console-line: **Parallel Agents**
+- :material-console-line: **Loop Agents（迴圈代理）**
 
     ---
 
-    Executes multiple sub-agents in **parallel**.
+    **重複**執行其子代理，直到符合特定終止條件為止。
 
-    [:octicons-arrow-right-24: Learn more](parallel-agents.md)
+    [:octicons-arrow-right-24: 進一步了解](loop-agents.md)
+
+- :material-console-line: **Parallel Agents（平行代理）**
+
+    ---
+
+    以**平行**方式同時執行多個子代理。
+
+    [:octicons-arrow-right-24: 進一步了解](parallel-agents.md)
 
 </div>
 
-## Why Use Workflow Agents?
+## 為什麼要使用 Workflow Agents（工作流程代理）？
 
-Workflow agents are essential when you need explicit control over how a series of tasks or agents are executed. They provide:
+當你需要明確控制一系列任務或代理的執行方式時，Workflow Agents（工作流程代理）就顯得非常重要。它們提供：
 
-* **Predictability:** The flow of execution is guaranteed based on the agent type and configuration.
-* **Reliability:** Ensures tasks run in the required order or pattern consistently.
-* **Structure:** Allows you to build complex processes by composing agents within clear control structures.
+* **可預測性：** 根據代理類型與設定，執行流程有明確保證。
+* **可靠性：** 確保任務始終依照所需的順序或模式執行。
+* **結構性：** 讓你能在清楚的控制結構下，組合多個代理以建構複雜流程。
 
-While the workflow agent manages the control flow deterministically, the sub-agents it orchestrates can themselves be any type of agent, including intelligent LLM Agent instances. This allows you to combine structured process control with flexible, LLM-powered task execution.
+雖然 Workflow Agent（工作流程代理）以確定性方式管理控制流程，但其協調的子代理可以是任何類型的代理，包括智慧型的 LLM Agent（大型語言模型代理）實例。這讓你能將結構化的流程控制與靈活、由 LLM 驅動的任務執行結合起來。

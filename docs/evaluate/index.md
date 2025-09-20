@@ -1,39 +1,39 @@
-# Why Evaluate Agents
+# 為什麼要評估代理（agent）
 
-![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="This feature is currently available for Python. Java support is planned/ coming soon."}
+![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python。Java 支援規劃中／即將推出。"}
 
-In traditional software development, unit tests and integration tests provide confidence that code functions as expected and remains stable through changes. These tests provide a clear "pass/fail" signal, guiding further development. However, LLM agents introduce a level of variability that makes traditional testing approaches insufficient.
+在傳統軟體開發中，單元測試（unit test）與整合測試（integration test）能夠確保程式碼如預期運作，並在變更過程中維持穩定。這些測試提供明確的「通過／失敗」訊號，指引後續開發。然而，大型語言模型（LLM）代理（agent）帶來了變異性，使得傳統測試方法變得不足。
 
-Due to the probabilistic nature of models, deterministic "pass/fail" assertions are often unsuitable for evaluating agent performance. Instead, we need qualitative evaluations of both the final output and the agent's trajectory \- the sequence of steps taken to reach the solution. This involves assessing the quality of the agent's decisions, its reasoning process, and the final result.
+由於模型本質上具有機率性，決定性的「通過／失敗」斷言通常不適用於評估代理（agent）的表現。我們需要對最終輸出以及代理（agent）決策過程（trajectory，軌跡）進行質性評估——也就是代理（agent）為達到解決方案所採取的一連串步驟。這包含對代理（agent）決策品質、推理過程與最終結果的評估。
 
-This may seem like a lot of extra work to set up, but the investment of automating evaluations pays off quickly. If you intend to progress beyond prototype, this is a highly recommended best practice.
+這看似需要額外投入大量工作來建置，但自動化評估的投資很快就會帶來回報。如果你打算讓專案超越原型階段，這是極為推薦的最佳實踐。
 
 ![intro_components.png](../assets/evaluate_agent.png)
 
-## Preparing for Agent Evaluations
+## 準備代理（agent）評估
 
-Before automating agent evaluations, define clear objectives and success criteria:
+在自動化代理（agent）評估之前，請先明確定義目標與成功標準：
 
-* **Define Success:** What constitutes a successful outcome for your agent?  
-* **Identify Critical Tasks:** What are the essential tasks your agent must accomplish?  
-* **Choose Relevant Metrics:** What metrics will you track to measure performance?
+* **定義成功：** 什麼樣的結果才算是你的代理（agent）成功？  
+* **識別關鍵任務：** 你的代理（agent）必須完成哪些關鍵任務？  
+* **選擇相關指標：** 你會追蹤哪些指標來衡量效能？
 
-These considerations will guide the creation of evaluation scenarios and enable effective monitoring of agent behavior in real-world deployments.
+這些考量將指引你設計評估情境，並協助你在實際部署時有效監控代理（agent）行為。
 
-## What to Evaluate?
+## 評估什麼？
 
-To bridge the gap between a proof-of-concept and a production-ready AI agent, a robust and automated evaluation framework is essential. Unlike evaluating generative models, where the focus is primarily on the final output, agent evaluation requires a deeper understanding of the decision-making process. Agent evaluation can be broken down into two components:
+要讓專案從概念驗證（proof-of-concept）邁向可正式上線的 AI 代理（agent），一套健全且自動化的評估框架是不可或缺的。與僅關注最終輸出的生成式模型（generative model）評估不同，代理（agent）評估需要更深入理解其決策過程。代理（agent）評估可分為兩個面向：
 
-1. **Evaluating Trajectory and Tool Use:** Analyzing the steps an agent takes to reach a solution, including its choice of tools, strategies, and the efficiency of its approach.  
-2. **Evaluating the Final Response:** Assessing the quality, relevance, and correctness of the agent's final output.
+1. **評估軌跡（trajectory）與工具使用：** 分析代理（agent）為達成解決方案所採取的步驟，包括其選擇的工具、策略及方法效率。  
+2. **評估最終回應：** 評估代理（agent）最終輸出的品質、相關性與正確性。
 
-The trajectory is just a list of steps the agent took before it returned to the user. We can compare that against the list of steps we expect the agent to have taken.
+軌跡（trajectory）就是代理（agent）在回應使用者前所採取步驟的清單。我們可以將其與預期代理（agent）應該採取的步驟清單進行比較。
 
-### Evaluating trajectory and tool use
+### 評估軌跡與工具使用
 
-Before responding to a user, an agent typically performs a series of actions, which we refer to as a 'trajectory.' It might compare the user input with session history to disambiguate a term, or lookup a policy document, search a knowledge base or invoke an API to save a ticket. We call this a ‘trajectory’ of actions. Evaluating an agent's performance requires comparing its actual trajectory to an expected, or ideal, one. This comparison can reveal errors and inefficiencies in the agent's process. The expected trajectory represents the ground truth \-- the list of steps we anticipate the agent should take.
+在回應使用者之前，代理（agent）通常會執行一系列動作，我們稱之為「軌跡（trajectory）」。例如，它可能將使用者輸入與 session 歷史紀錄比對以釐清術語、查閱政策文件、搜尋知識庫，或呼叫 API 來儲存工單。我們將這些動作稱為一連串的「軌跡」。評估代理（agent）表現時，需要將實際軌跡與預期（或理想）軌跡進行比較。這種比較有助於發現代理（agent）流程中的錯誤與低效率。預期軌跡代表「真實標準」（ground truth）——也就是我們預期代理（agent）應採取的步驟清單。
 
-For example:
+例如：
 
 ```python
 # Trajectory evaluation will compare
@@ -41,43 +41,36 @@ expected_steps = ["determine_intent", "use_tool", "review_results", "report_gene
 actual_steps = ["determine_intent", "use_tool", "review_results", "report_generation"]
 ```
 
-Several ground-truth-based trajectory evaluations exist:
+有多種基於真實標註（ground-truth）的軌跡評估方式：
 
-1. **Exact match:** Requires a perfect match to the ideal trajectory.  
-2. **In-order match:** Requires the correct actions in the correct order, allows for extra actions.  
-3. **Any-order match:** Requires the correct actions in any order, allows for extra actions.  
-4. **Precision:** Measures the relevance/correctness of predicted actions.  
-5. **Recall:** Measures how many essential actions are captured in the prediction.  
-6. **Single-tool use:** Checks for the inclusion of a specific action.
+1. **完全符合（Exact match）：** 需要與理想軌跡完全一致。  
+2. **順序符合（In-order match）：** 需要正確的動作且順序正確，允許有額外動作。  
+3. **任意順序符合（Any-order match）：** 需要正確的動作但順序不限，允許有額外動作。  
+4. **精確率（Precision）：** 衡量預測動作的相關性／正確性。  
+5. **召回率（Recall）：** 衡量預測中捕捉到多少必要動作。  
+6. **單一工具使用（Single-tool use）：** 檢查是否包含特定動作。
 
-Choosing the right evaluation metric depends on the specific requirements and goals of your agent. For instance, in high-stakes scenarios, an exact match might be crucial, while in more flexible situations, an in-order or any-order match might suffice.
+選擇合適的評估指標，需依據你的 agent 的具體需求與目標。例如，在高風險場景下，完全符合可能至關重要；而在較為彈性的情境中，順序符合或任意順序符合即可滿足需求。
 
-## How Evaluation works with the ADK
+## 評估在 Agent Development Kit (ADK) 中的運作方式
 
-The ADK offers two methods for evaluating agent performance against predefined datasets and evaluation criteria. While conceptually similar, they differ in the amount of data they can process, which typically dictates the appropriate use case for each.
+Agent Development Kit (ADK) 提供兩種方法，可根據預先定義的資料集與評估標準來評估 agent 的表現。這兩種方法在概念上相似，但能處理的資料量不同，這通常決定了各自適用的情境。
 
-### First approach: Using a test file
+### 方法一：使用測試檔案
 
-This approach involves creating individual test files, each representing a single, simple agent-model interaction (a session). It's most effective during active agent development, serving as a form of unit testing. These tests are designed for rapid execution and should focus on simple session complexity. Each test file contains a single session, which may consist of multiple turns. A turn represents a single interaction between the user and the agent. Each turn includes
+此方法需建立個別測試檔案，每個檔案代表單一、簡單的 agent 與模型互動（即一個 session）。這種方式最適合於 agent 積極開發階段，作為單元測試的一種形式。這些測試設計為可快速執行，並應聚焦於簡單的 session 複雜度。每個測試檔案包含一個 session，該 session 可能由多個回合（turn）組成。每個回合代表使用者與 agent 之間的一次互動。每個回合包含：
 
--   `User Content`: The user issued query.
--   `Expected Intermediate Tool Use Trajectory`: The tool calls we expect the
-    agent to make in order to respond correctly to the user query.
--   `Expected Intermediate Agent Responses`: These are the natural language
-    responses that the agent (or sub-agents) generates as it moves towards
-    generating a final answer. These natural language responses are usually an
-    artifact of an multi-agent system, where your root agent depends on sub-agents to achieve a goal. These intermediate responses, may or may not be of
-    interest to the end user, but for a developer/owner of the system, are of
-    critical importance, as they give you the confidence that the agent went
-    through the right path to generate final response.
--   `Final Response`: The expected final response from the agent.
+-   `User Content`：使用者發出的查詢。
+-   `Expected Intermediate Tool Use Trajectory`：我們預期 agent 為正確回應使用者查詢而應執行的工具呼叫。
+-   `Expected Intermediate Agent Responses`：這些是 agent（或子 agent）在產生最終答案過程中產生的自然語言回應。這些自然語言回應通常是多代理系統（multi-agent system）的產物，主 agent 需依賴子 agent 來達成目標。這些中間回應對最終使用者來說可能有用也可能無用，但對於系統開發者／擁有者而言，卻至關重要，因為它們能讓你確信 agent 走對了產生最終回應的路徑。
+-   `Final Response`：agent 預期產生的最終回應。
 
-You can give the file any name for example `evaluation.test.json`.The framework only checks for the `.test.json` suffix, and the preceding part of the filename is not constrained. The test files are backed by a formal Pydantic data model. The two key schema files are
-[Eval Set](https://github.com/google/adk-python/blob/main/src/google/adk/evaluation/eval_set.py) and
-[Eval Case](https://github.com/google/adk-python/blob/main/src/google/adk/evaluation/eval_case.py).
-Here is a test file with a few examples:
+你可以為檔案取任何名稱，例如 `evaluation.test.json`。框架只會檢查 `.test.json` 副檔名，檔名的前半部分不受限制。這些測試檔案是以正式的 Pydantic 資料模型為基礎。兩個主要的 schema 檔案分別為
+[Eval Set](https://github.com/google/adk-python/blob/main/src/google/adk/evaluation/eval_set.py) 和
+[Eval Case](https://github.com/google/adk-python/blob/main/src/google/adk/evaluation/eval_case.py)。
+以下是一個包含多個範例的測試檔案：
 
-*(Note: Comments are included for explanatory purposes and should be removed for the JSON to be valid.)*
+*（注意：以下註解僅為說明用途，若要成為有效的 JSON，請將註解移除。）*
 
 ```json
 # Do note that some fields are removed for sake of making this doc readable.
@@ -132,35 +125,31 @@ Here is a test file with a few examples:
 }
 ```
 
-Test files can be organized into folders. Optionally, a folder can also include a `test_config.json` file that specifies the evaluation criteria.
+測試檔案可以組織在資料夾中。選擇性地，資料夾中也可以包含一個 `test_config.json` 檔案，用來指定評估標準。
 
-#### How to migrate test files not backed by the Pydantic schema?
+#### 如何遷移未採用 Pydantic schema 的測試檔案？
 
-NOTE: If your test files don't adhere to [EvalSet](https://github.com/google/adk-python/blob/main/src/google/adk/evaluation/eval_set.py) schema file, then this section is relevant to you.
+注意：如果你的測試檔案不符合 [EvalSet](https://github.com/google/adk-python/blob/main/src/google/adk/evaluation/eval_set.py) schema 檔案，則本節內容適用於你。
 
-Please use `AgentEvaluator.migrate_eval_data_to_new_schema` to migrate your
-existing `*.test.json` files to the Pydantic backed schema.
+請使用 `AgentEvaluator.migrate_eval_data_to_new_schema` 來將你現有的 `*.test.json` 檔案遷移至 Pydantic 支援的 schema。
 
-The utility takes your current test data file and an optional initial session
-file, and generates a single output json file with data serialized in the new
-format. Given that the new schema is more cohesive, both the old test data file
-and initial session file can be ignored (or removed.)
+此工具會接收你目前的測試資料檔案，以及一個可選的初始 session 檔案，並產生一個以新格式序列化資料的單一輸出 JSON 檔案。由於新 schema 更具整合性，舊的測試資料檔案和初始 session 檔案都可以忽略（或移除）。
 
-### Second approach: Using An Evalset File
+### 第二種方式：使用 Evalset 檔案
 
-The evalset approach utilizes a dedicated dataset called an "evalset" for evaluating agent-model interactions. Similar to a test file, the evalset contains example interactions. However, an evalset can contain multiple, potentially lengthy sessions, making it ideal for simulating complex, multi-turn conversations. Due to its ability to represent complex sessions, the evalset is well-suited for integration tests. These tests are typically run less frequently than unit tests due to their more extensive nature.
+Evalset 方法利用一個專用資料集，稱為「evalset」，用於評估 agent 與模型的互動。與測試檔案類似，evalset 也包含範例互動。不過，evalset 可以包含多個、甚至較長的 session，非常適合模擬複雜的多輪對話。由於能夠表達複雜 session，evalset 特別適合用於整合測試。這類測試通常比單元測試執行頻率低，因為其規模較大。
 
-An evalset file contains multiple "evals," each representing a distinct session. Each eval consists of one or more "turns," which include the user query, expected tool use, expected intermediate agent responses, and a reference response. These fields have the same meaning as they do in the test file approach. Each eval is identified by a unique name. Furthermore, each eval includes an associated initial session state.
+一個 evalset 檔案包含多個「eval」，每個 eval 代表一個獨立的 session。每個 eval 由一個或多個「turn」組成，每個 turn 包含使用者查詢、預期的工具使用、預期的中間 agent 回應，以及參考回應。這些欄位的意義與測試檔案方法中相同。每個 eval 會以唯一名稱識別。此外，每個 eval 都包含一個關聯的初始 session 狀態。
 
-Creating evalsets manually can be complex, therefore UI tools are provided to help capture relevant sessions and easily convert them into evals within your evalset. Learn more about using the web UI for evaluation below. Here is an example evalset containing two sessions. The eval set files are  backed by a formal Pydantic data model. The two key schema files are
-[Eval Set](https://github.com/google/adk-python/blob/main/src/google/adk/evaluation/eval_set.py) and
-[Eval Case](https://github.com/google/adk-python/blob/main/src/google/adk/evaluation/eval_case.py).
+手動建立 evalset 可能較為複雜，因此我們提供了 UI 工具，協助你擷取相關 session，並輕鬆將其轉換為 evalset 中的 eval。你可以在下方進一步了解如何使用網頁 UI 進行評估。以下是一個包含兩個 session 的 evalset 範例。Evalset 檔案由正式的 Pydantic 資料模型支援。兩個主要的 schema 檔案分別為
+[Eval Set](https://github.com/google/adk-python/blob/main/src/google/adk/evaluation/eval_set.py) 以及
+[Eval Case](https://github.com/google/adk-python/blob/main/src/google/adk/evaluation/eval_case.py)。
 
 !!! warning
-    This evalset evaluation method requires the use of a paid service,
-    [Vertex Gen AI Evaluation Service API](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/evaluation).
+    此 evalset 評估方法需要使用付費服務，
+    [Vertex Gen AI Evaluation Service API](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/evaluation)。
 
-*(Note: Comments are included for explanatory purposes and should be removed for the JSON to be valid.)*
+*（註：以下註解僅供說明用途，若要使 JSON 有效，請將其移除。）*
 
 ```json
 # Do note that some fields are removed for sake of making this doc readable.
@@ -296,32 +285,31 @@ Creating evalsets manually can be complex, therefore UI tools are provided to he
 }
 ```
 
-#### How to migrate eval set files not backed by the Pydantic schema?
+#### 如何遷移未依據 Pydantic schema 的 eval set 檔案？
 
-NOTE: If your eval set files don't adhere to [EvalSet](https://github.com/google/adk-python/blob/main/src/google/adk/evaluation/eval_set.py) schema file, then this section is relevant to you.
+注意：如果你的 eval set 檔案未遵循 [EvalSet](https://github.com/google/adk-python/blob/main/src/google/adk/evaluation/eval_set.py) schema 檔案，則本節內容適用於你。
 
-Based on who is maintaining the eval set data, there are two routes:
+根據誰負責維護 eval set 資料，有兩種情境：
 
-1.  **Eval set data maintained by ADK UI** If you use ADK UI to maintain your
-    Eval set data then *no action is needed* from you.
+1.  **由 Agent Development Kit (ADK) 網頁 UI 維護的 eval set 資料**  
+    如果你使用 Agent Development Kit (ADK) 網頁 UI 來維護 eval set 資料，則*無需採取任何行動*。
 
-2.  **Eval set data is developed and maintained manually and used in ADK eval CLI** A
-    migration tool is in the works, until then the ADK eval CLI command will
-    continue to support data in the old format.
+2.  **eval set 資料是手動開發與維護，並於 ADK 命令列介面 (CLI) 中使用**  
+    遷移工具正在開發中，在此之前，ADK 命令列介面 (CLI) 指令會持續支援舊格式的資料。
 
-### Evaluation Criteria
+### 評估標準
 
-The evaluation criteria define how the agent's performance is measured against the evalset. The following metrics are supported:
+評估標準用於定義 agent 在 evalset 上的表現如何被衡量。目前支援以下指標：
 
-* `tool_trajectory_avg_score`: This metric compares the agent's actual tool usage during the evaluation against the expected tool usage defined in the `expected_tool_use` field. Each matching tool usage step receives a score of 1, while a mismatch receives a score of 0\. The final score is the average of these matches, representing the accuracy of the tool usage trajectory.  
-* `response_match_score`: This metric compares the agent's final natural language response to the expected final response, stored in the `reference` field. We use the [ROUGE](https://en.wikipedia.org/wiki/ROUGE_\(metric\)) metric to calculate the similarity between the two responses.
+* `tool_trajectory_avg_score`：此指標會比較 agent 在評估過程中實際使用的工具與 `expected_tool_use` 欄位中定義的預期工具使用情境。每一個工具使用步驟若符合則得分 1，不符合則得分 0。最終分數為這些匹配的平均值，代表工具使用路徑的準確率。  
+* `response_match_score`：此指標會比較 agent 最終的自然語言回應與預期的最終回應（儲存在 `reference` 欄位）。我們使用 [ROUGE](https://en.wikipedia.org/wiki/ROUGE_\(metric\) 指標來計算兩者之間的相似度。
 
-If no evaluation criteria are provided, the following default configuration is used:
+如果未提供評估標準，則會使用以下預設組態：
 
-* `tool_trajectory_avg_score`: Defaults to 1.0, requiring a 100% match in the tool usage trajectory.  
-* `response_match_score`: Defaults to 0.8, allowing for a small margin of error in the agent's natural language responses.
+* `tool_trajectory_avg_score`：預設為 1.0，表示工具使用路徑需 100% 完全符合。  
+* `response_match_score`：預設為 0.8，允許 agent 的自然語言回應有小幅度的誤差。
 
-Here is an example of a `test_config.json` file specifying custom evaluation criteria:
+以下是一個指定自訂評估標準的 `test_config.json` 檔案範例：
 
 ```json
 {
@@ -332,86 +320,86 @@ Here is an example of a `test_config.json` file specifying custom evaluation cri
 }
 ```
 
-## How to run Evaluation with the ADK
+## 如何使用 ADK 執行評測
 
-As a developer, you can evaluate your agents using the ADK in the following ways:
+作為開發者，你可以透過以下方式，利用 Agent Development Kit (ADK)（ADK）對你的代理（agent）進行評測：
 
-1. **Web-based UI (**`adk web`**):** Evaluate agents interactively through a web-based interface.  
-2. **Programmatically (**`pytest`**)**: Integrate evaluation into your testing pipeline using `pytest` and test files.  
-3. **Command Line Interface (**`adk eval`**):** Run evaluations on an existing evaluation set file directly from the command line.
+1. **網頁 UI（**`adk web`**）：** 透過網頁介面互動式地評測代理（agent）。
+2. **程式化方式（**`pytest`**）：** 使用 `pytest` 與測試檔案，將評測整合進你的測試流程。
+3. **命令列介面（Command Line Interface, CLI）（**`adk eval`**）：** 直接從命令列對現有的評測集檔案執行評測。
 
-### 1\. `adk web` \- Run Evaluations via the Web UI
+### 1\. `adk web` \- 透過網頁 UI 執行評測
 
-The web UI provides an interactive way to evaluate agents, generate evaluation datasets, and inspect agent behavior in detail.
+網頁 UI 提供互動式方式來評測代理（agent）、產生評測資料集，並詳細檢查代理（agent）的行為。
 
-#### Step 1: Create and Save a Test Case
+#### 步驟 1：建立並儲存測試案例
 
-1. Start the web server by running: `adk web <path_to_your_agents_folder>`
-2. In the web interface, select an agent and interact with it to create a session.
-3. Navigate to the **Eval** tab on the right side of the interface.
-4. Create a new eval set or select an existing one.
-5. Click **"Add current session"** to save the conversation as a new evaluation case.
+1. 啟動網頁伺服器，執行：`adk web <path_to_your_agents_folder>`
+2. 在網頁介面中，選擇一個代理（agent）並與其互動以建立工作階段。
+3. 導覽至介面右側的 **Eval** 分頁。
+4. 建立新的評測集，或選擇現有的評測集。
+5. 點擊 **「Add current session」**，將對話儲存為新的評測案例。
 
-#### Step 2: View and Edit Your Test Case
+#### 步驟 2：檢視與編輯你的測試案例
 
-Once a case is saved, you can click its ID in the list to inspect it. To make changes, click the **Edit current eval case** icon (pencil). This interactive view allows you to:
+案例儲存後，你可以點擊清單中的 ID 來檢查內容。若需修改，請點擊 **Edit current eval case** 圖示（鉛筆）。這個互動式檢視可讓你：
 
-* **Modify** agent text responses to refine test scenarios.
-* **Delete** individual agent messages from the conversation.
-* **Delete** the entire evaluation case if it's no longer needed.
+* **修改** 代理（agent）的文字回應，以微調測試情境。
+* **刪除** 對話中的個別代理（agent）訊息。
+* 若不再需要，**刪除**整個評測案例。
 
 ![adk-eval-case.gif](../assets/adk-eval-case.gif)
 
-#### Step 3: Run the Evaluation with Custom Metrics
+#### 步驟 3：以自訂指標執行評測
 
-1. Select one or more test cases from your evalset.
-2. Click **Run Evaluation**. An **EVALUATION METRIC** dialog will appear.
-3. In the dialog, use the sliders to configure the thresholds for:
+1. 從你的評測集中選擇一個或多個測試案例。
+2. 點擊 **Run Evaluation**。此時會出現 **EVALUATION METRIC** 對話框。
+3. 在對話框中，使用滑桿設定以下門檻值：
     * **Tool trajectory avg score**
     * **Response match score**
-4. Click **Start** to run the evaluation using your custom criteria. The evaluation history will record the metrics used for each run.
+4. 點擊 **Start**，即可依據自訂標準執行評測。評測歷史會記錄每次執行所用的指標。
 
 ![adk-eval-config.gif](../assets/adk-eval-config.gif)
 
-#### Step 4: Analyze Results
+#### 步驟 4：分析結果
 
-After the run completes, you can analyze the results:
+執行完成後，你可以分析結果：
 
-* **Analyze Run Failures**: Click on any **Pass** or **Fail** result. For failures, you can hover over the `Fail` label to see a side-by-side comparison of the **Actual vs. Expected Output** and the scores that caused the failure.
+* **分析執行失敗情形**：點擊任何 **Pass** 或 **Fail** 結果。若為失敗案例，可將滑鼠移至 `Fail` 標籤上，檢視 **實際輸出 vs. 預期輸出** 的並排比較，以及導致失敗的分數。
 
-### Debugging with the Trace View
+### 使用 Trace 檢視進行除錯
 
-The ADK web UI includes a powerful **Trace** tab for debugging agent behavior. This feature is available for any agent session, not just during evaluation.
+ADK 網頁 UI 內建強大的 **Trace** 分頁，可用於除錯代理（agent）行為。此功能適用於任何代理（agent）工作階段，不僅限於評測期間。
 
-The **Trace** tab provides a detailed and interactive way to inspect your agent's execution flow. Traces are automatically grouped by user message, making it easy to follow the chain of events.
+**Trace** 分頁提供詳細且互動式的方式，讓你檢查代理（agent）的執行流程。追蹤資料會依使用者訊息自動分組，方便你追蹤事件鏈。
 
-Each trace row is interactive:
+每一筆追蹤資料都是互動式的：
 
-* **Hovering** over a trace row highlights the corresponding message in the chat window.
-* **Clicking** on a trace row opens a detailed inspection panel with four tabs:
-    * **Event**: The raw event data.
-    * **Request**: The request sent to the model.
-    * **Response**: The response received from the model.
-    * **Graph**: A visual representation of the tool calls and agent logic flow.
+* **滑鼠懸停**於追蹤列時，會高亮顯示聊天視窗中對應訊息。
+* **點擊**追蹤列，會開啟詳細檢查面板，包含四個分頁：
+    * **Event**：原始事件資料。
+    * **Request**：傳送給模型的請求內容。
+    * **Response**：模型回傳的回應內容。
+    * **Graph**：工具呼叫與代理（agent）邏輯流程的視覺化圖示。
 
 ![adk-trace1.gif](../assets/adk-trace1.gif)
 ![adk-trace2.gif](../assets/adk-trace2.gif)
 
-Blue rows in the trace view indicate that an event was generated from that interaction. Clicking on these blue rows will open the bottom event detail panel, providing deeper insights into the agent's execution flow.
+在追蹤檢視中，藍色列表示該互動產生了事件。點擊這些藍色列會開啟下方的事件詳細面板，讓你深入了解代理（agent）的執行流程。
 
-### 2\.  `pytest` \- Run Tests Programmatically
+### 2\.  `pytest` \- 程式化執行測試
 
-You can also use **`pytest`** to run test files as part of your integration tests.
+你也可以使用 **`pytest`**，將測試檔案作為整合測試的一部分來執行。
 
-#### Example Command
+#### 指令範例
 
 ```shell
 pytest tests/integration/
 ```
 
-#### Example Test Code
+#### 範例測試程式碼
 
-Here is an example of a `pytest` test case that runs a single test file:
+以下是一個`pytest`測試案例的範例，會執行單一個測試檔案：
 
 ```py
 from google.adk.evaluation.agent_evaluator import AgentEvaluator
@@ -426,13 +414,13 @@ async def test_with_single_test_file():
     )
 ```
 
-This approach allows you to integrate agent evaluations into your CI/CD pipelines or larger test suites. If you want to specify the initial session state for your tests, you can do that by storing the session details in a file and passing that to `AgentEvaluator.evaluate` method.
+這種方法讓你可以將 agent 評估整合到你的 CI/CD 流程或更大型的測試套件中。如果你希望為測試指定初始 session 狀態，可以將 session 詳細資訊儲存在檔案中，並傳遞給 `AgentEvaluator.evaluate` 方法。
 
-### 3\. `adk eval` \- Run Evaluations via the CLI
+### 3\. `adk eval` \- 透過命令列介面 (CLI) 執行評估
 
-You can also run evaluation of an eval set file through the command line interface (CLI). This runs the same evaluation that runs on the UI, but it helps with automation, i.e. you can add this command as a part of your regular build generation and verification process.
+你也可以透過命令列介面 (CLI) 執行 eval set 檔案的評估。這會執行與網頁 UI 上相同的評估流程，但更有助於自動化，例如你可以將這個指令作為日常建置產生與驗證流程的一部分。
 
-Here is the command:
+以下是指令範例：
 
 ```shell
 adk eval \
@@ -442,7 +430,7 @@ adk eval \
     [--print_detailed_results]
 ```
 
-For example:
+例如：
 
 ```shell
 adk eval \
@@ -450,11 +438,11 @@ adk eval \
     samples_for_testing/hello_world/hello_world_eval_set_001.evalset.json
 ```
 
-Here are the details for each command line argument:
+以下是每個命令列參數的詳細說明：
 
-* `AGENT_MODULE_FILE_PATH`: The path to the `__init__.py` file that contains a module by the name "agent". "agent" module contains a `root_agent`.  
-* `EVAL_SET_FILE_PATH`: The path to evaluations file(s). You can specify one or more eval set file paths. For each file, all evals will be run by default. If you want to run only specific evals from a eval set, first create a comma separated list of eval names and then add that as a suffix to the eval set file name, demarcated by a colon `:` .
-* For example: `sample_eval_set_file.json:eval_1,eval_2,eval_3`  
+* `AGENT_MODULE_FILE_PATH`：指向包含名為 "agent" 模組的 `__init__.py` 檔案路徑。"agent" 模組內含有 `root_agent`。
+* `EVAL_SET_FILE_PATH`：評估檔案的路徑。你可以指定一個或多個評估集檔案路徑。對於每個檔案，預設會執行所有評估。如果你只想執行評估集中的特定評估，請先建立一個以逗號分隔的評估名稱清單，然後以冒號 `:` 作為分隔，將其加在評估集檔案名稱後方。
+* 例如：`sample_eval_set_file.json:eval_1,eval_2,eval_3`  
   `This will only run eval_1, eval_2 and eval_3 from sample_eval_set_file.json`  
-* `CONFIG_FILE_PATH`: The path to the config file.  
-* `PRINT_DETAILED_RESULTS`: Prints detailed results on the console.
+* `CONFIG_FILE_PATH`：設定檔的路徑。
+* `PRINT_DETAILED_RESULTS`：於主控台輸出詳細結果。

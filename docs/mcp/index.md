@@ -1,113 +1,89 @@
 # Model Context Protocol (MCP)
 
-## What is Model Context Protocol (MCP)?
+## 什麼是 Model Context Protocol (MCP)？
 
-The
-[Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) is
-an open standard designed to standardize how Large Language Models (LLMs) like
-Gemini and Claude communicate with external applications, data sources, and
-tools. Think of it as a universal connection mechanism that simplifies how LLMs
-obtain context, execute actions, and interact with various systems.
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction)
+是一個開放標準，旨在標準化大型語言模型（Large Language Model, LLM）如 Gemini 和 Claude，與外部應用程式、資料來源及工具之間的溝通方式。你可以將它想像成一種通用的連接機制，簡化 LLM 取得情境資訊、執行動作，以及與各種系統互動的流程。
 
-## How does MCP work?
+## MCP 如何運作？
 
-MCP follows a client-server architecture, defining how data (resources),
-interactive templates (prompts), and actionable functions (tools) are
-exposed by an MCP server and consumed by an MCP client (which could be
-an LLM host application or an AI agent).
+MCP 採用 client-server 架構，定義了資料（資源）、互動式範本（prompts）以及可執行函式（tools）如何由 MCP server 提供，並由 MCP client（可能是 LLM host 應用程式或 AI agent）消費。
 
-## MCP Tools in ADK
+## ADK 中的 MCP 工具
 
-ADK helps you both use and consume MCP tools in your agents, whether you're
-trying to build a tool to call an MCP service, or exposing an MCP server for
-other developers or agents to interact with your tools.
+Agent Development Kit (ADK)（ADK）協助你在 agent 中使用與消費 MCP 工具，無論你是要建構一個呼叫 MCP 服務的工具，還是要將 MCP server 對外公開，讓其他開發者或 agent 與你的工具互動。
 
-Refer to the [MCP Tools documentation](../tools/mcp-tools.md) for code samples
-and design patterns that help you use ADK together with MCP servers, including:
+請參考 [MCP Tools documentation](../tools/mcp-tools.md)，其中包含協助你將 ADK 與 MCP server 結合使用的範例程式碼與設計模式，包括：
 
-- **Using Existing MCP Servers within ADK**: An ADK agent can act as an MCP
-  client and use tools provided by external MCP servers.
-- **Exposing ADK Tools via an MCP Server**: How to build an MCP server that
-  wraps ADK tools, making them accessible to any MCP client.
+- **在 ADK 中使用現有的 MCP server**：ADK agent 可以作為 MCP client，使用外部 MCP server 提供的工具。
+- **透過 MCP server 對外公開 ADK 工具**：說明如何建構一個 MCP server，將 ADK 工具包裝後，讓任何 MCP client 都能存取。
 
-## MCP Toolbox for Databases
+## 資料庫專用的 MCP Toolbox
 
-[MCP Toolbox for Databases](https://github.com/googleapis/genai-toolbox) is an
-open-source MCP server that securely exposes your backend data sources as a
-set of pre-built, production-ready tools for Gen AI agents. It functions as a
-universal abstraction layer, allowing your ADK agent to securely query, analyze,
-and retrieve information from a wide array of databases with built-in support.
+[MCP Toolbox for Databases](https://github.com/googleapis/genai-toolbox)
+是一個開源的 MCP server，能夠安全地將你的後端資料來源，以一組預先建置、可直接用於生產環境的工具，提供給生成式 AI agent 使用。它作為一個通用抽象層，讓你的 ADK agent 能夠安全地查詢、分析並從各種資料庫中擷取資訊，並且內建多種支援。
 
-The MCP Toolbox server includes a comprehensive library of connectors, ensuring that
-agents can safely interact with your complex data estate.
+MCP Toolbox server 內建完整的連接器函式庫，確保 agent 能夠安全地與你的複雜資料環境互動。
 
-### Supported Data Sources
+### 支援的資料來源
 
-MCP Toolbox provides out-of-the-box toolsets for the following databases and data platforms:
+MCP Toolbox 針對下列資料庫與資料平台，提供現成的工具集：
 
 #### Google Cloud
 
-* BigQuery (including tools for SQL execution, schema discovery, and ML forecasting)
-* AlloyDB (PostgreSQL-compatible, with tools for both standard queries and natural language queries)
-* Spanner (supporting both GoogleSQL and PostgreSQL dialects)
-* Cloud SQL (with dedicated support for Cloud SQL for PostgreSQL, Cloud SQL for MySQL, and Cloud SQL for SQL Server)
+* BigQuery（包含 SQL 執行、結構探索、機器學習預測等工具）
+* AlloyDB（相容 PostgreSQL，支援標準查詢與自然語言查詢工具）
+* Spanner（支援 GoogleSQL 與 PostgreSQL 方言）
+* Cloud SQL（專為 Cloud SQL for PostgreSQL、Cloud SQL for MySQL、Cloud SQL for SQL Server 提供支援）
 * Firestore
 * Bigtable
-* Dataplex (for data discovery and metadata search)
+* Dataplex（用於資料探索與中繼資料搜尋）
 
-#### Relational & SQL Databases
+#### 關聯式與 SQL 資料庫
 
-* PostgreSQL (generic)
-* MySQL (generic)
-* Microsoft SQL Server (generic)
+* PostgreSQL（通用）
+* MySQL（通用）
+* Microsoft SQL Server（通用）
 * ClickHouse
 * TiDB
 * OceanBase
 * Firebird
 * SQLite
 
-#### NoSQL & Key-Value Stores
+#### NoSQL 與 Key-Value 儲存
+
 * MongoDB
 * Couchbase
 * Redis
 * Valkey
 
-#### Graph Databases
+#### 圖形資料庫
 
-* Neo4j (with tools for Cypher queries and schema inspection)
+* Neo4j（支援 Cypher 查詢與結構檢查工具）
 * Dgraph
 
-#### Data Platforms & Federation
+#### 資料平台與聯邦查詢
 
-* Looker (for running Looks, queries, and building dashboards via the Looker API)
-* Trino (for running federated queries across multiple sources)
+* Looker（可透過 Looker API 執行 Looks、查詢與建立儀表板）
+* Trino（可跨多個來源執行聯邦查詢）
 
-### Documentation
+### 文件
 
-Refer to the
+請參考
 [MCP Toolbox for Databases](../tools/google-cloud-tools.md#toolbox-tools-for-databases)
-documentation on how you can use ADK together with the MCP Toolbox for
-Databases. For getting started with the MCP Toolbox for Databases, a blog post [Tutorial : MCP Toolbox for Databases - Exposing Big Query Datasets](https://medium.com/google-cloud/tutorial-mcp-toolbox-for-databases-exposing-big-query-datasets-9321f0064f4e) and Codelab [MCP Toolbox for Databases:Making BigQuery datasets available to MCP clients](https://codelabs.developers.google.com/mcp-toolbox-bigquery-dataset?hl=en#0) are also available.
+的文件，瞭解如何將 ADK 與 MCP Toolbox for Databases 結合使用。若要快速開始，可參考部落格文章 [Tutorial : MCP Toolbox for Databases - Exposing Big Query Datasets](https://medium.com/google-cloud/tutorial-mcp-toolbox-for-databases-exposing-big-query-datasets-9321f0064f4e) 以及 Codelab [MCP Toolbox for Databases:Making BigQuery datasets available to MCP clients](https://codelabs.developers.google.com/mcp-toolbox-bigquery-dataset?hl=en#0)。
 
 ![GenAI Toolbox](../assets/mcp_db_toolbox.png)
 
-## ADK Agent and FastMCP server
-[FastMCP](https://github.com/jlowin/fastmcp) handles all the complex MCP protocol details and server management, so you can focus on building great tools. It's designed to be high-level and Pythonic; in most cases, decorating a function is all you need.
+## ADK Agent 與 FastMCP server
 
-Refer to the [MCP Tools documentation](../tools/mcp-tools.md) documentation on
-how you can use ADK together with the FastMCP server running on Cloud Run.
+[FastMCP](https://github.com/jlowin/fastmcp) 處理所有複雜的 MCP 協定細節與 server 管理，讓你能專注於打造優秀的工具。它設計為高階且貼近 Python 風格，在多數情境下，你只需為函式加上裝飾器即可。
 
-## MCP Servers for Google Cloud Genmedia
+請參考 [MCP Tools documentation](../tools/mcp-tools.md)，瞭解如何將 ADK 與部署於 Cloud Run 的 FastMCP server 結合使用。
+
+## Google Cloud Genmedia 專用的 MCP Server
 
 [MCP Tools for Genmedia Services](https://github.com/GoogleCloudPlatform/vertex-ai-creative-studio/tree/main/experiments/mcp-genmedia)
-is a set of open-source MCP servers that enable you to integrate Google Cloud
-generative media services—such as Imagen, Veo, Chirp 3 HD voices, and Lyria—into
-your AI applications.
+是一組開源的 MCP server，讓你能將 Google Cloud 生成式媒體服務（如 Imagen、Veo、Chirp 3 HD 聲音與 Lyria）整合進你的 AI 應用程式。
 
-Agent Development Kit (ADK) and [Genkit](https://genkit.dev/) provide built-in
-support for these MCP tools, allowing your AI agents to effectively orchestrate
-generative media workflows. For implementation guidance, refer to the [ADK
-example
-agent](https://github.com/GoogleCloudPlatform/vertex-ai-creative-studio/tree/main/experiments/mcp-genmedia/sample-agents/adk)
-and the
-[Genkit example](https://github.com/GoogleCloudPlatform/vertex-ai-creative-studio/tree/main/experiments/mcp-genmedia/sample-agents/genkit).
+Agent Development Kit (ADK)（ADK）與 [Genkit](https://genkit.dev/) 內建支援這些 MCP 工具，讓你的 AI agent 能有效協調生成式媒體工作流程。實作指引請參考 [ADK example agent](https://github.com/GoogleCloudPlatform/vertex-ai-creative-studio/tree/main/experiments/mcp-genmedia/sample-agents/adk) 及 [Genkit example](https://github.com/GoogleCloudPlatform/vertex-ai-creative-studio/tree/main/experiments/mcp-genmedia/sample-agents/genkit)。

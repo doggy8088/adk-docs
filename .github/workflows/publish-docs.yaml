@@ -17,10 +17,13 @@ name: Publish Docs
 on:
   push:
     branches:
-      - main
+      - zh-tw
+  workflow_dispatch:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   deploy:
@@ -30,7 +33,7 @@ jobs:
       - name: Configure Git Credentials
         run: |
           git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git config user.email 88981+doggy8088@users.noreply.github.com
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x

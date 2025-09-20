@@ -1,49 +1,49 @@
-# OpenAPI Integration
+# OpenAPI 整合
 
-![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="This feature is currently available for Python. Java support is planned/ coming soon."}
+![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python。Java 支援計畫中／即將推出。"}
 
-## Integrating REST APIs with OpenAPI
+## 使用 OpenAPI 整合 REST API
 
-ADK simplifies interacting with external REST APIs by automatically generating callable tools directly from an [OpenAPI Specification (v3.x)](https://swagger.io/specification/). This eliminates the need to manually define individual function tools for each API endpoint.
+Agent Development Kit (ADK) 透過自動從 [OpenAPI Specification (v3.x)](https://swagger.io/specification/) 產生可呼叫的工具，大幅簡化與外部 REST API 的互動流程。這讓你無需為每個 API 端點手動定義個別的函式工具。
 
-!!! tip "Core Benefit"
-    Use `OpenAPIToolset` to instantly create agent tools (`RestApiTool`) from your existing API documentation (OpenAPI spec), enabling agents to seamlessly call your web services.
+!!! tip "核心優勢"
+    使用 `OpenAPIToolset` 可根據現有的 API 文件（OpenAPI 規格）即時建立代理工具（`RestApiTool`），讓代理能無縫呼叫你的網路服務。
 
-## Key Components
+## 主要元件
 
-* **`OpenAPIToolset`**: This is the primary class you'll use. You initialize it with your OpenAPI specification, and it handles the parsing and generation of tools.
-* **`RestApiTool`**: This class represents a single, callable API operation (like `GET /pets/{petId}` or `POST /pets`). `OpenAPIToolset` creates one `RestApiTool` instance for each operation defined in your spec.
+* **`OpenAPIToolset`**：這是你主要會使用的類別。你需以 OpenAPI 規格初始化它，並由它負責解析與產生工具。
+* **`RestApiTool`**：此類別代表單一可呼叫的 API 操作（如 `GET /pets/{petId}` 或 `POST /pets`）。`OpenAPIToolset` 會為規格中定義的每個操作建立一個 `RestApiTool` 實例。
 
-## How it Works
+## 運作方式
 
-The process involves these main steps when you use `OpenAPIToolset`:
+當你使用 `OpenAPIToolset` 時，主要流程包含以下步驟：
 
-1. **Initialization & Parsing**:
-    * You provide the OpenAPI specification to `OpenAPIToolset` either as a Python dictionary, a JSON string, or a YAML string.
-    * The toolset internally parses the spec, resolving any internal references (`$ref`) to understand the complete API structure.
+1. **初始化與解析**：
+    * 你可以將 OpenAPI 規格以 Python 字典、JSON 字串或 YAML 字串的形式提供給 `OpenAPIToolset`。
+    * 工具組會在內部解析規格，解析所有內部參照（`$ref`），以完整理解 API 結構。
 
-2. **Operation Discovery**:
-    * It identifies all valid API operations (e.g., `GET`, `POST`, `PUT`, `DELETE`) defined within the `paths` object of your specification.
+2. **操作發現**：
+    * 它會識別規格中 `paths` 物件內定義的所有有效 API 操作（例如 `GET`、`POST`、`PUT`、`DELETE`）。
 
-3. **Tool Generation**:
-    * For each discovered operation, `OpenAPIToolset` automatically creates a corresponding `RestApiTool` instance.
-    * **Tool Name**: Derived from the `operationId` in the spec (converted to `snake_case`, max 60 chars). If `operationId` is missing, a name is generated from the method and path.
-    * **Tool Description**: Uses the `summary` or `description` from the operation for the LLM.
-    * **API Details**: Stores the required HTTP method, path, server base URL, parameters (path, query, header, cookie), and request body schema internally.
+3. **工具產生**：
+    * 對於每個發現的操作，`OpenAPIToolset` 會自動建立對應的 `RestApiTool` 實例。
+    * **工具名稱**：取自規格中的 `operationId`（轉為 `snake_case`，最長 60 字元）。若缺少 `operationId`，則會根據方法與路徑自動產生名稱。
+    * **工具描述**：使用操作中的 `summary` 或 `description` 作為大型語言模型 (LLM) 的描述。
+    * **API 詳細資訊**：內部儲存所需的 HTTP 方法、路徑、伺服器基礎 URL、參數（路徑、查詢、標頭、Cookie）及請求主體結構。
 
-4. **`RestApiTool` Functionality**: Each generated `RestApiTool`:
-    * **Schema Generation**: Dynamically creates a `FunctionDeclaration` based on the operation's parameters and request body. This schema tells the LLM how to call the tool (what arguments are expected).
-    * **Execution**: When called by the LLM, it constructs the correct HTTP request (URL, headers, query params, body) using the arguments provided by the LLM and the details from the OpenAPI spec. It handles authentication (if configured) and executes the API call using the `requests` library.
-    * **Response Handling**: Returns the API response (typically JSON) back to the agent flow.
+4. **`RestApiTool` 功能**：每個產生的 `RestApiTool`：
+    * **結構產生**：會根據操作的參數與請求主體動態建立 `FunctionDeclaration`。此結構告訴大型語言模型 (LLM) 如何呼叫該工具（預期哪些參數）。
+    * **執行**：當被 LLM 呼叫時，會根據 LLM 提供的參數與 OpenAPI 規格細節組合正確的 HTTP 請求（URL、標頭、查詢參數、主體）。若有設定驗證，會自動處理，並透過 `requests` 函式庫執行 API 呼叫。
+    * **回應處理**：將 API 回應（通常為 JSON）回傳至代理流程。
 
-5. **Authentication**: You can configure global authentication (like API keys or OAuth - see [Authentication](../tools/authentication.md) for details) when initializing `OpenAPIToolset`. This authentication configuration is automatically applied to all generated `RestApiTool` instances.
+5. **驗證機制**：你可以在初始化 `OpenAPIToolset` 時設定全域驗證（如 API 金鑰或 OAuth－詳見 [Authentication](../tools/authentication.md)）。此驗證設定會自動套用至所有產生的 `RestApiTool` 實例。
 
-## Usage Workflow
+## 使用流程
 
-Follow these steps to integrate an OpenAPI spec into your agent:
+請依照以下步驟，將 OpenAPI 規格整合進你的代理：
 
-1. **Obtain Spec**: Get your OpenAPI specification document (e.g., load from a `.json` or `.yaml` file, fetch from a URL).
-2. **Instantiate Toolset**: Create an `OpenAPIToolset` instance, passing the spec content and type (`spec_str`/`spec_dict`, `spec_str_type`). Provide authentication details (`auth_scheme`, `auth_credential`) if required by the API.
+1. **取得規格**：取得你的 OpenAPI 規格文件（例如從 `.json` 或 `.yaml` 檔案載入，或從 URL 取得）。
+2. **建立工具組實例**：建立 `OpenAPIToolset` 實例，傳入規格內容與類型（`spec_str`/`spec_dict`、`spec_str_type`）。若 API 需要，請一併提供驗證資訊（`auth_scheme`、`auth_credential`）。
 
     ```python
     from google.adk.tools.openapi_tool.openapi_spec_parser.openapi_toolset import OpenAPIToolset
@@ -57,7 +57,7 @@ Follow these steps to integrate an OpenAPI spec into your agent:
     # toolset = OpenAPIToolset(spec_dict=openapi_spec_dict)
     ```
 
-3. **Add to Agent**: Include the retrieved tools in your `LlmAgent`'s `tools` list.
+3. **加入至 Agent**：將取得的工具加入`LlmAgent`的`tools`清單中。
 
     ```python
     from google.adk.agents import LlmAgent
@@ -70,14 +70,14 @@ Follow these steps to integrate an OpenAPI spec into your agent:
     )
     ```
 
-4. **Instruct Agent**: Update your agent's instructions to inform it about the new API capabilities and the names of the tools it can use (e.g., `list_pets`, `create_pet`). The tool descriptions generated from the spec will also help the LLM.
-5. **Run Agent**: Execute your agent using the `Runner`. When the LLM determines it needs to call one of the APIs, it will generate a function call targeting the appropriate `RestApiTool`, which will then handle the HTTP request automatically.
+4. **指示 Agent**：更新你的 agent 指令，讓其瞭解新的 API 功能，以及它可以使用的工具名稱（例如：`list_pets`、`create_pet`）。由規格產生的工具描述也會協助大型語言模型 (LLM) 理解。
+5. **執行 Agent**：使用 `Runner` 執行你的 agent。當大型語言模型 (LLM) 判斷需要呼叫某個 API 時，會產生一個針對適當 `RestApiTool` 的函式呼叫，該函式會自動處理 HTTP 請求。
 
-## Example
+## 範例
 
-This example demonstrates generating tools from a simple Pet Store OpenAPI spec (using `httpbin.org` for mock responses) and interacting with them via an agent.
+本範例展示如何從一個簡單的 Pet Store OpenAPI 規格產生工具（使用 `httpbin.org` 來產生模擬回應），並透過 agent 與這些工具互動。
 
-???+ "Code: Pet Store API"
+???+ "程式碼：Pet Store API"
 
     ```python title="openapi_example.py"
     --8<-- "examples/python/snippets/tools/openapi_tool.py"

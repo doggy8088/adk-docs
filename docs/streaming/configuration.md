@@ -1,10 +1,10 @@
-# Configurating streaming behaviour
+# 設定串流行為
 
-There are some configurations you can set for live(streaming) agents. 
+你可以為即時（串流）代理設定一些組態參數。
 
-It's set by [RunConfig](https://github.com/google/adk-python/blob/main/src/google/adk/agents/run_config.py). You should use RunConfig with your [Runner.run_live(...)](https://github.com/google/adk-python/blob/main/src/google/adk/runners.py). 
+這些設定是透過 [RunConfig](https://github.com/google/adk-python/blob/main/src/google/adk/agents/run_config.py) 來完成的。你應該在使用 [Runner.run_live(...)](https://github.com/google/adk-python/blob/main/src/google/adk/runners.py) 時搭配 RunConfig。
 
-For example, if you want to set voice config, you can leverage speech_config. 
+例如，如果你想設定語音相關的組態，可以利用 speech_config。 
 
 ```python
 voice_config = genai_types.VoiceConfig(
@@ -21,4 +21,6 @@ runner.run_live(
 )
 ```
 
+
+請提供原文、初始譯文、品質分析與改進建議內容，這樣我才能根據品質分析意見改進翻譯。
 
