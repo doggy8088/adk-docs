@@ -1,22 +1,22 @@
 # 在 ADK 中使用不同的模型
 
 !!! Note
-    Java ADK 目前支援 Gemini 與 Anthropic 模型。更多模型支援即將推出。
+    Java Agent Development Kit (ADK) 目前支援 Gemini 與 Anthropic 模型。更多模型支援即將推出。
 
-Agent Development Kit (ADK)（ADK）設計上強調彈性，讓你可以將各種大型語言模型 (Large Language Model, LLM) 整合到你的代理（agent）中。雖然 Google Gemini 模型的設定已在 [Setup Foundation Models](../get-started/installation.md) 指南中說明，本頁將進一步介紹如何有效運用 Gemini，並整合其他熱門模型，包括外部託管或本地執行的模型。
+Agent Development Kit (ADK) 具備高度彈性，讓你能夠將各種大型語言模型 (Large Language Model, LLM) 整合至你的 agent。雖然 Google Gemini 模型的設定已在 [Setup Foundation Models](../get-started/installation.md) 指南中說明，本頁將進一步介紹如何有效運用 Gemini，並整合其他熱門模型，包括外部託管或在本地端執行的模型。
 
 ADK 主要透過兩種機制來整合模型：
 
-1. **直接字串／註冊表（Registry）：** 適用於與 Google Cloud 深度整合的模型（例如透過 Google AI Studio 或 Vertex AI 存取的 Gemini 模型），或是部署於 Vertex AI 端點的模型。你通常只需將模型名稱或端點資源字串直接提供給 `LlmAgent`。ADK 內部的註冊表會將這個字串解析為對應的後端 client，通常會使用 `google-genai` 函式庫。
-2. **包裝類別（Wrapper Classes）：** 為了更廣泛的相容性，特別是針對 Google 生態系統以外，或需要特定 client 設定的模型（例如透過 LiteLLM 存取的模型）。你可以實例化特定的包裝類別（例如 `LiteLlm`），並將此物件作為 `model` 參數傳遞給你的 `LlmAgent`。
+1. **直接字串／註冊表（Registry）：** 適用於與 Google Cloud 深度整合的模型（例如透過 Google AI Studio 或 Vertex AI 存取的 Gemini 模型），或是部署於 Vertex AI 端點的模型。你通常只需將模型名稱或端點資源字串直接提供給 `LlmAgent`。ADK 內部的註冊表會將此字串解析為對應的後端 client，並常利用 `google-genai` 函式庫。
+2. **包裝類別（Wrapper Classes）：** 為了更廣泛的相容性，特別是對於不屬於 Google 生態系的模型，或需要特殊 client 設定的模型（如透過 LiteLLM 存取的模型），你可以實例化特定的包裝類別（例如 `LiteLlm`），並將該物件作為 `model` 參數傳遞給你的 `LlmAgent`。
 
-以下章節將依你的需求，指引你如何使用這些方法。
+以下章節將依照你的需求，指引你如何使用這些方法。
 
 ## 使用 Google Gemini 模型
 
-本節說明如何與 Google 的 Gemini 模型進行驗證，無論是透過 Google AI Studio 進行快速開發，或是透過 Google Cloud Vertex AI 滿足企業應用需求。這是於 ADK 中使用 Google 旗艦模型最直接的方式。
+本節說明如何與 Google 的 Gemini 模型進行驗證，可選擇透過 Google AI Studio 進行快速開發，或使用 Google Cloud Vertex AI 滿足企業級應用需求。這是於 ADK 中使用 Google 旗艦模型最直接的方式。
 
-**整合方式：** 完成下述任一驗證方法後，你可以直接將模型的識別字串傳遞給 `LlmAgent` 的 `model` 參數。
+**整合方式：** 當你完成下述任一驗證方式後，即可將模型的識別字串直接傳入 `LlmAgent` 的 `model` 參數。
 
 !!!tip 
 
@@ -36,9 +36,9 @@ ADK 主要透過兩種機制來整合模型：
 
 這是最簡單的方法，建議用於快速開始。
 
-*   **驗證方式：** API KEY
+*   **驗證方式：** API Key
 *   **設定步驟：**
-    1.  **取得 API KEY：** 從 [Google AI Studio](https://aistudio.google.com/apikey) 取得您的金鑰。
+    1.  **取得 API key：** 從 [Google AI Studio](https://aistudio.google.com/apikey) 取得您的金鑰。
     2.  **設定環境變數：** 在您的專案根目錄下建立 `.env` 檔案（Python）或 `.properties`（Java），並加入以下內容。Agent Development Kit (ADK) 會自動載入此檔案。
 
         ```shell
@@ -50,31 +50,29 @@ ADK 主要透過兩種機制來整合模型：
 
         在模型初始化時，透過 `Client` 傳遞這些變數（請參考下方範例）。
 
-* **模型：** 請至 [Google AI for Developers site](https://ai.google.dev/gemini-api/docs/models) 查詢所有可用模型。
+* **模型：** 可在
+  [Google AI for Developers site](https://ai.google.dev/gemini-api/docs/models) 上查詢所有可用模型。
 
 ### Google Cloud Vertex AI
 
-對於可擴展且以生產環境為導向的使用情境，建議使用 Vertex AI 平台。Gemini on Vertex AI 支援企業級功能、安全性與合規性控管。根據您的開發環境與使用情境，*請選擇下列其中一種方式進行驗證*。
+若需具備可擴展性及生產環境導向的應用場景，建議使用 Vertex AI 平台。Vertex AI 上的 Gemini 支援企業級功能、安全性與合規性控管。請根據您的開發環境與使用情境，*選擇下列其中一種驗證方式*。
 
-**先決條件：** 需有一個已[啟用 Vertex AI 的 Google Cloud 專案](https://console.cloud.google.com/apis/enableflow;apiid=aiplatform.googleapis.com)。
+**前置作業：** 需有已[啟用 Vertex AI](https://console.cloud.google.com/apis/enableflow;apiid=aiplatform.googleapis.com) 的 Google Cloud 專案。
 
 ### **方法 A：使用者憑證（適用於本機開發）**
 
-1.  **安裝 gcloud 命令列介面 (CLI)：** 請依照官方[安裝說明](https://cloud.google.com/sdk/docs/install)操作。
+1.  **安裝 gcloud 命令列介面 (Command Line Interface)：** 請依照官方[安裝說明](https://cloud.google.com/sdk/docs/install)操作。
 2.  **使用 ADC 登入：** 此指令會開啟瀏覽器，讓您驗證本機開發所需的使用者帳戶。
     ```bash
     gcloud auth application-default login
     ```
-3.  **Set environment variables:**
-
-
 3.  **設定環境變數：**
     ```shell
     export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
     export GOOGLE_CLOUD_LOCATION="YOUR_VERTEX_AI_LOCATION" # e.g., us-central1
     ```     
     
-    明確告訴函式庫使用 Vertex AI：
+    明確告知程式庫使用 Vertex AI：
 
     ```shell
     export GOOGLE_GENAI_USE_VERTEXAI=TRUE
@@ -82,10 +80,10 @@ ADK 主要透過兩種機制來整合模型：
 
 4. **Models：** 請參閱 [Vertex AI documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models) 以查詢可用的模型 ID。
 
-### **方法 B：Vertex AI Express Mode**
-[Vertex AI Express Mode](https://cloud.google.com/vertex-ai/generative-ai/docs/start/express-mode/overview) 提供簡化的、基於 API 金鑰的設定方式，適合快速原型開發。
+### **方法 B：Vertex AI Express 模式**
+[Vertex AI Express 模式](https://cloud.google.com/vertex-ai/generative-ai/docs/start/express-mode/overview) 提供簡化的、以 API KEY 為基礎的設定，適合快速原型開發。
 
-1.  **註冊 Express Mode** 以取得您的 API 金鑰。
+1.  **註冊 Express 模式** 以取得您的 API KEY。
 2.  **設定環境變數：**
     ```shell
     export GOOGLE_API_KEY="PASTE_YOUR_EXPRESS_MODE_API_KEY_HERE"
@@ -97,13 +95,13 @@ ADK 主要透過兩種機制來整合模型：
 對於已部署的應用程式，服務帳戶是標準做法。
 
 1.  [**建立服務帳戶**](https://cloud.google.com/iam/docs/service-accounts-create#console) 並賦予其 `Vertex AI User` 角色。
-2.  **將憑證提供給你的應用程式：**
-    *   **在 Google Cloud 上：** 如果你在 Cloud Run、GKE、VM 或其他 Google Cloud 服務上執行 agent，環境可以自動提供服務帳戶憑證。你無需建立金鑰檔案。
-    *   **在其他環境：** 建立一個 [服務帳戶金鑰檔案](https://cloud.google.com/iam/docs/keys-create-delete#console)，並使用環境變數指向該檔案：
+2.  **將認證資訊提供給您的應用程式：**
+    *   **在 Google Cloud 上：** 如果您在 Cloud Run、GKE、VM 或其他 Google Cloud 服務中執行 agent，環境會自動提供服務帳戶認證。您不需要建立金鑰檔案。
+    *   **在其他環境：** 建立 [服務帳戶金鑰檔案](https://cloud.google.com/iam/docs/keys-create-delete#console)，並透過環境變數指定該檔案位置：
         ```bash
         export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/keyfile.json"
         ```
-    除了使用金鑰檔案之外，你也可以透過 Workload Identity 來驗證 service account。不過，這超出了本指南的範圍。
+    除了使用金鑰檔案之外，你也可以透過 Workload Identity 來驗證服務帳戶（Service Account）。但這超出了本指南的範圍。
 
 **範例：**
 
@@ -169,27 +167,27 @@ ADK 主要透過兩種機制來整合模型：
     ```
 
 !!!warning "保護您的憑證"
-    服務帳戶憑證或 API 金鑰屬於高權限憑證。切勿將其公開暴露。請使用像是 [Google Secret Manager](https://cloud.google.com/secret-manager) 這類的秘密管理工具，在正式環境中安全地儲存與存取這些憑證。
+    服務帳戶憑證或 API 金鑰是非常強大的憑證。切勿將它們公開暴露。請使用像是 [Google Secret Manager](https://cloud.google.com/secret-manager) 這類的秘密管理工具，在正式環境中安全地儲存與存取這些憑證。
 
 ## 使用 Anthropic 模型
 
-![java_only](https://img.shields.io/badge/Supported_in-Java-orange){ title="此功能目前僅支援 Java。Python 版本若需直接串接 Anthropic API（非 Vertex），請透過 LiteLLM。"}
+![java_only](https://img.shields.io/badge/Supported_in-Java-orange){ title="此功能目前僅支援 Java。Python 直接串接 Anthropic API（非 Vertex）可透過 LiteLLM 實現。"}
 
-您可以直接透過 Anthropic 的 API 金鑰，或是從 Vertex AI 後端，將 Anthropic 的 Claude 模型整合至您的 Java Agent Development Kit (ADK) 應用程式，方法是使用 ADK 的 `Claude` 包裝類別。
+您可以直接使用 Anthropic 的 API 金鑰，或透過 Vertex AI 後端，將 Anthropic 的 Claude 模型整合到您的 Java Agent Development Kit (ADK) 應用程式中，方法是使用 ADK 的 `Claude` 包裝類別。
 
-若需使用 Vertex AI 後端，請參閱 [Third-Party Models on Vertex AI](#third-party-models-on-vertex-ai-eg-anthropic-claude) 章節。
+若要使用 Vertex AI 後端，請參閱 [Third-Party Models on Vertex AI](#第三方模型於-vertex-ai-上-例如-anthropic-claude) 章節。
 
-**先決條件：**
+**前置作業：**
 
 1.  **相依套件：**
-    *   **Anthropic SDK 類別（傳遞式相依套件）：** Java ADK 的 `com.google.adk.models.Claude` 包裝類別會依賴 Anthropic 官方 Java SDK 的相關類別。這些通常會作為**傳遞式相依套件**一併安裝。
+    *   **Anthropic SDK 類別（轉移相依）：** Java Agent Development Kit (ADK) 的 `com.google.adk.models.Claude` 包裝類別會依賴 Anthropic 官方 Java SDK 的類別。這些通常會作為**轉移相依套件**自動納入。
 
 2.  **Anthropic API 金鑰：**
-    *   向 Anthropic 申請 API 金鑰。請使用秘密管理工具安全管理此金鑰。
+    *   向 Anthropic 取得 API 金鑰。請使用秘密管理工具安全管理此金鑰。
 
 **整合方式：**
 
-建立 `com.google.adk.models.Claude` 實例，並提供欲使用的 Claude 模型名稱，以及一個已設定 API 金鑰的 `AnthropicOkHttpClient`。接著，將此 `Claude` 實例傳入您的 `LlmAgent`。
+建立 `com.google.adk.models.Claude` 實例，傳入您想要的 Claude 模型名稱，以及已用您的 API 金鑰設定好的 `AnthropicOkHttpClient`。然後，將這個 `Claude` 實例傳遞給您的 `LlmAgent`。
 
 **範例：**
 
@@ -240,11 +238,11 @@ public class DirectAnthropicAgent {
 
 ![python_only](https://img.shields.io/badge/Supported_in-Python-blue)
 
-為了存取來自 OpenAI、Anthropic（非 Vertex AI）、Cohere 及其他眾多供應商的各式大型語言模型 (LLM)，Agent Development Kit (ADK)（ADK）提供了與 LiteLLM 函式庫的整合。
+為了存取來自 OpenAI、Anthropic（非 Vertex AI）、Cohere 及其他眾多供應商的大型語言模型 (LLM)，Agent Development Kit (ADK) 提供了與 LiteLLM 函式庫的整合。
 
 **整合方式：** 實例化 `LiteLlm` 包裝類別，並將其傳遞給 `LlmAgent` 的 `model` 參數。
 
-**LiteLLM 簡介：** [LiteLLM](https://docs.litellm.ai/) 作為轉譯層，為超過 100 種大型語言模型 (LLM) 提供標準化、相容於 OpenAI 的介面。
+**LiteLLM 簡介：** [LiteLLM](https://docs.litellm.ai/) 作為一個轉譯層，為超過 100 種大型語言模型 (LLM) 提供標準化、相容 OpenAI 的介面。
 
 **設定步驟：**
 
@@ -252,9 +250,9 @@ public class DirectAnthropicAgent {
         ```shell
         pip install litellm
         ```
-2. **設定提供者的 API 金鑰：** 將 API 金鑰設定為你打算使用的特定提供者的環境變數。
+2. **設定提供者 API 金鑰：** 將 API 金鑰設定為環境變數，以便用於你打算使用的特定提供者。
 
-    * *以 OpenAI 為例：*
+    * *OpenAI 範例：*
 
         ```shell
         export OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
@@ -311,25 +309,25 @@ public class DirectAnthropicAgent {
     ```
 
 
-## 透過 LiteLLM 使用開源與本地模型
+## 透過 LiteLLM 使用開放與本地模型
 
 ![python_only](https://img.shields.io/badge/Supported_in-Python-blue)
 
-為了獲得最大的控制權、節省成本、提升隱私，或支援離線使用情境，你可以在本地端運行開源模型，或自行架設模型伺服器，並透過 LiteLLM 進行整合。
+為了獲得最大的控制權、節省成本、提升隱私，或離線使用等情境，您可以在本地運行開源模型，或自行架設模型伺服器，並透過 LiteLLM 進行整合。
 
-**整合方式：** 實例化 `LiteLlm` 包裝類別，並設定指向你的本地模型伺服器。
+**整合方式：** 實例化 `LiteLlm` 包裝類別，並設定指向您的本地模型伺服器。
 
 ### Ollama 整合
 
-[Ollama](https://ollama.com/) 讓你能夠輕鬆在本地端運行開源模型。
+[Ollama](https://ollama.com/) 可讓您輕鬆在本地運行開源模型。
 
 #### 模型選擇
 
-如果你的 agent 需要依賴 tools，請務必從 [Ollama 網站](https://ollama.com/search?c=tools) 選擇支援 tools 的模型。
+如果您的 agent 依賴於 tools，請務必從 [Ollama 網站](https://ollama.com/search?c=tools) 選擇支援工具（tool support）的模型。
 
-為了獲得穩定可靠的結果，我們建議選用具備 tools 支援的中大型模型。
+為了獲得可靠的結果，我們建議選擇具有工具支援且規模適中的模型。
 
-你可以使用以下指令來檢查模型是否支援 tools：
+您可以使用以下指令檢查模型是否支援工具功能：
 
 ```bash
 ollama show mistral-small3.1
@@ -346,15 +344,15 @@ ollama show mistral-small3.1
     tools
 ```
 
-你應該會在 capabilities（功能）下看到 `tools` 被列出。
+你應該會在 capabilities（功能）中看到 `tools` 被列出。
 
-你也可以查看該模型所使用的 template（範本），並根據你的需求進行調整。
+你也可以查看該模型正在使用的 template（範本），並根據你的需求進行調整。
 
 ```bash
 ollama show --modelfile llama3.2 > model_file_to_modify
 ```
 
-例如，上述模型的預設模板本身就暗示該模型會一直呼叫函式。這可能導致函式呼叫產生無限迴圈。
+例如，上述模型的預設範本本身就暗示該模型會一直呼叫某個函式。這可能導致函式呼叫進入無限迴圈。
 
 ```
 Given the following functions, please respond with a JSON for a function call
@@ -364,7 +362,7 @@ Respond in the format {"name": function name, "parameters": dictionary of
 argument name and its value}. Do not use variables.
 ```
 
-你可以將這類提示詞（prompt）替換為更具描述性的內容，以避免出現無限的工具呼叫迴圈。
+你可以將這類提示詞替換為更具描述性的內容，以防止出現無限的工具呼叫 (tool calls) 迴圈。
 
 例如：
 
@@ -377,7 +375,7 @@ If you determine a function call IS required: Respond ONLY with a JSON object in
 If you determine a function call IS NOT required: Respond directly to the user's prompt in plain text, providing the answer or information requested. Do not output any JSON.
 ```
 
-然後你可以使用以下指令來建立新的模型：
+然後你可以使用以下指令來建立一個新模型：
 
 ```bash
 ollama create llama3.2-modified -f model_file_to_modify
@@ -405,9 +403,9 @@ root_agent = Agent(
 )
 ```
 
-**請務必設定 provider 為 `ollama_chat`，而非 `ollama`。若使用 `ollama`，將會導致非預期行為，例如無限的工具呼叫迴圈，以及忽略先前的上下文。**
+**請務必設定 provider 為 `ollama_chat`，而不是 `ollama`。若使用 `ollama`，將會導致非預期的行為，例如無限的工具呼叫 (tool calls) 迴圈，以及忽略先前的 context。**
 
-雖然可以在 LiteLLM 內部提供 `api_base` 來進行生成，但自 v1.65.5 版起，LiteLLM 函式庫在完成後會依賴環境變數來呼叫其他 API。因此，目前我們建議將環境變數 `OLLAMA_API_BASE` 設定為指向 ollama 伺服器。
+雖然可以在 LiteLLM 內部提供 `api_base` 來進行生成，但自 v1.65.5 版起，LiteLLM 函式庫在完成後會依賴環境變數來呼叫其他 API。因此，目前建議將環境變數 `OLLAMA_API_BASE` 設定為指向 ollama server。
 
 ```bash
 export OLLAMA_API_BASE="http://localhost:11434"
@@ -416,7 +414,7 @@ adk web
 
 #### 使用 openai provider
 
-另外，也可以將 `openai` 作為 provider 名稱。但這同時需要設定 `OPENAI_API_BASE=http://localhost:11434/v1` 和 `OPENAI_API_KEY=anything` 這兩個環境變數，而不是 `OLLAMA_API_BASE`。**請注意，api base 現在的結尾有 `/v1`。**
+另外，也可以將 `openai` 作為 provider 名稱。不過，這同時需要設定 `OPENAI_API_BASE=http://localhost:11434/v1` 和 `OPENAI_API_KEY=anything` 這兩個環境變數，而不是 `OLLAMA_API_BASE`。**請注意，api base 現在的結尾包含 `/v1`。**
 
 ```py
 root_agent = Agent(
@@ -436,7 +434,6 @@ root_agent = Agent(
 )
 ```
 
-請提供原文、初始譯文、品質分析與改進建議，我才能根據您的要求進行翻譯改進。
 ```bash
 export OPENAI_API_BASE=http://localhost:11434/v1
 export OPENAI_API_KEY=anything
@@ -452,7 +449,7 @@ import litellm
 litellm._turn_on_debug()
 ```
 
-請尋找如下所示的行：
+尋找類似以下的行：
 
 ```bash
 Request Sent from LiteLLM:
@@ -461,18 +458,17 @@ http://localhost:11434/api/chat \
 -d '{'model': 'mistral-small3.1', 'messages': [{'role': 'system', 'content': ...
 ```
 
-### 自行架設端點（例如 vLLM）
+### 自行架設的 API 端點（例如 vLLM）
 
 ![python_only](https://img.shields.io/badge/Supported_in-Python-blue)
 
-像是 [vLLM](https://github.com/vllm-project/vllm) 這類工具可以讓你高效地自行架設模型，並且通常會提供相容於 OpenAI 的 API 端點。
+像是 [vLLM](https://github.com/vllm-project/vllm) 這類工具可以讓你高效地自行架設大型語言模型 (LLM)，並且通常會提供一個相容於 OpenAI 的 API 端點。
 
 **設定步驟：**
 
-1. **部署模型：** 使用 vLLM（或類似工具）部署你選擇的模型。
-   請記下 API base URL（例如：`https://your-vllm-endpoint.run.app/v1`）。
-    * *針對 Agent Development Kit (ADK) 工具的重要提醒：* 部署時，請確保所使用的服務工具支援並啟用相容於 OpenAI 的工具／函式呼叫。對於 vLLM，這可能需要加上像是 `--enable-auto-tool-choice` 的旗標，並且根據模型不同，可能還需要指定 `--tool-call-parser`。詳細請參考 vLLM 的 Tool Use 文件。
-2. **驗證機制：** 確認你的端點如何處理驗證（例如：API key、bearer token）。
+1. **部署模型：** 使用 vLLM（或類似工具）部署你選擇的模型。請記下 API base URL（例如：`https://your-vllm-endpoint.run.app/v1`）。
+    * *針對 Agent Development Kit (ADK) 工具的重要提醒：* 部署時，請確認你的服務工具支援並啟用了相容 OpenAI 的工具／函式呼叫功能。對於 vLLM，這可能需要設定像是 `--enable-auto-tool-choice` 的旗標，並且視模型而定，可能還需要指定 `--tool-call-parser`。詳細資訊請參考 vLLM 官方文件中的 Tool Use 章節。
+2. **驗證機制：** 確認你的 API 端點如何進行驗證（例如：API key、bearer token）。
 
     **整合範例：**
 
@@ -517,31 +513,28 @@ http://localhost:11434/api/chat \
 
 ## 在 Vertex AI 上使用託管與微調模型
 
-若需企業級的擴展性、可靠性，以及與 Google Cloud MLOps 生態系統的整合，您可以使用部署到 Vertex AI Endpoint 的模型。這包含來自 Model Garden 的模型，或您自行微調的模型。
+若需企業級的擴展性、可靠性，以及與 Google Cloud MLOps 生態系統的整合，您可以使用部署到 Vertex AI 端點（Endpoint）的模型。這包括 Model Garden 中的模型，或您自行微調的模型。
 
 **整合方式：** 將完整的 Vertex AI Endpoint 資源字串（`projects/PROJECT_ID/locations/LOCATION/endpoints/ENDPOINT_ID`）直接傳遞給 `LlmAgent` 的 `model` 參數。
 
-**Vertex AI 設定（整合步驟）：**
+**Vertex AI 設定（彙整）：**
 
 請確保您的環境已正確設定以使用 Vertex AI：
 
-1. **驗證（Authentication）：** 使用 Application Default Credentials（ADC）：
+1. **驗證：** 使用 Application Default Credentials (ADC)：
 
     ```shell
     gcloud auth application-default login
     ```
 
-2. **Environment Variables:** Set your project and location:
-
-
-2. **環境變數：**請設定您的專案與位置 (Location)：
+2. **環境變數：**請設定您的專案與位置。
 
     ```shell
     export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
     export GOOGLE_CLOUD_LOCATION="YOUR_VERTEX_AI_LOCATION" # e.g., us-central1
     ```
 
-3. **啟用 Vertex 後端：** 最重要的是，請確保 `google-genai` 函式庫
+3. **啟用 Vertex 後端：** 關鍵的是，請確保 `google-genai` 函式庫
    以 Vertex AI 為目標：
 
     ```shell
@@ -550,11 +543,11 @@ http://localhost:11434/api/chat \
 
 ### Model Garden 部署
 
-![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python。Java 支援預計推出／即將推出。"}
+![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python。Java 支援預計推出/即將上線。"}
 
-您可以將各種開放式與專有模型，從
+你可以將各種開放式與專有模型，從
 [Vertex AI Model Garden](https://console.cloud.google.com/vertex-ai/model-garden)
-部署到端點（endpoint）。
+部署到一個端點（endpoint）。
 
 **範例：**
 
@@ -578,9 +571,9 @@ agent_llama3_vertex = LlmAgent(
 
 ### 微調模型端點
 
-![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python，Java 支援預計推出/即將推出。"}
+![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python。Java 支援預計推出/即將推出。"}
 
-部署您所微調的模型（無論是基於 Gemini 或其他 Vertex AI 支援的架構），都會產生一個可直接使用的端點。
+部署您經過微調的模型（無論是基於 Gemini 或其他 Vertex AI 支援的架構），都會產生一個可直接使用的端點。
 
 **範例：**
 
@@ -600,9 +593,9 @@ agent_finetuned_gemini = LlmAgent(
 )
 ```
 
-### 在 Vertex AI 上使用第三方模型（例如 Anthropic Claude）
+### 第三方模型於 Vertex AI 上（例如 Anthropic Claude）
 
-部分供應商，如 Anthropic，會直接透過 Vertex AI 提供其模型。
+部分供應商（如 Anthropic）會直接透過 Vertex AI 提供其模型。
 
 === "Python"
 

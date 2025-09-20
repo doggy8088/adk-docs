@@ -1,35 +1,35 @@
-!!! warning "進階概念"
+!!! warning "Advanced Concept"
 
-    Building custom agents by directly implementing `_run_async_impl` (or its equivalent in other languages) provides powerful control but is more complex than using the predefined `LlmAgent` or standard `WorkflowAgent` types. We recommend understanding those foundational agent types first before tackling custom orchestration logic.
+    直接實作 `_run_async_impl`（或其他語言中的對應類別）來建立自訂 agent，雖然能提供強大的控制能力，但相較於使用預先定義的 `LlmAgent` 或標準的 `WorkflowAgent` 類型來說，實作上會更為複雜。我們建議在挑戰自訂協作邏輯之前，先充分理解這些基礎的 agent 類型。
 
 # 自訂 agent
 
-自訂 agent 提供了 Agent Development Kit (ADK)（ADK）中最高的彈性，允許你直接繼承自 `BaseAgent`，並實作**任意的協作邏輯（orchestration logic）**，打造專屬的控制流程。這種方式突破了 `SequentialAgent`、`LoopAgent`、`ParallelAgent` 等預先定義模式的限制，使你能夠建立高度特定且複雜的 agent 工作流程。
+自訂 agent 提供了 Agent Development Kit (ADK) 中最高的彈性，讓你可以直接繼承自 `BaseAgent`，並實作自己的控制流程，從而定義**任意的協作邏輯**。這種方式超越了 `SequentialAgent`、`LoopAgent` 和 `ParallelAgent` 等預先定義的模式，使你能夠建立高度特定且複雜的 agent 工作流程。
 
 ## 介紹：超越預設工作流程
 
 ### 什麼是自訂 Agent？
 
-自訂 Agent 本質上是你自行建立、繼承自 `google.adk.agents.BaseAgent` 的任何類別，並在 `_run_async_impl` 非同步方法中實作其核心執行邏輯。你可以完全掌控這個方法如何呼叫其他 agent（子 agent）、管理狀態，以及處理事件。
+自訂 Agent 基本上是你所建立、繼承自 `google.adk.agents.BaseAgent` 的任何類別，並在 `_run_async_impl` 非同步方法中實作其核心執行邏輯。你可以完全掌控這個方法如何呼叫其他 agent（子 agent）、管理狀態，以及處理事件。 
 
 !!! Note
-    實作 agent 核心非同步邏輯的方法名稱，可能會依照不同 SDK 語言略有差異（例如：Java 中為 `runAsyncImpl`，Python 中為 `_run_async_impl`）。請參考各語言的 API 文件以取得詳細資訊。
+    實作 agent 核心非同步邏輯的方法名稱，會依不同 SDK 語言略有差異（例如：Java 中為 `runAsyncImpl`，Python 中為 `_run_async_impl`）。詳細資訊請參閱各語言的 API 文件說明。
 
-### 為什麼要使用自訂 Agent？
+### 為什麼要使用自訂 agent？
 
-雖然標準的 [Workflow Agents](workflow-agents/index.md)（`SequentialAgent`、`LoopAgent`、`ParallelAgent`）已涵蓋常見的協作模式，但當你的需求包含以下情境時，就需要自訂 agent：
+雖然標準的 [Workflow Agents](workflow-agents/index.md)（`SequentialAgent`、`LoopAgent`、`ParallelAgent`）已涵蓋常見的協作流程模式，但當你的需求包含以下情境時，就需要使用自訂 agent：
 
-* **條件邏輯：** 根據執行時條件或前一步驟的結果，執行不同的子 agent 或採取不同流程。
-* **複雜狀態管理：** 實作複雜的邏輯，以在整個工作流程中維護與更新狀態，超越單純的序列傳遞。
-* **外部整合：** 在協作流程控制中，直接整合對外部 API、資料庫或自訂函式庫的呼叫。
-* **動態 agent 選擇：** 根據動態評估的情境或輸入，決定接下來要執行哪些子 agent。
-* **獨特的工作流程模式：** 實作不屬於標準序列、平行或迴圈結構的協作邏輯。
+* **條件邏輯（Conditional Logic）：** 根據執行時條件或前一步驟的結果，執行不同的子 agent 或採取不同的流程分支。
+* **複雜狀態管理（Complex State Management）：** 在工作流程中，實作超越單純順序傳遞的複雜狀態維護與更新邏輯。
+* **外部整合（External Integrations）：** 在協作流程控制中，直接整合對外部 API、資料庫或自訂函式庫的呼叫。
+* **動態 agent 選擇（Dynamic Agent Selection）：** 根據情境或輸入的動態評估，決定接下來要執行哪個子 agent（或多個）。
+* **獨特的工作流程模式（Unique Workflow Patterns）：** 實作不屬於標準順序、平行或迴圈結構的協作邏輯。
 
 ![intro_components.png](../assets/custom-agent-flow.png)
 
 ## 實作自訂邏輯：
 
-任何自訂 agent 的核心，就是你定義其獨特非同步行為的方法。透過這個方法，你可以協作子 agent 並管理執行流程。
+任何自訂 agent 的核心，就是你定義其獨特非同步行為的方法。這個方法讓你能協調子 agent，並管理執行流程。
 
 === "Python"
 
@@ -41,20 +41,17 @@
 
 === "Java"
 
-
-（此區段為標題分頁標記，無需翻譯內容）
-
     The heart of any custom agent is the `runAsyncImpl` method, which you override from `BaseAgent`.
 
     *   **Signature:** `protected Flowable<Event> runAsyncImpl(InvocationContext ctx)`
     *   **Reactive Stream (`Flowable`):** It must return an `io.reactivex.rxjava3.core.Flowable<Event>`. This `Flowable` represents a stream of events that will be produced by the custom agent's logic, often by combining or transforming multiple `Flowable` from sub-agents.
     *   **`ctx` (InvocationContext):** Provides access to crucial runtime information, most importantly `ctx.session().state()`, which is a `java.util.concurrent.ConcurrentMap<String, Object>`. This is the primary way to share data between steps orchestrated by your custom agent.
 
-**核心非同步方法中的關鍵能力：**
+**核心非同步方法中的主要功能：**
 
 === "Python"
 
-    1. **呼叫子代理（sub-agent）：** 你可以透過呼叫子代理（通常會以實例屬性如 `self.my_llm_agent` 儲存）的 `run_async` 方法，並讓渡（yield）它們的事件：
+    1. **呼叫子 agent：** 你可以透過呼叫子 agent（通常會以實例屬性如 `self.my_llm_agent` 儲存），使用它們的 `run_async` 方法並讓渡（yield）它們的事件：
 
           ```python
           async for event in self.some_sub_agent.run_async(ctx):
@@ -62,10 +59,7 @@
               yield event # Pass the event up
           ```
 
-    2. **Managing State:** Read from and write to the session state dictionary (`ctx.session.state`) to pass data between sub-agent calls or make decisions:
-
-
-2. **狀態管理：** 讀取與寫入 session state 字典（`ctx.session.state`），以便在子代理（sub-agent）呼叫之間傳遞資料或進行決策：
+    2. **管理狀態：** 透過讀取與寫入 session state 字典（`ctx.session.state`），可在子 agent 呼叫之間傳遞資料或進行決策：
           ```python
           # Read data set by a previous agent
           previous_result = ctx.session.state.get("some_key")
@@ -80,13 +74,13 @@
           # ctx.session.state["my_custom_result"] = "calculated_value"
           ```
 
-    3. **實作控制流程：** 使用標準的 Python 結構（`if`/`elif`/`else`、`for`/`while` 迴圈、`try`/`except`）來建立更進階、有條件或具迭代性的工作流程，讓你的子代理（sub-agent）能夠參與其中。
+    3. **實作控制流程：** 使用標準的 Python 結構（`if`/`elif`/`else`、`for`/`while` 迴圈、`try`/`except`）來建立複雜、有條件或具迭代性的工作流程，並整合你的子 agent。
 
 === "Java"
 
-    1. **呼叫子代理（Sub-Agents）：** 你可以透過子代理（通常儲存為實例屬性或物件）的非同步執行方法來呼叫它們，並回傳它們的事件串流：
+    1. **呼叫子 agent：** 你可以透過呼叫子 agent（通常以實例屬性或物件形式儲存）的非同步 run 方法，並回傳它們的事件串流：
 
-           通常你會使用 RxJava 的運算子（如 `concatWith`、`flatMapPublisher` 或 `concatArray`）來串接來自子代理的 `Flowable`。
+           通常你會使用 RxJava 的運算子（如 `concatWith`、`flatMapPublisher` 或 `concatArray`）來串接來自子 agent 的 `Flowable`。
 
            ```java
            // Example: Running one sub-agent
@@ -103,9 +97,9 @@
       
            return firstAgentEvents.concatWith(secondAgentEvents);
            ```
-           `Flowable.defer()` 通常用於後續階段，特別是在這些階段的執行依賴於前一階段完成或其狀態時。
+           `Flowable.defer()` 通常用於後續階段，如果這些階段的執行依賴於前一階段的完成或狀態時。
 
-    2. **管理狀態：** 透過讀取與寫入 session 狀態，在子代理（sub-agent）呼叫之間傳遞資料或進行決策。session 狀態是一個 `java.util.concurrent.ConcurrentMap<String, Object>`，可透過 `ctx.session().state()` 取得。
+    2. **管理狀態：** 透過讀取和寫入 session state，在子 agent 呼叫之間傳遞資料或進行決策。session state 是透過 `ctx.session().state()` 取得的 `java.util.concurrent.ConcurrentMap<String, Object>`。
         
         ```java
         // Read data set by a previous agent
@@ -122,30 +116,30 @@
         // ctx.session().state().put("my_custom_result", "calculated_value");
         ```
 
-    3. **實作流程控制：** 使用標準語言結構（`if`/`else`、迴圈、`try`/`catch`）結合 reactive operators（RxJava），以建立進階的工作流程。
+    3. **實作控制流程：** 使用標準語言結構（`if`/`else`、迴圈、`try`/`catch`）結合 reactive operators（如 RxJava），可以建立複雜的工作流程。
 
-          *   **條件式（Conditional）：** 使用 `Flowable.defer()` 根據條件選擇要訂閱哪個 `Flowable`，或在串流中過濾事件時使用 `filter()`。
-          *   **迭代式（Iterative）：** 可使用 `repeat()`、`retry()` 等 operators，或透過設計 `Flowable` 鏈，在條件判斷下遞迴呼叫自身部分（通常透過 `flatMapPublisher` 或 `concatMap` 來管理）。
+          *   **條件判斷：** 使用 `Flowable.defer()` 來根據條件選擇要訂閱哪個 `Flowable`，或在串流中過濾事件時使用 `filter()`。
+          *   **迭代處理：** 可以使用像是 `repeat()`、`retry()` 的運算子，或透過設計 `Flowable` 鏈，在條件下遞迴呼叫自身的部分（通常會用 `flatMapPublisher` 或 `concatMap` 來管理）。
 
-## 管理子代理（Sub-Agents）與狀態
+## 管理子 agent 與狀態
 
-通常，自訂 agent 會協調其他代理（如 `LlmAgent`、`LoopAgent` 等）。
+通常，自訂 agent 會協調其他 agent（如 `LlmAgent`、`LoopAgent` 等）。
 
-* **初始化（Initialization）：** 通常會將這些子代理的實例傳入自訂 agent 的建構子，並以實例欄位/屬性（例如 `this.story_generator = story_generator_instance` 或 `self.story_generator = story_generator_instance`）儲存。如此可讓這些子代理在自訂 agent 的核心非同步執行邏輯（如：`_run_async_impl` 方法）中取得。
-* **子代理清單（Sub Agents List）：** 初始化 `BaseAgent` 時，透過其 `super()` 建構子，應傳入 `sub agents` 清單。此清單會告知 Agent Development Kit (ADK) 框架，這些代理是此自訂 agent 直接階層的一部分。這對於框架的生命週期管理、內省（introspection）、以及未來可能的路由功能都很重要，即使你的核心執行邏輯（`_run_async_impl`）是直接透過 `self.xxx_agent` 呼叫這些代理。請將你的自訂邏輯在最上層直接呼叫的代理都納入清單中。
-* **狀態（State）：** 如前所述，`ctx.session.state` 是子代理（特別是使用 `output key` 的 `LlmAgent`）回傳結果給協調者，以及協調者向下傳遞必要輸入的標準方式。
+* **初始化：** 通常會將這些子 agent 的實例傳入自訂 agent 的建構子，並將其儲存為實例欄位/屬性（例如：`this.story_generator = story_generator_instance` 或 `self.story_generator = story_generator_instance`）。這樣可以在自訂 agent 的核心非同步執行邏輯中（如：`_run_async_impl` 方法）存取這些子 agent。
+* **子 agent 清單：** 初始化 `BaseAgent` 時，使用其 `super()` 建構子，應傳入 `sub agents` 清單。這個清單會告訴 Agent Development Kit (ADK) 框架，哪些 agent 屬於這個自訂 agent 的直接階層。這對於框架的生命週期管理、內省（introspection），以及未來可能的路由功能都很重要，即使你的核心執行邏輯（`_run_async_impl`）是直接透過 `self.xxx_agent` 呼叫這些 agent。請將自訂邏輯中會在頂層直接呼叫的 agent 都包含進來。
+* **狀態：** 如前所述，`ctx.session.state` 是子 agent（特別是使用 `output key` 的 `LlmAgent`）將結果回傳給協調者，以及協調者將必要輸入下傳的標準方式。
 
 ## 設計模式範例：`StoryFlowAgent`
 
-以下以一個設計模式範例說明自訂 agent 的強大功能：具備條件邏輯的多階段內容產生工作流程。
+以下用一個設計模式範例來說明自訂 agent 的強大功能：一個具備條件邏輯的多階段內容生成工作流程。
 
-**目標：** 建立一個系統，能夠產生故事，經過批判與修訂反覆精煉，進行最終檢查，並且在最終語氣檢查失敗時，*重新產生故事*。
+**目標：** 建立一個系統，能夠產生故事，並透過批評與修訂反覆優化，進行最終檢查，且最關鍵的是，*如果最終語氣檢查未通過，則重新生成故事*。
 
-**為什麼要自訂？** 這裡需要自訂 agent 的核心原因是**根據語氣檢查結果進行條件式再生**。標準的工作流程代理並未內建根據子代理任務結果進行條件分支的能力。我們需要在協調者中撰寫自訂邏輯（`if tone == "negative": ...`）。
+**為什麼要自訂？** 這裡需要自訂 agent 的核心原因是**根據語氣檢查結果進行條件式的重新生成**。標準工作流程 agent 並未內建根據子 agent 任務結果進行條件分支的能力。我們需要在協調者中加入自訂邏輯（`if tone == "negative": ...`）。
 
 ---
 
-### 第 1 部分：簡化的自訂 agent 初始化 { #part-1-simplified-custom-agent-initialization }
+### 第一部分：簡化版自訂 agent 初始化 { #part-1-simplified-custom-agent-initialization }
 
 === "Python"
 
@@ -199,10 +193,10 @@
 
 ### 第 3 部分：定義大型語言模型 (LLM) 子代理 { #part-3-defining-the-llm-sub-agents }
 
-這些是標準的 `LlmAgent` 定義，負責特定任務。它們的 `output key` 參數對於將結果放入 `session.state` 中至關重要，這樣其他代理（agent）或自訂協調器就能存取這些結果。
+這些是標準的 `LlmAgent` 定義，負責特定任務。它們的 `output key` 參數對於將結果放入 `session.state` 中至關重要，其他 agent 或自訂協調器可以存取這些結果。
 
-!!! tip "在指令中直接注入狀態"
-    請注意 `story_generator` 的指令。`{var}` 語法是一個占位符。在指令送往大型語言模型 (LLM) 前，Agent Development Kit (ADK) 框架會自動將 (範例：`{topic}`) 替換為 `session.state['topic']` 的值。這是為代理（agent）提供情境的推薦方式，透過指令中的樣板（templating）實現。更多細節請參閱 [State documentation](../sessions/state.md#accessing-session-state-in-agent-instructions)。
+!!! tip "Direct State Injection in Instructions"
+    請注意 `story_generator` 的指令。`{var}` 語法是一個占位符。在指令傳送給大型語言模型 (LLM) 之前，Agent Development Kit (ADK) 框架會自動將 (例如：`{topic}`) 替換為 `session.state['topic']` 的值。這是建議為 agent 提供情境資訊的方式，也就是在指令中使用樣板（templating）。如需更多細節，請參閱 [State documentation](../sessions/state.md#accessing-session-state-in-agent-instructions)。
 
 === "Python"
 
@@ -220,7 +214,7 @@
 
 ### 第 4 部分：實例化並執行自訂 agent { #part-4-instantiating-and-running-the-custom-agent }
 
-最後，您可以實例化您的 `StoryFlowAgent`，並如同往常一樣使用 `Runner`。
+最後，您可以實例化您的 `StoryFlowAgent`，並像平常一樣使用 `Runner`。
 
 === "Python"
 
@@ -230,14 +224,11 @@
 
 === "Java"
 
-
-（無需翻譯，僅標示語言標籤，請保留原樣）
-
     ```java
     --8<-- "examples/java/snippets/src/main/java/agents/StoryFlowAgentExample.java:story_flow_agent"
     ```
 
-*(注意：完整可執行程式碼（包含匯入與執行邏輯）請參見下方連結。)*
+*(注意：完整可執行程式碼（包含 import 與執行邏輯）請參見下方連結。)*
 
 ---
 

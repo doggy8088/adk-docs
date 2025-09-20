@@ -1,43 +1,42 @@
 # 社群資源
 
-歡迎！本頁面介紹由 Agent Development Kit (ADK) 社群維護的資源。
+歡迎！本頁整理了由 Agent Development Kit (ADK) 社群維護的資源。
 
 !!! info
 
-    Google and the ADK team do not provide support for the content linked in
-    these external community resources.
+    Google 與 Agent Development Kit (ADK) 團隊不對這些外部社群資源中的連結內容提供支援。
 
-## 翻譯資源
+## 翻譯
 
-由社群提供的 Agent Development Kit (ADK) 文件翻譯。
+由社群提供的 Agent Development Kit (ADK) 文件說明翻譯版本。
 
-*   **[adk.wiki - ADK 文件（中文）](https://adk.wiki/)**
+*   **[adk.wiki - ADK Documentation (Chinese)](https://adk.wiki/)**
 
-    > adk.wiki 是 Agent Development Kit (ADK) 文件的中文版本，由個人維護。該文件持續更新與翻譯，旨在為中國開發者提供在地化的閱讀體驗。
+    > adk.wiki 是 Agent Development Kit (ADK) 文件說明的中文版本，由個人維護。該文件持續更新與翻譯，旨在為中國開發者提供在地化的閱讀體驗。
 
-*   **[ADK 文件（韓文, 한국어）](https://adk-labs.github.io/adk-docs/ko/)**
+*   **[ADK Documentation (Korean, 한국어)](https://adk-labs.github.io/adk-docs/ko/)**
 
-    > Agent Development Kit (ADK) 文件的韓文版本，由個人維護。該文件持續更新與翻譯，旨在為南韓開發者提供在地化的閱讀體驗。
+    > Agent Development Kit (ADK) 文件說明的韓文版本，由個人維護。該文件持續更新與翻譯，旨在為南韓開發者提供在地化的閱讀體驗。
 
-*   **[ADK 文件（日文, 日本語）](https://adk-labs.github.io/adk-docs/ja/)**
+*   **[ADK Documentation (Japanese, 日本語)](https://adk-labs.github.io/adk-docs/ja/)**
 
-    > Agent Development Kit (ADK) 文件的日文版本，由個人維護。該文件持續更新與翻譯，旨在為日本開發者提供在地化的閱讀體驗。
+    > Agent Development Kit (ADK) 文件說明的日文版本，由個人維護。該文件持續更新與翻譯，旨在為日本開發者提供在地化的閱讀體驗。
 
 ## 教學、指南與部落格文章
 
-*在這裡可以找到由社群撰寫，涵蓋 ADK 功能、使用案例及整合的指南。*
+*在這裡可以找到社群撰寫的指南，涵蓋 Agent Development Kit (ADK) 的功能、使用案例與整合方式。*
 
-*   **[用 ADK + 向量搜尋打造電商推薦 AI 智能代理](https://github.com/google/adk-docs/blob/main/examples/python/notebooks/shop_agent.ipynb)**
+*   **[Build an e-commerce recommendation AI agents with ADK + Vector Search](https://github.com/google/adk-docs/blob/main/examples/python/notebooks/shop_agent.ipynb)**
 
-    > 在本教學中，我們將探索如何為電商網站建立一個簡單的多代理系統，實現 [Shopper's Concierge demo](https://www.youtube.com/watch?v=LwHPYyw7u6U) 中所見的「生成式推薦」功能。
+    > 本教學將帶你探索如何為電商網站打造一個簡單的多 agent 系統，實現 [Shopper's Concierge 示範 (demo)](https://www.youtube.com/watch?v=LwHPYyw7u6U) 中的「生成式推薦」功能。
 
 * **[Google ADK + Vertex AI Live API](https://medium.com/google-cloud/google-adk-vertex-ai-live-api-125238982d5e)**
 
-    > 透過 Agent Development Kit (ADK) 與 Vertex AI Live API，打造串流體驗，突破命令列介面 (CLI) 的限制。
+    > 利用 Agent Development Kit (ADK) 與 Vertex AI Live API，打造串流體驗，突破 ADK CLI 的限制。
 
 ## 影片與螢幕錄影
 
-探索展示 ADK 的影片導覽、演講及示範。
+探索展示 Agent Development Kit (ADK) 的影片教學、演講與示範。
 
 <div class="video-grid">
   <div class="video-item">
@@ -78,16 +77,16 @@
 
 </div>
 
-*   **[Agent Development Kit (ADK) 大師班：打造 AI 智能代理與自動化工作流程（從新手到專家）](https://www.youtube.com/watch?v=P4VFL9nIaIA)**
+*   **[Agent Development Kit (ADK) Masterclass: Build AI Agents & Automate Workflows (Beginner to Pro)](https://www.youtube.com/watch?v=P4VFL9nIaIA)**
 
-    > 一套完整的速成課程，帶領你從入門到精通 Google 的 Agent Development Kit (ADK)。
-    > 涵蓋 12 個實作範例，從單一代理設定到進階多代理工作流程逐步深入。
-    > 包含詳細的程式碼導覽，以及所有範例的可下載原始碼。
+    > 一套完整的密集課程，帶你從新手到精通 Google 的 Agent Development Kit (ADK)。
+    > 涵蓋 12 個實作範例，從單一 agent 設定到進階多 agent 工作流程。
+    > 所有範例均附有逐步程式碼講解與可下載的原始碼。
 
 ## 貢獻你的資源
 
-有想要分享的 ADK 資源（教學、翻譯、工具、影片、範例）嗎？
+有想分享的 Agent Development Kit (ADK) 資源（教學、翻譯、工具、影片或範例）嗎？
 
-請參考 [貢獻指南](contributing-guide.md)，了解如何參與！
+請參考 [貢獻指南](contributing-guide.md) 以了解更多參與方式！
 
 感謝你對 Agent Development Kit (ADK) 的貢獻！❤️

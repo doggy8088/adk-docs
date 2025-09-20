@@ -1,4 +1,4 @@
-感謝您有興趣貢獻 Agent Development Kit (ADK)！我們歡迎您對核心框架（Python 與 Java）以及其文件進行貢獻。
+感謝您有興趣貢獻於 Agent Development Kit (ADK)！我們歡迎對核心框架（Python 與 Java）以及其文件說明的各種貢獻。
 
 本指南將說明如何參與本專案。
 
@@ -12,7 +12,7 @@
 
 ## 3. [`google/adk-docs`](https://github.com/google/adk-docs) { #google-adk-docs }
 
-包含您目前正在閱讀的文件網站的原始碼。
+包含您目前正在閱讀的文件說明網站的原始碼。
 
 ## 4. [`google/adk-web`](https://github.com/google/adk-web) { #google-adk-web }
 
@@ -20,77 +20,77 @@
 
 ## 開始之前
 
-### ✏️ 簽署貢獻者授權協議（Contributor License Agreement）
+### ✏️ 簽署貢獻者授權協議（Contributor License Agreement, CLA）
 
-對本專案的任何貢獻都必須附有
+對本專案的貢獻必須附帶
 [貢獻者授權協議（Contributor License Agreement, CLA）](https://cla.developers.google.com/about)。
-您（或您的雇主）仍然保有您貢獻內容的著作權；這僅僅是授權我們將您的貢獻作為專案的一部分進行使用與再發佈。
+您（或您的雇主）將保留對您貢獻內容的著作權；這僅僅是授權我們可以將您的貢獻用於本專案並重新發佈。
 
-如果您或您目前的雇主已經簽署過 Google CLA（即使是針對其他專案），通常不需要再次簽署。
+如果您或您目前的雇主已經簽署過 Google CLA（即使是為其他專案），通常不需要再次簽署。
 
-請造訪 <https://cla.developers.google.com/> 以查看您目前的協議或簽署新的協議。
+請造訪 <https://cla.developers.google.com/> 以檢視您目前的協議或簽署新的協議。
 
-### 📜 請閱讀我們的社群指南
+### 📜 請閱讀我們的社群指引
 
 本專案遵循
-[Google 開源社群指南](https://opensource.google/conduct/)。
+[Google 開源社群指引](https://opensource.google/conduct/)。
 
 ## 💬 加入討論！
 
-有問題、想分享想法，或討論您如何使用 ADK？歡迎前往我們的 **[Python](https://github.com/google/adk-python/discussions)** 或 **[Java](https://github.com/google/adk-java/discussions)** 討論區！
+有問題、想分享想法，或想討論您如何使用 ADK？歡迎前往我們的 **[Python](https://github.com/google/adk-python/discussions)** 或 **[Java](https://github.com/google/adk-java/discussions)** 討論區！
 
-這裡是主要的交流場所，您可以：
+這裡是主要的交流場所，適合：
 
-* 提問並獲得社群與維護者的協助。
+* 向社群與維護者提問並獲得協助。
 * 分享您的專案或使用案例（`Show and Tell`）。
-* 在正式建立 issue 前，討論潛在的新功能或改進方向。
-* 進行有關 ADK 的一般性討論。
+* 在建立正式議題前，討論潛在的新功能或改進建議。
+* 關於 ADK 的一般性討論。
 
 ## 如何貢獻
 
-您可以透過多種方式為 ADK 做出貢獻：
+您可以透過以下幾種方式貢獻於 ADK：
 
 ### 1. 回報問題（錯誤與 Bug） { #reporting-issues-bugs-errors }
 
-如果您發現框架有 bug 或文件有錯誤：
+如果您發現框架有 bug 或文件說明有錯誤：
 
-* **框架 Bug：** 請在 [`google/adk-python`](https://github.com/google/adk-python/issues/new) 或 [`google/adk-java`](https://github.com/google/adk-java/issues/new) 開啟 issue
-* **文件錯誤：** [在 `google/adk-docs` 開啟 issue（請使用 bug 模板）](https://github.com/google/adk-docs/issues/new?template=bug_report.md)
+* **框架 Bug：** 請在 [`google/adk-python`](https://github.com/google/adk-python/issues/new) 或 [`google/adk-java`](https://github.com/google/adk-java/issues/new) 中提出 issue
+* **文件錯誤：** [在 `google/adk-docs` 中提出 issue（請使用 bug 模板）](https://github.com/google/adk-docs/issues/new?template=bug_report.md)
 
-### 2. 建議功能改進 { #suggesting-enhancements }
+### 2. 建議改進 { #suggesting-enhancements }
 
-有新功能想法，或希望改進現有功能？
+有新功能的想法，或想改善現有功能？
 
-* **框架功能改進：** 請在 [`google/adk-python`](https://github.com/google/adk-python/issues/new) 或 [`google/adk-java`](https://github.com/google/adk-java/issues/new) 開啟 issue
-* **文件改進建議：** [在 `google/adk-docs` 開啟 issue](https://github.com/google/adk-docs/issues/new)
+* **框架改進：** 請在 [`google/adk-python`](https://github.com/google/adk-python/issues/new) 或 [`google/adk-java`](https://github.com/google/adk-java/issues/new) 中提出 issue
+* **文件改進：** [在 `google/adk-docs` 中提出 issue](https://github.com/google/adk-docs/issues/new)
 
-### 3. 改善文件 { #improving-documentation }
+### 3. 改善文件說明 { #improving-documentation }
 
-發現錯字、說明不清楚或資訊缺漏？歡迎直接提交您的修改：
+發現有錯字、說明不清楚或資訊遺漏？歡迎直接提交您的修改：
 
-* **方式：** 提交 Pull Request（PR），說明您的改進建議。
+* **方式：** 提交 Pull Request (PR) 來建議您的改進。
 * **位置：** [在 `google/adk-docs` 建立 Pull Request](https://github.com/google/adk-docs/pulls)
 
 ### 4. 撰寫程式碼 { #writing-code }
 
-協助修復 bug、實作新功能，或為文件貢獻程式碼範例：
+協助修正 bug、實作新功能，或為文件說明貢獻範例程式碼：
 
-**方式：** 提交包含您程式碼修改的 Pull Request（PR）。
+**方式：** 提交包含您程式碼修改的 Pull Request (PR)。
 
 * **Python 框架：** [在 `google/adk-python` 建立 Pull Request](https://github.com/google/adk-python/pulls)
 * **Java 框架：** [在 `google/adk-java` 建立 Pull Request](https://github.com/google/adk-java/pulls)
-* **文件：** [在 `google/adk-docs` 建立 Pull Request](https://github.com/google/adk-docs/pulls)
+* **文件說明：** [在 `google/adk-docs` 建立 Pull Request](https://github.com/google/adk-docs/pulls)
 
 ### 程式碼審查
 
-* 所有貢獻（包括專案成員的貢獻）都需經過審查流程。
+* 所有貢獻（包含專案成員的貢獻）都需經過審查流程。
 
-* 我們使用 GitHub Pull Request（PR）進行程式碼提交與審查。請確保您的 PR 清楚描述所做的變更內容。
+* 我們使用 GitHub Pull Request (PR) 來提交與審查程式碼。請確保您的 PR 清楚描述所做的更動。
 
 ## 授權條款
 
-當您貢獻內容時，即表示您同意您的貢獻將依據本專案的 [Apache 2.0 授權條款](https://github.com/google/adk-docs/blob/main/LICENSE) 發佈。
+一旦您貢獻內容，即表示您同意您的貢獻將依本專案的 [Apache 2.0 授權條款](https://github.com/google/adk-docs/blob/main/LICENSE) 授權。
 
 ## 有問題嗎？
 
-如果您遇到困難或有任何疑問，歡迎在相關儲存庫的 issue tracker 上開啟 issue。
+如果您遇到困難或有任何疑問，歡迎在相關儲存庫的 issue tracker 上提出 issue。

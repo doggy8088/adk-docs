@@ -1,20 +1,20 @@
-# Project information
+# 專案資訊
 site_name: Agent Development Kit
 site_url: https://google.github.io/adk-docs
 site_description: >-
-  Build powerful multi-agent systems with Agent Development Kit
+  使用 Agent Development Kit (ADK) 建構強大的多代理系統
 site_dir: site
 exclude_docs:
   api-reference/java/legal/*
 
-# Repository
+# 儲存庫
 repo_name: adk-python
 repo_url: https://github.com/google/adk-python
 
-# Copyright
-copyright: Copyright Google 2025&nbsp;&nbsp;|&nbsp;&nbsp;<a href="//policies.google.com/terms">Terms</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="//policies.google.com/privacy">Privacy</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#__consent">Manage cookies</a>
+# 版權宣告
+copyright: Copyright Google 2025&nbsp;&nbsp;|&nbsp;&nbsp;<a href="//policies.google.com/terms">服務條款</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="//policies.google.com/privacy">隱私權政策</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#__consent">管理 Cookie</a>
 
-# Custom CSS
+# 自訂 CSS
 extra_css:
   - stylesheets/custom.css
 
@@ -26,14 +26,13 @@ extra:
     provider: google
     property: G-DKHZS27PHP
   consent:
-    title: Cookie consent
+    title: Cookie 同意
     description: >- 
-      We use cookies to recognize repeated visits and preferences, 
-      as well as to measure the effectiveness of our documentation and
-      whether users find the information they need. With your consent,
-      you're helping us to make our documentation better.
+      我們使用 Cookie 來辨識重複造訪與偏好設定，
+      並評估我們文件的成效，以及使用者是否能找到所需資訊。經您同意後，
+      您將協助我們持續優化文件品質。
 
-# Configuration
+# 設定
 theme:
   name: material
   font:
@@ -50,13 +49,13 @@ theme:
       accent: white
       toggle:
         icon: material/brightness-7
-        name: Switch to dark mode
+        name: 切換至深色模式
     - scheme: slate
       primary: white
       accent: white
       toggle:
         icon: material/brightness-4
-        name: Switch to light mode
+        name: 切換至淺色模式
   features:
     - content.code.annotate
     - content.code.copy
@@ -72,7 +71,7 @@ theme:
     - navigation.tracking
     - toc.follow
 
-# Extensions
+# 擴充功能
 markdown_extensions:
   - admonition
   - attr_list
@@ -101,8 +100,7 @@ markdown_extensions:
   - toc:
       permalink: true
 
-
-# Plugins
+# 外掛
 plugins:
   - search
   - redirects:
@@ -111,14 +109,14 @@ plugins:
         'get-started/tutorial.md': 'tutorials/index.md'
         'guides/responsible-agents.md': 'safety/index.md'
 
-# Navigation
+# 導覽
 nav:
   - 首頁: index.md
-  - 開始使用:
+  - 快速開始:
     - get-started/index.md
     - 安裝: get-started/installation.md
-    - 快速開始: get-started/quickstart.md
-    - 快速開始（串流）:
+    - 快速入門: get-started/quickstart.md
+    - 快速入門（串流）:
       - get-started/streaming/index.md
       - Python: get-started/streaming/quickstart-streaming.md
       - Java: get-started/streaming/quickstart-streaming-java.md
@@ -130,7 +128,7 @@ nav:
     - 代理團隊: tutorials/agent-team.md
   - 代理:
     - agents/index.md
-    - LLM 代理: agents/llm-agents.md
+    - 大型語言模型 (LLM) 代理: agents/llm-agents.md
     - 工作流程代理:
       - agents/workflow-agents/index.md
       - 序列代理: agents/workflow-agents/sequential-agents.md
@@ -139,45 +137,45 @@ nav:
     - 自訂代理: agents/custom-agents.md
     - 多代理系統: agents/multi-agents.md
     - 代理設定: agents/config.md
-    - 模型與認證: agents/models.md
+    - 模型與驗證: agents/models.md
   - 工具:
     - tools/index.md
     - 函式工具:
-      - 概觀: tools/function-tools.md
+      - 概覽: tools/function-tools.md
       - 工具效能: tools/performance.md
-      - 動作確認: tools/confirmation.md
+      - 行動確認: tools/confirmation.md
     - 內建工具: tools/built-in-tools.md
     - 第三方工具: tools/third-party-tools.md
     - Google Cloud 工具: tools/google-cloud-tools.md
     - MCP 工具: tools/mcp-tools.md
     - OpenAPI 工具: tools/openapi-tools.md
-    - 認證: tools/authentication.md
+    - 驗證: tools/authentication.md
   - 執行代理:
     - 代理執行環境: runtime/index.md
-    - 執行設定: runtime/runconfig.md
+    - 執行環境設定: runtime/runconfig.md
   - 部署:
     - deploy/index.md
     - 代理引擎: deploy/agent-engine.md
     - Cloud Run: deploy/cloud-run.md
     - GKE: deploy/gke.md
-  - 工作階段與記憶:
+  - 工作階段與記憶體:
     - sessions/index.md
     - 工作階段: sessions/session.md
     - 狀態: sessions/state.md
-    - 記憶: sessions/memory.md
-    - Vertex AI 快速模式: sessions/express-mode.md
+    - 記憶體: sessions/memory.md
+    - Vertex AI Express 模式: sessions/express-mode.md
   - 回呼:
     - callbacks/index.md
     - 回呼類型: callbacks/types-of-callbacks.md
-    - 回呼模式: callbacks/design-patterns-and-best-practices.md
-  - 產出物:
+    - 回呼設計模式: callbacks/design-patterns-and-best-practices.md
+  - 成品:
     - artifacts/index.md
   - 事件:
     - events/index.md
-  - 內容:
+  - 上下文:
     - context/index.md
   - 可觀測性:
-    - 日誌記錄: observability/logging.md
+    - 日誌: observability/logging.md
     - Cloud Trace: observability/cloud-trace.md
     - AgentOps: observability/agentops.md
     - Arize AX: observability/arize-ax.md
@@ -191,22 +189,22 @@ nav:
     - plugins/index.md
   - 雙向串流（即時）:
     - streaming/index.md
-    - 快速開始（雙向串流/即時）: get-started/streaming/index.md
-    - 自訂音訊雙向串流應用程式範例 (SSE): streaming/custom-streaming.md
-    - 自訂音訊雙向串流應用程式範例 (WebSockets): streaming/custom-streaming-ws.md
+    - 快速入門（雙向串流/即時）: get-started/streaming/index.md
+    - 自訂音訊雙向串流應用範例（SSE）: streaming/custom-streaming.md
+    - 自訂音訊雙向串流應用範例（WebSockets）: streaming/custom-streaming-ws.md
     - 雙向串流開發指南系列: streaming/dev-guide/part1.md
     - 串流工具: streaming/streaming-tools.md
-    - 設定雙向串流行為: streaming/configuration.md
-    - Google ADK + Vertex AI Live API (blog post): https://medium.com/google-cloud/google-adk-vertex-ai-live-api-125238982d5e
-  - 基礎資料:
-    - 了解 Google 搜尋基礎資料: grounding/google_search_grounding.md
-    - 了解 Vertex AI 搜尋基礎資料: grounding/vertex_ai_search_grounding.md
-  - 安全與防護: safety/index.md
+    - 雙向串流行為設定: streaming/configuration.md
+    - Google ADK + Vertex AI Live API（部落格文章）: https://medium.com/google-cloud/google-adk-vertex-ai-live-api-125238982d5e
+  - Grounding:
+    - 認識 Google Search Grounding: grounding/google_search_grounding.md
+    - 認識 Vertex AI Search Grounding: grounding/vertex_ai_search_grounding.md
+  - 安全與資安: safety/index.md
   - A2A 協定:
     - a2a/index.md
-    - A2A 簡介: a2a/intro.md
-    - A2A 快速開始（公開）: a2a/quickstart-exposing.md
-    - A2A 快速開始（使用）: a2a/quickstart-consuming.md
+    - A2A 介紹: a2a/intro.md
+    - A2A 快速入門（Exposing）: a2a/quickstart-exposing.md
+    - A2A 快速入門（Consuming）: a2a/quickstart-consuming.md
     - A2A 協定文件: https://a2a-protocol.org
   - 社群資源: community.md
   - 貢獻指南: contributing-guide.md
@@ -215,5 +213,5 @@ nav:
     - Python ADK: api-reference/python/index.html
     - Java ADK: api-reference/java/index.html
     - CLI 參考: api-reference/cli/index.html
-    - 代理設定參考: api-reference/agentconfig/index.html
+    - Agent Config 參考: api-reference/agentconfig/index.html
     - REST API: api-reference/rest/index.md

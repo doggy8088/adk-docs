@@ -1,10 +1,10 @@
 # 開始使用
 
-Agent Development Kit (ADK)（ADK）旨在協助開發者打造、管理、評估與部署 AI 驅動的代理（agent）。它提供一個強大且靈活的環境，可用於建立對話式與非對話式的 agent，能夠處理複雜的任務與工作流程。
+Agent Development Kit (ADK) 旨在協助開發者打造、管理、評估與部署 AI 驅動的 agent。它提供一個強大且靈活的環境，讓你可以建立具備處理複雜任務與工作流程能力的對話式與非對話式 agent。
 
 <div class="grid cards" markdown>
 
--   :material-console-line: **安裝**
+-   :material-console-line: **安裝指南**
 
     ---
 
@@ -16,7 +16,7 @@ Agent Development Kit (ADK)（ADK）旨在協助開發者打造、管理、評�
 
     ---
 
-    幾分鐘內使用工具建立你的第一個 ADK agent。
+    幾分鐘內使用 tools 建立你的第一個 ADK agent。
 
     [:octicons-arrow-right-24: 更多資訊](quickstart.md)
 
@@ -32,7 +32,7 @@ Agent Development Kit (ADK)（ADK）旨在協助開發者打造、管理、評�
 
     ---
 
-    建立你的第一個 ADK 多代理（multi-agent）。
+    建立你的第一個 ADK 多 agent。
 
     [:octicons-arrow-right-24: 更多資訊](../tutorials/index.md)
 
@@ -40,17 +40,16 @@ Agent Development Kit (ADK)（ADK）旨在協助開發者打造、管理、評�
 
     ---
 
-    探索零售、旅遊、客服等多種範例代理！
+    探索零售、旅遊、客服等多種範例代理（Sample Agents）！
 
-    [:octicons-arrow-right-24: 探索 adk-samples](https://github.com/google/adk-samples){:target="_blank"}
+    [:octicons-arrow-right-24: 立即探索 adk-samples](https://github.com/google/adk-samples){:target="_blank"}
 
 -   :material-graph: **關於**
 
     ---
 
-    了解建立與部署 ADK agent 的關鍵元件。
+    了解建立與部署 ADK agent 的關鍵組件。
 
     [:octicons-arrow-right-24: 更多資訊](about.md)
 
-</div>
 </div>

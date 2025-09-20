@@ -1,27 +1,26 @@
 # Google Cloud 工具
 
-![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python。Java 支援規劃中／即將推出。"}
+![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python。Java 支援計畫中／即將推出。"}
 
-Google Cloud 工具讓您更輕鬆地將您的代理（agent）連接至 Google Cloud 的產品與服務。只需幾行程式碼，您就可以使用這些工具將代理連接到：
+Google Cloud 工具可讓你更輕鬆地將 agent 連接到 Google Cloud 的產品與服務。只需幾行程式碼，你就能使用這些工具將 agent 連接至：
 
-* 開發人員在 Apigee 上託管的**任何自訂 API**
-* 數百個**預建連接器**，可連接至如 Salesforce、Workday、SAP 等企業系統
-* 透過應用程式整合（Application Integration）建立的**自動化工作流程**
+* **任何**由開發人員在 Apigee 上架設的**自訂 API**
+* 數百種**預建連接器**，可連接至企業系統，如 Salesforce、Workday 和 SAP
+* 透過應用程式整合所建立的**自動化工作流程**
 * 使用 MCP Toolbox for databases 連接如 Spanner、AlloyDB、Postgres 等**資料庫**
 
 ![Google Cloud Tools](../assets/google_cloud_tools.svg)
 
 ## Apigee API Hub 工具
 
-**ApiHubToolset** 讓您只需幾行程式碼，即可將來自 Apigee API hub 的任何已文件化（documented）的 API 轉換為工具。本節將逐步說明，包括如何設定驗證，以安全地連接至您的 API。
+**ApiHubToolset** 讓你只需幾行程式碼，即可將任何來自 Apigee API hub 的已文件化 API 轉換為工具。本節將逐步說明相關操作，包括如何設定驗證，以安全連接你的 API。
 
 **先決條件**
 
 1. [安裝 Agent Development Kit (ADK)](../get-started/installation.md)
-2. 安裝
-   [Google Cloud 命令列介面 (CLI)](https://cloud.google.com/sdk/docs/install?db=bigtable-docs#installation_instructions)
-3. 擁有已文件化（例如 OpenAPI 規格）的 [Apigee API hub](https://cloud.google.com/apigee/docs/apihub/what-is-api-hub) 實例
-4. 設定您的專案結構並建立所需檔案
+2. 安裝 [Google Cloud CLI](https://cloud.google.com/sdk/docs/install?db=bigtable-docs#installation_instructions)
+3. 擁有 [Apigee API hub](https://cloud.google.com/apigee/docs/apihub/what-is-api-hub) 實例，且其中包含已文件化（即 OpenAPI 規格）的 API
+4. 設定你的專案結構並建立所需檔案
 
 ```console
 project_root_folder
@@ -33,18 +32,18 @@ project_root_folder
      `__ tool.py
 ```
 
-### 建立 API Hub 工具集
+### 建立 API Hub 工具組
 
-注意：本教學包含代理程式（agent）的建立。如果你已經有代理程式，只需執行這些步驟的部分內容即可。
+注意：本教學包含 agent 的建立。如果你已經有一個 agent，只需依照部分步驟操作即可。
 
-1. 取得你的存取權杖（access token），以便 APIHubToolset 能夠從 API Hub API 擷取規格。在你的終端機中執行以下指令
+1. 取得你的 access token，以便 APIHubToolset 能夠從 API Hub API 擷取規格。在終端機執行以下指令
 
     ```shell
     gcloud auth print-access-token
     # Prints your access token like 'ya29....'
     ```
 
-2. 確認所使用的帳戶擁有所需的權限。你可以使用預先定義的角色 `roles/apihub.viewer`，或指派以下權限：
+2. 確認所使用的帳戶具備所需權限。你可以使用預先定義的角色 `roles/apihub.viewer`，或指派下列權限：
 
     1. **apihub.specs.get（必要）**
     2. apihub.apis.get（選用）
@@ -55,7 +54,7 @@ project_root_folder
 
 3. 使用 `APIHubToolset` 建立工具。將以下內容新增至 `tools.py`
 
-    如果你的 API 需要驗證，必須為該工具設定驗證機制。以下程式碼範例示範如何設定 API 金鑰。Agent Development Kit (ADK) 支援基於權杖的驗證（API 金鑰、Bearer 權杖）、服務帳戶，以及 OpenID Connect。我們即將新增對各種 OAuth2 流程的支援。
+    如果你的 API 需要驗證，必須為該工具設定驗證機制。以下範例程式碼說明如何設定 API 金鑰（API Key）。Agent Development Kit (ADK) 支援以 token 為基礎的驗證（API Key、Bearer token）、服務帳戶（Service Account）以及 OpenID Connect。我們即將支援各種 OAuth2 流程。
 
     ```py
     from google.adk.tools.openapi_tool.auth.auth_helpers import token_to_scheme_credential
@@ -76,16 +75,12 @@ project_root_folder
     )
     ```
 
-    在正式環境部署時，我們建議使用服務帳戶（service account）來取代 access token。在上述程式碼片段中，請使用
-`service_account_json=service_account_cred_json_str`，並提供您的
-服務帳戶憑證，而非 token。
+    在正式環境部署時，我們建議使用服務帳戶（Service Account）來取代 access token。在上述程式碼片段中，請使用 `service_account_json=service_account_cred_json_str`，並提供您的服務帳戶憑證，而非使用 token。
 
-關於 `apihub_resource_name`，如果您已知用於 API 的 OpenAPI Spec 的特定 ID，請使用
-`` `projects/my-project-id/locations/us-west1/apis/my-api-id/versions/version-id/specs/spec-id` ``。
-如果您希望 Toolset 自動從 API 拉取第一個可用的規範（spec），請使用
-`` `projects/my-project-id/locations/us-west1/apis/my-api-id` ``
+對於 apihub_resource_name，如果您已知要用於 API 的特定 OpenAPI 規格（OpenAPI Spec）ID，請使用 `` `projects/my-project-id/locations/us-west1/apis/my-api-id/versions/version-id/specs/spec-id` ``。
+如果您希望 API Hub 工具組（Toolset）自動從 API 中擷取第一個可用的規格，請使用 `` `projects/my-project-id/locations/us-west1/apis/my-api-id` ``。
 
-4. 建立您的代理人檔案 Agent.py，並將已建立的工具加入您的代理人定義中：
+4. 建立您的 agent 檔案 Agent.py，並將已建立的 tools 加入到 agent 定義中：
 
     ```py
     from google.adk.agents.llm_agent import LlmAgent
@@ -99,28 +94,28 @@ project_root_folder
     )
     ```
 
-5. 設定您的`__init__.py`以公開您的 agent
+5. 設定你的 `__init__.py` 以公開你的 agent
 
     ```py
     from . import agent
     ```
 
-6. 啟動 Google Agent Development Kit (ADK) Web UI 並嘗試你的 agent：
+6. 啟動 Google Agent Development Kit (ADK) Web UI，並嘗試你的 agent。
 
     ```shell
     # make sure to run `adk web` from your project_root_folder
     adk web
     ```
 
-   接著前往 [http://localhost:8000](http://localhost:8000)，從 Web UI 嘗試你的 agent。
+   然後前往 [http://localhost:8000](http://localhost:8000)，透過網頁 UI 試用你的 agent。
 
 ---
 
 ## 應用程式整合工具
 
-透過 **ApplicationIntegrationToolset**，你可以無縫地讓你的 agent 以安全且受治理的方式存取企業應用程式，利用 Integration Connectors 超過 100 種預先建置的連接器，支援如 Salesforce、ServiceNow、JIRA、SAP 等系統。
+使用 **ApplicationIntegrationToolset**，你可以透過 Integration Connectors 提供的 100 多種預先建置的連接器，為你的 agent 無縫提供安全且受治理的企業應用程式存取權限，支援如 Salesforce、ServiceNow、JIRA、SAP 等系統。
 
-它同時支援本地端（on-premise）與 SaaS 應用程式。此外，你也可以將現有的 Application Integration 流程自動化，轉換為 agentic 工作流程，方法是將應用程式整合工作流程作為工具，提供給你的 ADK agent 使用。
+它同時支援內部部署（on-premise）與 SaaS 應用程式。此外，你也可以將現有的應用程式整合自動化流程，作為工具（tools）提供給你的 Agent Development Kit (ADK) agent，進而轉換為 agentic 工作流程。
 
 ### 先決條件
 
@@ -135,7 +130,7 @@ project_root_folder
     Install the latest version of [ADK](../get-started/installation.md). For information about the latest version of ADK, see [Agent Development Kit Walkthrough](https://docs.google.com/document/d/1oqXkqX9m5wjWE-rkwp-qO0CGpSEQHBTYAYQcWRf91XU/edit?tab=t.0#heading=h.7k9wrm8jpdug).
 
 
-#### 2. 安裝命令列介面 (CLI)
+#### 2. 安裝命令列介面 (Command Line Interface)
 
 === "Python"
 
@@ -162,7 +157,7 @@ project_root_folder
     Replace `<project-id>` with the unique ID of your Google Cloud project.
 
 
-#### 3. 部署 Application Integration 工作流程並發佈 Connection Tool
+#### 3. 建立 Application Integration 工作流程並發佈 Connection Tool
 
 === "Python"
 
@@ -235,34 +230,31 @@ project_root_folder
 
 ### 使用 Integration Connectors
 
-使用 [Integration Connectors](https://cloud.google.com/integration-connectors/docs/overview) 將您的 agent 連接到企業應用程式。
+使用 [Integration Connectors](https://cloud.google.com/integration-connectors/docs/overview) 將你的 agent 連接到企業應用程式。
 
 #### 開始之前
 
-**注意：** 當您在特定區域佈建 Application Integration 時，*ExecuteConnection* integration 通常會自動建立。如果在 [integrations 清單](https://console.cloud.google.com/integrations/list) 中找不到 *ExecuteConnection*，您必須按照以下步驟手動建立：
+**注意：** *ExecuteConnection* 整合通常會在你於特定區域佈建 Application Integration 時自動建立。如果在 [integrations 清單](https://console.cloud.google.com/integrations/list) 中沒有 *ExecuteConnection*，你必須依照以下步驟手動建立：
 
-1. 若要使用 Integration Connectors 中的 connector，請點擊 **QUICK SETUP**，並在與您的 connection 相同區域 [佈建](https://console.cloud.google.com/integrations) Application Integration。
+1. 若要從 Integration Connectors 使用 connector，請點選 **QUICK SETUP**，並在與你的連線相同的區域 [佈建](https://console.cloud.google.com/integrations) Application Integration。
 
    ![Google Cloud Tools](../assets/application-integration-overview.png)
    
-   
-
-2. 前往範本庫中的 [Connection Tool](https://console.cloud.google.com/integrations/templates/connection-tool/locations/us-central1) 範本，然後點擊 **USE TEMPLATE**。
+2. 前往範本庫中的 [Connection Tool](https://console.cloud.google.com/integrations/templates/connection-tool/locations/us-central1) 範本，然後點選 **USE TEMPLATE**。
 
     ![Google Cloud Tools](../assets/use-connection-tool-template.png)
 
-3. 輸入 Integration Name 為 *ExecuteConnection*（必須完全使用此名稱）。然後，選擇與您的 connection 相同的區域，並點擊 **CREATE**。
+3. 輸入 Integration Name 為 *ExecuteConnection*（必須完全使用此名稱）。接著，選擇與你的連線相同的區域，並點選 **CREATE**。
 
-4. 點擊 **PUBLISH**，在 <i>Application Integration</i> 編輯器中發佈此 integration。
+4. 在 <i>Application Integration</i> 編輯器中，點選 **PUBLISH** 以發佈此整合。
 
     ![Google Cloud Tools](../assets/publish-integration.png)
    
-   
-#### 建立 Application Integration Toolset
+#### 建立 Application Integration 工具組
 
-若要為 Integration Connectors 建立 Application Integration Toolset，請依照以下步驟操作：
+若要為 Integration Connectors 建立 Application Integration 工具組，請依照以下步驟操作：
 
-1. 在 `tools.py` 檔案中使用 `ApplicationIntegrationToolset` 建立一個 tool：
+1. 在 `tools.py` 檔案中，使用 `ApplicationIntegrationToolset` 建立一個工具：
 
     ```py
     from google.adk.tools.application_integration_tool.application_integration_toolset import ApplicationIntegrationToolset
@@ -281,11 +273,11 @@ project_root_folder
 
     **注意：**
 
-    * 你可以提供一個服務帳戶（Service Account）來取代預設憑證，方法是產生一組 [Service Account Key](https://cloud.google.com/iam/docs/keys-create-delete#creating)，並賦予該服務帳戶正確的 [Application Integration 和 Integration Connector IAM 角色](#prerequisites)。
-    * 若要查詢某個連線所支援的實體（entity）及動作（action）清單，請使用 Connectors API：[listActions](https://cloud.google.com/integration-connectors/docs/reference/rest/v1/projects.locations.connections.connectionSchemaMetadata/listActions) 或 [listEntityTypes](https://cloud.google.com/integration-connectors/docs/reference/rest/v1/projects.locations.connections.connectionSchemaMetadata/listEntityTypes)。
+  * 你可以提供一個服務帳戶（Service Account）來取代預設憑證，方法是產生一組 [Service Account Key](https://cloud.google.com/iam/docs/keys-create-delete#creating)，並賦予該服務帳戶正確的 [Application Integration 和 Integration Connector IAM 角色](#先決條件)。
+  * 若要查詢某個連線支援的實體（entity）與操作（action）清單，請使用 Connectors API：[listActions](https://cloud.google.com/integration-connectors/docs/reference/rest/v1/projects.locations.connections.connectionSchemaMetadata/listActions) 或 [listEntityTypes](https://cloud.google.com/integration-connectors/docs/reference/rest/v1/projects.locations.connections.connectionSchemaMetadata/listEntityTypes)。
 
 
-    `ApplicationIntegrationToolset` 支援 `auth_scheme` 和 `auth_credential`，用於 Integration Connectors 的**動態 OAuth2 驗證**。若要使用此功能，請在 `tools.py` 檔案中建立類似如下的工具：
+  `ApplicationIntegrationToolset` 支援 `auth_scheme` 和 `auth_credential`，可用於 Integration Connectors 的**動態 OAuth2 認證**。如需使用，請在 `tools.py` 檔案中建立類似以下的工具：
 
     ```py
     from google.adk.tools.application_integration_tool.application_integration_toolset import ApplicationIntegrationToolset
@@ -336,7 +328,7 @@ project_root_folder
     ```
 
 
-2. 更新 `agent.py` 檔案並將工具新增到您的 agent：
+2. 更新 `agent.py` 檔案並將工具（tool）加入你的 agent：
 
     ```py
     from google.adk.agents.llm_agent import LlmAgent
@@ -350,28 +342,28 @@ project_root_folder
     )
     ```
 
-3. 設定 `__init__.py` 以公開您的 agent：
+3. 設定 `__init__.py` 以公開你的 agent：
 
     ```py
     from . import agent
     ```
 
-4. 啟動 Google Agent Development Kit (ADK) Web UI 並使用您的 agent：
+4. 啟動 Google Agent Development Kit (ADK) Web UI，並使用你的 agent：
 
     ```shell
     # make sure to run `adk web` from your project_root_folder
     adk web
     ```
 
-完成上述步驟後，請前往 [http://localhost:8000](http://localhost:8000)，並選擇
+完成上述步驟後，前往 [http://localhost:8000](http://localhost:8000)，然後選擇
    `my\_agent` agent（這與 agent 資料夾名稱相同）。
 
 
 ### 使用 Application Integration 工作流程
 
-可將現有的
+使用現有的
 [Application Integration](https://cloud.google.com/application-integration/docs/overview)
-工作流程作為您的 agent 工具，或建立新的工作流程。
+工作流程作為你的 agent 工具，或建立新的工作流程。
 
 
 #### 1. 建立工具
@@ -438,7 +430,7 @@ project_root_folder
     
       **Note:** You can provide a service account to be used instead of using default credentials. To do this, generate a [Service Account Key](https://cloud.google.com/iam/docs/keys-create-delete#creating) and provide the correct [Application Integration and Integration Connector IAM roles](#prerequisites) to the service account. For more details about the IAM roles, refer to the [Prerequisites](#prerequisites) section.
 
-#### 2. 將此工具加入至您的 agent
+#### 2. 將工具加入你的 agent
 
 === "Python"
 
@@ -493,7 +485,7 @@ project_root_folder
     **Note:** To find the list of supported entities and actions for a
         connection, use these Connector APIs: `listActions`, `listEntityTypes`.    
       
-#### 3. 將你的 agent 對外公開
+#### 3. 對外公開你的 agent
 
 === "Python"
 
@@ -503,7 +495,7 @@ project_root_folder
           from . import agent
       ```
 
-#### 4. 使用您的 agent
+#### 4. 使用你的 agent
 
 === "Python"
 
@@ -534,26 +526,27 @@ project_root_folder
 
 ## 資料庫的 Toolbox 工具
 
-[MCP Toolbox for Databases](https://github.com/googleapis/genai-toolbox) 是一個開源的 MCP 伺服器，專為資料庫設計。它以企業級與生產環境品質為目標，讓你能夠更輕鬆、更快速且更安全地開發工具，因為它處理了連線池（connection pooling）、驗證（authentication）等複雜性問題。
+[MCP Toolbox for Databases](https://github.com/googleapis/genai-toolbox) 是一個開源的 MCP 伺服器，專為資料庫設計。其設計目標為企業級與生產環境品質。它能協助你更輕鬆、更快速且更安全地開發工具，因為它已處理了連線池、驗證等複雜性。
 
 Google 的 Agent Development Kit (ADK) 已內建對 Toolbox 的支援。若需瞭解
 [快速開始](https://googleapis.github.io/genai-toolbox/getting-started) 或
 [設定](https://googleapis.github.io/genai-toolbox/getting-started/configure/)
 Toolbox，請參閱
-[相關文件](https://googleapis.github.io/genai-toolbox/getting-started/introduction/)。
+[文件說明](https://googleapis.github.io/genai-toolbox/getting-started/introduction/)。
 
 ![GenAI Toolbox](../assets/mcp_db_toolbox.png)
 
 ### 設定與部署
 
-Toolbox 是一個你自行部署與管理的開源伺服器。更多部署與設定的說明，請參考官方 Toolbox 文件：
+Toolbox 是一個開源伺服器，需要你自行部署與管理。更多部署與設定說明，請參考官方 Toolbox
+文件說明：
 
 * [安裝伺服器](https://googleapis.github.io/genai-toolbox/getting-started/introduction/#installing-the-server)
 * [設定 Toolbox](https://googleapis.github.io/genai-toolbox/getting-started/configure/)
 
 ### 安裝用戶端 SDK
 
-Agent Development Kit (ADK) 依賴 `toolbox-core` Python 套件來使用 Toolbox。請在開始之前安裝此套件：
+Agent Development Kit (ADK) 依賴 `toolbox-core` Python 套件來使用 Toolbox。開始前請先安裝此套件：
 
 ```shell
 pip install toolbox-core
@@ -561,7 +554,7 @@ pip install toolbox-core
 
 ### 載入 Toolbox 工具
 
-當你的 Toolbox 伺服器設定完成並且已經啟動後，你可以使用 Agent Development Kit (ADK) 從你的伺服器載入工具：
+當你的 Toolbox 伺服器已設定完成並啟動後，你可以使用 Agent Development Kit (ADK) 從伺服器載入 tools：
 
 ```python
 from google.adk.agents import Agent
@@ -583,9 +576,9 @@ root_agent = Agent(
 
 ### 進階 Toolbox 功能
 
-Toolbox 提供多種功能，協助開發針對資料庫的生成式 AI 工具。  
+Toolbox 提供多種功能，協助開發用於資料庫的 Gen AI 工具。  
 如需更多資訊，請參閱以下功能說明：
 
-* [Authenticated Parameters](https://googleapis.github.io/genai-toolbox/resources/tools/#authenticated-parameters)：自動將工具輸入綁定至 OIDC token 的值，讓執行敏感查詢時更容易，同時避免資料外洩的風險
-* [Authorized Invocations:](https://googleapis.github.io/genai-toolbox/resources/tools/#authorized-invocations) 根據使用者的 Auth token 限制工具的存取權限
-* [OpenTelemetry](https://googleapis.github.io/genai-toolbox/how-to/export_telemetry/)：透過 OpenTelemetry 從 Toolbox 取得指標與追蹤資訊
+* [Authenticated Parameters](https://googleapis.github.io/genai-toolbox/resources/tools/#authenticated-parameters)：可自動將工具輸入綁定至 OIDC token 的值，讓執行敏感查詢時更容易，並避免潛在的資料外洩風險
+* [Authorized Invocations:](https://googleapis.github.io/genai-toolbox/resources/tools/#authorized-invocations)  可根據使用者的 Auth token 限制工具的存取權限
+* [OpenTelemetry](https://googleapis.github.io/genai-toolbox/how-to/export_telemetry/)：可透過 OpenTelemetry 從 Toolbox 取得指標與追蹤資料

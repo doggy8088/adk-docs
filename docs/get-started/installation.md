@@ -39,9 +39,6 @@
 
 === "Java"
 
-
-=== "Java"
-
     You can either use maven or gradle to add the `google-adk` and `google-adk-dev` package.
 
     `google-adk` is the core Java ADK library. Java ADK also comes with a pluggable example SpringBoot server to run your agents seamlessly. This optional

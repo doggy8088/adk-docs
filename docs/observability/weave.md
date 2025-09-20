@@ -1,14 +1,14 @@
-# 使用 Weave by WandB 進行 Agent 可觀測性
+# 使用 Weave by WandB 進行 Agent Observability
 
-[Weave by Weights & Biases (WandB)](https://weave-docs.wandb.ai/) 提供了一個強大的平台，用於記錄和視覺化模型呼叫。透過將 Google Agent Development Kit (ADK) 與 Weave 整合，您可以利用 OpenTelemetry (OTEL) 追蹤來追蹤並分析您的 agent 執行效能與行為。
+[Weave by Weights & Biases (WandB)](https://weave-docs.wandb.ai/) 提供了一個強大的平台，用於記錄與視覺化模型呼叫。透過將 Google Agent Development Kit (ADK) 與 Weave 整合，您可以利用 OpenTelemetry (OTEL) trace 來追蹤並分析 agent 的效能與行為。
 
 ## 先決條件
 
-1. 請至 [WandB](https://wandb.ai) 註冊帳號。
+1. 前往 [WandB](https://wandb.ai) 註冊帳號。
 
 2. 從 [WandB Authorize](https://wandb.ai/authorize) 取得您的 API KEY。
 
-3. 使用所需的 API KEY 設定您的環境：
+3. 在您的環境中設定所需的 API KEY：
 
    ```bash
    export WANDB_API_KEY=<your-wandb-api-key>
@@ -23,9 +23,9 @@
 pip install google-adk opentelemetry-sdk opentelemetry-exporter-otlp-proto-http
 ```
 
-## 傳送追蹤資料到 Weave
+## 傳送追蹤資料至 Weave
 
-本範例說明如何設定 OpenTelemetry，將 Google Agent Development Kit (ADK)（ADK）的追蹤資料傳送至 Weave。
+本範例說明如何設定 OpenTelemetry，將 Google Agent Development Kit (ADK) 的追蹤資料傳送至 Weave。
 
 ```python
 # math_agent/agent.py
@@ -100,28 +100,28 @@ root_agent = LlmAgent(
 
 ## 在 Weave 儀表板中檢視追蹤紀錄
 
-當 agent 執行後，所有的追蹤紀錄都會被記錄到對應專案的 [Weave 儀表板](https://wandb.ai/home)。
+當 agent 執行後，所有的追蹤紀錄都會被記錄到 [Weave 儀表板](https://wandb.ai/home) 中對應的專案。
 
 ![Traces in Weave](https://wandb.github.io/weave-public-assets/google-adk/traces-overview.png)
 
-你可以在這裡查看你的 Agent Development Kit (ADK) agent 執行期間所發出的呼叫時間軸——
+你可以在這裡查看你的 Agent Development Kit (ADK) agent 執行期間所產生呼叫的時間軸視圖——
 
 ![Timeline view](https://wandb.github.io/weave-public-assets/google-adk/adk-weave-timeline.gif)
 
 
 ## 注意事項
 
-- **環境變數**：請確保你的 WandB 與 Google API 金鑰的環境變數都已正確設定。
+- **環境變數**：請確保你的環境變數已正確設定，包括 WandB 及 Google API 金鑰。
 - **專案設定**：請將 `<your-entity>/<your-project>` 替換為你實際的 WandB entity 與專案名稱。
-- **Entity 名稱**：你可以在 [WandB 儀表板](https://wandb.ai/home) 左側邊欄的 **Teams** 欄位找到你的 entity 名稱。
-- **Tracer Provider**：在使用任何 ADK 元件之前，務必先設定全域 tracer provider，以確保追蹤功能正常。
+- **Entity 名稱**：你可以前往 [WandB 儀表板](https://wandb.ai/home)，在左側欄位的 **Teams** 欄位中找到你的 entity 名稱。
+- **Tracer Provider**：在使用任何 ADK 元件前，務必先設定全域 tracer provider，以確保追蹤功能正常運作。
 
-依照上述步驟，你可以有效地將 Google Agent Development Kit (ADK) 與 Weave 整合，實現 AI agent 的模型呼叫、工具調用與推理過程的完整日誌記錄與視覺化。
+依照上述步驟操作，即可將 Google Agent Development Kit (ADK) 有效整合至 Weave，實現 AI agent 的模型呼叫、工具呼叫 (tool calls) 及推理過程的完整日誌紀錄與視覺化。
 
 ## 相關資源
 
-- **[將 OpenTelemetry 追蹤資料發送至 Weave](https://weave-docs.wandb.ai/guides/tracking/otel)** - 詳細說明如何將 OTEL 與 Weave 配置，包括驗證與進階設定選項。
+- **[Send OpenTelemetry Traces to Weave](https://weave-docs.wandb.ai/guides/tracking/otel)** - 詳細說明如何將 OTEL 與 Weave 整合，包括驗證與進階設定選項。
 
-- **[瀏覽追蹤檢視畫面](https://weave-docs.wandb.ai/guides/tracking/trace-tree)** - 學習如何在 Weave UI 中有效分析與除錯你的追蹤紀錄，包括理解追蹤階層與 span 細節。
+- **[Navigate the Trace View](https://weave-docs.wandb.ai/guides/tracking/trace-tree)** - 學習如何在 Weave UI 中有效分析與除錯你的追蹤紀錄，包含理解追蹤階層與 span 細節。
 
-- **[Weave 整合](https://weave-docs.wandb.ai/guides/integrations/)** - 探索其他框架整合方式，了解 Weave 如何與你的整個 AI 技術堆疊協同運作。
+- **[Weave Integrations](https://weave-docs.wandb.ai/guides/integrations/)** - 探索其他框架整合方式，了解 Weave 如何與你的完整 AI 技術堆疊協同運作。

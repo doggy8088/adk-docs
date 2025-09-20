@@ -1,10 +1,10 @@
-# 快速開始：透過 A2A 消費遠端 agent
+# 快速開始：透過 A2A 使用遠端 agent
 
-本快速開始涵蓋了每位開發者最常見的起點：**「已經有一個遠端 agent，我要如何讓我的 Agent Development Kit (ADK)（ADK）agent 透過 A2A 使用它？」**。這對於建構複雜的多代理系統（multi-agent system），讓不同的 agent 能夠協作與互動來說至關重要。
+本快速開始涵蓋了每位開發者最常見的起點：**「有一個遠端 agent，我要如何讓我的 Agent Development Kit (ADK) agent 透過 A2A 使用它？」**。這對於建構複雜的多 agent 系統、讓不同 agent 能夠協作與互動至關重要。
 
 ## 概述
 
-本範例展示了 Agent Development Kit (ADK)（ADK）中的 **Agent-to-Agent (A2A)** 架構，說明多個 agent 如何協同合作以處理複雜任務。範例中實作了一個能夠擲骰子並檢查數字是否為質數的 agent。
+本範例展示了 Agent Development Kit (ADK) 中的 **Agent-to-Agent (A2A)** 架構，說明多個 agent 如何協同處理複雜任務。範例實作了一個能擲骰子並檢查數字是否為質數的 agent。
 
 ```text
 ┌─────────────────┐    ┌──────────────────┐    ┌────────────────────┐
@@ -17,19 +17,19 @@
 
 A2A Basic 範例包含以下組件：
 
-- **Root Agent**（`root_agent`）：主要的協調者，負責將任務委派給專門的子 agent
-- **Roll Agent**（`roll_agent`）：本地子 agent，負責處理擲骰子的相關操作
-- **Prime Agent**（`prime_agent`）：遠端 A2A agent，負責判斷數字是否為質數，此 agent 執行於另一個獨立的 A2A 伺服器上
+- **Root Agent**（`root_agent`）：主要的協調者，負責將任務分派給專門的子 agent
+- **Roll Agent**（`roll_agent`）：本機子 agent，負責擲骰子的操作
+- **Prime Agent**（`prime_agent`）：遠端的 A2A agent，負責判斷數字是否為質數，此 agent 執行於另一個獨立的 A2A 伺服器上
 
 ## 使用 ADK 伺服器公開你的 agent
 
-Agent Development Kit (ADK)（ADK）內建了一個命令列介面 (CLI) 指令 `adk api_server --a2a`，可用於透過 A2A 協定公開你的 agent。
+  Agent Development Kit (ADK) 提供了內建的命令列介面 (Command Line Interface) 指令 `adk api_server --a2a`，可用於透過 A2A 協定公開你的 agent。
 
-在`a2a_basic`範例中，你需要先透過 A2A 伺服器公開`check_prime_agent`，以便本地的 root agent 可以使用它。
+  在 `a2a_basic` 範例中，你需要先透過 A2A 伺服器公開 `check_prime_agent`，以便本機的 Root Agent 能夠使用它。
 
 ### 1. 取得範例程式碼 { #getting-the-sample-code }
 
-首先，請確保你已安裝所有必要的相依套件：
+首先，請確認你已安裝所有必要的相依套件：
 
 ```bash
 pip install google-adk[a2a]
@@ -55,37 +55,37 @@ a2a_basic/
 └── agent.py # local root agent
 ```
 
-#### 主代理（`a2a_basic/agent.py`）
+#### 主 Agent (`a2a_basic/agent.py`)
 
 - **`roll_die(sides: int)`**：擲骰子功能工具函式
 - **`roll_agent`**：專門處理擲骰子的本地 agent
 - **`prime_agent`**：遠端 A2A agent 設定
-- **`root_agent`**：具備委派邏輯的主要協調者
+- **`root_agent`**：具備委派邏輯的主協調者
 
-#### 遠端質數代理（Remote Prime Agent, `a2a_basic/remote_a2a/check_prime_agent/`）
+#### 遠端質數 Agent (`a2a_basic/remote_a2a/check_prime_agent/`)
 
 - **`agent.py`**：質數檢查服務的實作
 - **`agent.json`**：A2A agent 的 agent card
-- **`check_prime(nums: list[int])`**：質數判斷演算法
+- **`check_prime(nums: list[int])`**：質數檢查演算法
 
-### 2. 啟動遠端質數代理伺服器 { #start-the-remote-prime-agent-server }
+### 2. 啟動遠端質數 Agent 伺服器 { #start-the-remote-prime-agent-server }
 
-為了展示你的 Agent Development Kit (ADK) agent 如何透過 A2A 消費遠端 agent，你需要先啟動一個遠端 agent 伺服器，該伺服器將會託管質數代理（於 `check_prime_agent` 下）。
+為了展示你的 Agent Development Kit (ADK) agent 如何透過 A2A 消費遠端 agent，你需要先啟動一個遠端 agent 伺服器，該伺服器將託管質數 agent（位於 `check_prime_agent`）。
 
 ```bash
 # Start the remote a2a server that serves the check_prime_agent on port 8001
 adk api_server --a2a --port 8001 contributing/samples/a2a_basic/remote_a2a
 ```
 
-??? note "為 `--log_level debug` 新增除錯用日誌紀錄"
-    若要啟用偵錯等級（debug-level）日誌紀錄，可以在你的 `adk api_server` 中加入 `--log_level debug`，例如：
+??? note "為 `--log_level debug` 新增除錯用的日誌紀錄"
+    若要啟用 debug 等級的日誌紀錄，您可以在 `adk api_server` 中加入 `--log_level debug`，例如：
     ```bash
     adk api_server --a2a --port 8001 contributing/samples/a2a_basic/remote_a2a --log_level debug
     ```
-    這將為你在測試代理（agent）時，提供更豐富的日誌以供檢查。
+    這將為你在測試 agent 時，提供更豐富的日誌以便檢查。
 
 ??? note "為什麼要使用 8001 埠口？"
-    在本次快速開始（Quickstart）中，當你在本機測試時，你的代理（agent）會使用 localhost，因此對於 A2A 伺服器中暴露的代理（remote, prime agent）的 `port` 必須與消費端代理（consuming agent）的埠口不同。你將與消費端代理互動的 `adk web` 預設埠口為 `8000`，這也是為什麼 A2A 伺服器會使用另一個獨立的埠口 `8001` 來建立。
+    在本次快速開始（Quickstart）中，當你在本機測試時，agent 會使用 localhost，因此對於公開的 agent（遠端的 prime agent）所使用的 A2A 伺服器的 `port` 必須與消費端 agent 的埠口不同。你將與消費端 agent 互動的 `adk web` 預設埠口是 `8000`，這也是為什麼 A2A 伺服器會使用另一個獨立的埠口 `8001` 來建立。
 
 執行後，你應該會看到類似以下的內容：
 
@@ -100,9 +100,9 @@ INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
 
 A2A Protocol 要求每個 agent 都必須有一個 agent card，用來描述其功能。
 
-如果你要在自己的 agent 中串接其他人已經建立好的遠端 A2A agent，請務必確認對方有提供 agent card（`agent-card.json`）。
+如果你要在自己的 agent 中串接他人已經建置好的遠端 A2A agent，請確認對方是否有提供 agent card（`agent-card.json`）。
 
-在本範例中，`check_prime_agent` 已經有提供 agent card：
+在此範例中，`check_prime_agent` 已經有提供 agent card：
 
 ```json title="a2a_basic/remote_a2a/check_prime_agent/agent-card.json"
 
@@ -129,7 +129,7 @@ A2A Protocol 要求每個 agent 都必須有一個 agent card，用來描述其�
 
     In ADK, you can use a `to_a2a(root_agent)` wrapper which automatically generates an agent card for you. If you're interested in learning more about how to expose your existing agent so others can use it, then please look at the [A2A Quickstart (Exposing)](quickstart-exposing.md) tutorial. 
 
-### 4. 執行主（消費）代理（agent） { #run-the-main-consuming-agent }
+### 4. 執行主（消費）agent { #run-the-main-consuming-agent }
 
   ```bash
   # In a separate terminal, run the adk web server
@@ -157,7 +157,7 @@ prime_agent = RemoteA2aAgent(
 <...code truncated>
 ```
 
-接下來，你可以直接在你的 agent 中使用 `RemoteA2aAgent`。在此範例中，`prime_agent` 作為 `root_agent` 中的其中一個子 agent 被使用：
+然後，你就可以在你的 agent 中直接使用 `RemoteA2aAgent`。在此範例中，`prime_agent` 作為 `root_agent` 中的一個子 agent 被使用，如下所示：
 
 ```python title="a2a_basic/agent.py"
 from google.adk.agents.llm_agent import Agent
@@ -193,7 +193,7 @@ root_agent = Agent(
 
 ## 範例互動
 
-當你的 main agent 和 remote agent 都已經啟動後，你可以與 root agent 互動，觀察它如何透過 A2A 呼叫 remote agent：
+當你的主 agent 和遠端 agent 都已經運行後，你可以與 root agent 互動，觀察它如何透過 A2A 呼叫遠端 agent：
 
 **簡單擲骰子：**  
 這個互動會使用本機 agent，也就是 Roll Agent：
@@ -205,7 +205,7 @@ Bot: I rolled a 4 for you.
 
 **質數檢查：**
 
-此互動會透過 A2A 使用遠端代理（Prime Agent）：
+此互動會透過 A2A 使用遠端 agent——Prime Agent：
 
 ```text
 User: Is 7 a prime number?
@@ -224,6 +224,6 @@ Bot: 8 is not a prime number.
 
 ## 下一步
 
-現在你已經建立了一個透過 A2A server 使用遠端 agent 的 agent，下一步是學習如何從另一個 agent 連線到它。
+現在你已經建立了一個透過 A2A 伺服器使用遠端 agent 的 agent，接下來的步驟是學習如何從另一個 agent 連接到它。
 
-- [**A2A 快速開始（對外公開）**](./quickstart-exposing.md)：學習如何將你現有的 agent 對外公開，讓其他 agent 可以透過 A2A Protocol 使用它。
+- [**A2A 快速開始（公開）**](./quickstart-exposing.md)：學習如何將你現有的 agent 透過 A2A Protocol 公開，讓其他 agent 可以使用。

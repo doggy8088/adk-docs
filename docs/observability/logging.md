@@ -1,20 +1,20 @@
 # Agent Development Kit (ADK) 的日誌紀錄
 
-Agent Development Kit (ADK)（ADK）使用 Python 標準的 `logging` 模組，提供靈活且強大的日誌紀錄功能。了解如何設定與解讀這些日誌，對於監控 agent 行為與有效除錯至關重要。
+Agent Development Kit (ADK) 採用 Python 標準的 `logging` 模組，提供靈活且強大的日誌紀錄功能。了解如何設定與解讀這些日誌，對於監控 agent 行為與有效除錯問題至關重要。
 
 ## 日誌紀錄理念
 
-ADK 的日誌紀錄設計理念，是在預設不過度冗長的前提下，提供詳細的診斷資訊。其設計讓應用程式開發者可以自行設定，根據開發或生產環境的需求，調整日誌輸出內容。
+ADK 的日誌紀錄設計理念，是在不過度冗長的前提下，提供詳細的診斷資訊。日誌紀錄可由應用程式開發者自行設定，讓你能根據開發或生產環境的需求，調整日誌輸出內容。
 
-- **標準函式庫：** 採用標準的 `logging` 函式庫，因此任何適用於該函式庫的設定或 handler，也都適用於 ADK。
-- **階層式 Logger：** Logger 會依照模組路徑（例如 `google_adk.google.adk.agents.llm_agent`）以階層式命名，讓你能夠細緻控制框架中哪些部分產生日誌。
-- **使用者自訂設定：** 框架本身不會自動設定日誌紀錄。開發者需在應用程式的進入點自行設定所需的日誌紀錄設定。
+- **標準函式庫：** 採用標準的 `logging` 函式庫，因此任何適用於該函式庫的設定或 handler，都能用於 ADK。
+- **階層式 Logger：** Logger 會依據模組路徑（例如 `google_adk.google.adk.agents.llm_agent`）以階層式命名，讓你能細緻控制框架中哪些部分會產生日誌。
+- **使用者自訂設定：** 框架本身不會自動設定日誌紀錄。開發者需在應用程式的進入點自行設定所需的日誌紀錄組態。
 
 ## 如何設定日誌紀錄
 
-你可以在主應用程式腳本（例如 `main.py`）中，在初始化與執行 agent 之前設定日誌紀錄。最簡單的方式是使用 `logging.basicConfig`。
+你可以在主要應用程式腳本（例如 `main.py`）中，在初始化與執行 agent 之前設定日誌紀錄。最簡單的方式是使用 `logging.basicConfig`。
 
-### 設定範例
+### 範例設定
 
 若要啟用詳細日誌紀錄（包含 `DEBUG` 等級的訊息），請在腳本最上方加入以下內容：
 
@@ -31,13 +31,13 @@ logging.basicConfig(
 # ...
 ```
 
-### 使用 ADK 命令列介面 (CLI) 設定日誌
+### 使用 ADK CLI 設定日誌（Logging）
 
-當你使用 Agent Development Kit (ADK)（ADK）內建的網頁或 API 伺服器來執行代理（agent）時，可以直接透過命令列輕鬆控制日誌詳細程度。`adk web`、`adk api_server` 和 `adk deploy cloud_run` 指令皆支援 `--log_level` 選項。
+當你使用 Agent Development Kit (ADK) 內建的網頁伺服器或 API 伺服器來執行 agent 時，可以直接透過命令列（command line）輕鬆控制日誌詳細程度。`adk web`、`adk api_server` 和 `adk deploy cloud_run` 指令皆支援 `--log_level` 選項。
 
-這提供了一種方便的方法，讓你無需修改代理（agent）原始碼即可設定日誌等級。
+這提供了一種方便的方式，讓你無需修改 agent 原始碼即可設定日誌等級。
 
-> **注意：** 對於 ADK 的日誌記錄器，命令列設定永遠優先於程式化設定（例如 `logging.basicConfig`）。建議在正式環境中使用 `INFO` 或 `WARNING`，僅在除錯時啟用 `DEBUG`。
+> **注意：** 對於 ADK 的 logger，命令列設定永遠優先於程式內設定（例如 `logging.basicConfig`）。建議在正式環境（production）中使用 `INFO` 或 `WARNING`，僅在除錯時啟用 `DEBUG`。
 
 **使用 `adk web` 的範例：**
 
@@ -63,18 +63,18 @@ adk web --log_level DEBUG path/to/your/agents_dir
 
 ### 日誌等級
 
-Agent Development Kit (ADK) 採用標準日誌等級來分類訊息。所設定的等級會決定哪些資訊會被記錄。
+Agent Development Kit (ADK) 採用標準日誌等級來分類訊息。所設定的等級會決定哪些資訊會被記錄下來。
 
 | 等級 | 說明 | 記錄的資訊類型  |
 | :--- | :--- | :--- |
-| **`DEBUG`** | **除錯時至關重要。** 最詳細的等級，用於細緻的診斷資訊。 | <ul><li>**完整大型語言模型 (LLM) 提示：** 發送給大型語言模型 (LLM) 的完整請求，包括系統指令、歷史紀錄與工具。</li><li>來自服務的詳細 API 回應。</li><li>內部狀態轉換與變數值。</li></ul> |
-| **`INFO`** | 關於 agent 生命週期的一般資訊。 | <ul><li>agent 初始化與啟動。</li><li>工作階段（session）建立與刪除事件。</li><li>工具執行，包括其名稱與參數。</li></ul> |
-| **`WARNING`** | 表示潛在問題或已棄用功能的使用。agent 仍可繼續運作，但可能需要注意。 | <ul><li>已棄用方法或參數的使用。</li><li>系統已復原的非關鍵性錯誤。</li></ul> |
-| **`ERROR`** | 嚴重錯誤，導致操作無法完成。 | <ul><li>對外部服務（如 LLM、Session Service）的 API 呼叫失敗。</li><li>agent 執行期間未處理的例外。</li><li>組態錯誤。</li></ul> |
+| **`DEBUG`** | **除錯時至關重要。** 這是最詳細的等級，適用於細緻的診斷資訊。 | <ul><li>**完整大型語言模型 (LLM) 提示詞：** 發送給大型語言模型 (LLM) 的完整請求，包括系統指令、歷史紀錄與工具。</li><li>來自服務的詳細 API 回應。</li><li>內部狀態轉換與變數值。</li></ul> |
+| **`INFO`** | 關於 agent 生命週期的一般資訊。 | <ul><li>agent 初始化與啟動。</li><li>session 建立與刪除事件。</li><li>工具的執行，包括其名稱與參數。</li></ul> |
+| **`WARNING`** | 指示潛在問題或已棄用功能的使用。agent 仍可運作，但可能需要注意。 | <ul><li>使用已棄用的方法或參數。</li><li>系統已復原的非關鍵性錯誤。</li></ul> |
+| **`ERROR`** | 嚴重錯誤，導致操作無法完成。 | <ul><li>對外部服務（如 LLM、Session Service）的 API 呼叫失敗。</li><li>agent 執行期間未處理的例外狀況。</li><li>設定錯誤。</li></ul> |
 
-> **注意：** 建議在生產環境中使用 `INFO` 或 `WARNING`。僅在積極排查問題時啟用 `DEBUG`，因為 `DEBUG` 日誌可能非常冗長，且可能包含敏感資訊。
+> **注意：** 建議在正式環境中使用 `INFO` 或 `WARNING`。僅在積極進行問題排查時啟用 `DEBUG`，因為 `DEBUG` 日誌非常詳細，且可能包含敏感資訊。
 
-## 讀取與理解日誌
+## 閱讀與理解日誌
 
 `basicConfig` 範例中的 `format` 字串決定了每則日誌訊息的結構。
 
@@ -85,21 +85,21 @@ Agent Development Kit (ADK) 採用標準日誌等級來分類訊息。所設定�
 ```
 
 | 日誌區段                        | 格式指定符      | 意義                                             |
-| ------------------------------- | --------------- | ------------------------------------------------ |
+| ------------------------------- | -------------- | ----------------------------------------------- |
 | `2025-07-08 11:22:33,456`       | `%(asctime)s`    | 時間戳記                                         |
 | `DEBUG`                         | `%(levelname)s`  | 嚴重性等級                                       |
-| `google_adk.models.google_llm`  | `%(name)s`       | Logger 名稱（產生日誌的模組）                     |
-| `LLM Request: contents { ... }` | `%(message)s`    | 實際日誌訊息                                     |
+| `google_adk.models.google_llm`  | `%(name)s`       | 記錄器名稱（產生此日誌的模組）                    |
+| `LLM Request: contents { ... }` | `%(message)s`    | 實際的日誌訊息                                   |
 
-透過查看 Logger 名稱，你可以立即定位日誌的來源，並了解其在 agent 架構中的上下文。
+透過查看記錄器名稱，你可以立即定位日誌的來源，並了解其在 agent 架構中的上下文。
 
 ## 使用日誌進行除錯：實務範例
 
-**情境：** 你的 agent 沒有產生預期的輸出，你懷疑傳送給大型語言模型 (LLM) 的提示（prompt）有誤或缺少資訊。
+**情境：** 你的 agent 沒有產生預期的輸出，你懷疑傳送給大型語言模型 (LLM) 的提示詞（prompt）有誤或缺少資訊。
 
 **步驟：**
 
-1.  **啟用 DEBUG 日誌紀錄：** 在你的 `main.py` 中，將日誌等級設定為 `DEBUG`，如設定範例所示。
+1.  **啟用 DEBUG 日誌等級：** 在你的 `main.py` 中，將日誌等級設定為 `DEBUG`，如設定範例所示。
 
     ```python
     logging.basicConfig(
@@ -108,9 +108,9 @@ Agent Development Kit (ADK) 採用標準日誌等級來分類訊息。所設定�
     )
     ```
 
-2.  **執行您的 agent：** 如同平常一樣執行您的 agent 任務。
+2.  **執行你的 agent：** 如同平常一樣執行你的 agent 任務。
 
-3.  **檢查日誌：** 在主控台輸出中尋找來自 `google.adk.models.google_llm` logger 且以 `LLM Request:` 開頭的訊息。
+3.  **檢查日誌：** 在主控台輸出中，尋找來自 `google.adk.models.google_llm` logger 且以 `LLM Request:` 開頭的訊息。
 
     ```log
     ...
@@ -160,12 +160,12 @@ Agent Development Kit (ADK) 採用標準日誌等級來分類訊息。所設定�
     ...
     ```
 
-4.  **分析提示（Prompt）：** 透過檢查已記錄請求中的 `System Instruction`、`contents`、`functions` 區段，你可以驗證：
+4.  **分析 Prompt：** 透過檢查已記錄請求中的 `System Instruction`、`contents`、`functions` 區段，你可以驗證以下內容：
     -   系統指令是否正確？
-    -   對話歷史（`user` 和 `model` 輪次）是否準確？
+    -   對話歷史（`user` 和 `model` 回合）是否準確？
     -   是否包含最新的使用者查詢？
-    -   是否正確提供了 tools 給模型？
-    -   模型是否正確呼叫了 tools？
-    -   模型回應所需的時間為何？
+    -   是否正確提供 tools 給模型？
+    -   模型是否正確呼叫 tools？
+    -   模型回應所需的時間為多少？
 
-這些詳細的輸出讓你能直接從日誌檔案中診斷各種問題，從提示工程（prompt engineering）錯誤到 tools 定義上的問題都能一目了然。
+這些詳細的輸出讓你能夠直接從日誌檔案中診斷各種問題，從 prompt 工程錯誤到工具定義問題都能追蹤分析。

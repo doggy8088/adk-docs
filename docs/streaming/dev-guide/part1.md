@@ -1,24 +1,24 @@
-# ADK 雙向串流開發指南：第一部分 - 介紹
+# ADK 雙向串流開發指南：第一部分－簡介
 
-歡迎來到 [Agent Development Kit (ADK)](https://google.github.io/adk-docs/) 雙向串流（bidirectional streaming）的世界。本文將帶你從傳統的請求-回應（request-response）模式，轉變為動態、即時且自然如人類對話般的 AI agent 溝通方式。
+歡迎進入 [Agent Development Kit (ADK)](https://doggy8088.github.io/adk-docs/) 的雙向串流（bidirectional streaming）世界。本篇文章將帶你從傳統的請求－回應（request-response）模式，轉變為動態、即時且自然如與真人對話般的 AI agent 溝通方式。
 
-想像一下，你正在打造一個 AI 助理，它不再只是等你說完才回應，而是能夠主動傾聽，甚至在你突然想到新問題時，隨時打斷它的回應。再想像一下，建立客服機器人時，能同時處理語音、影像與文字，並且在整個對話過程中維持上下文。這就是雙向串流的強大之處，而 ADK 讓每位開發者都能輕鬆實現這些功能。
+想像一下，你打造的 AI 助理不再只是等你說完才回應，而是能夠主動傾聽，甚至在你突然想到新問題時，隨時打斷它的回覆。再想像一下，建立的客服 bot 能同時處理語音、視訊與文字，並在整個對話過程中維持情境脈絡。這就是雙向串流的威力，而 ADK 讓每位開發者都能輕鬆實現這一切。
 
-## 1.1 什麼是雙向串流（Bidi-streaming）？ { #what-is-bidi-streaming }
+## 1.1 什麼是雙向串流？ { #what-is-bidi-streaming }
 
-雙向串流（Bidirectional streaming）代表著 AI 互動模式的根本性轉變。它打破了僵化的「提問-等待」流程，實現了**即時、雙向溝通**，讓人與 AI 能同時說話、傾聽並回應。這種方式創造出自然且具人性化的對話體驗，帶來即時反應與革命性的「可中斷」互動能力。
+雙向串流（Bidi-streaming, Bidirectional streaming）代表了 AI 互動模式的根本轉變。它打破了僵化的「提問－等待」流程，實現了**即時、雙向溝通**，讓人與 AI 能同時說話、傾聽並回應。這種模式帶來自然且類似人類的對話體驗，回應即時，並具備革命性的「可中斷」互動能力。
 
-你可以想像成電子郵件與電話對話的差異。傳統的 AI 互動就像電子郵件——你發送一則完整訊息，等待完整回應，然後再發送下一則訊息。雙向串流則像電話對話——流暢、自然，能即時打斷、澄清與回應。
+你可以想像，傳統 AI 互動就像寫電子郵件——你發送一個完整訊息，等收到完整回覆，再發下一個訊息。而雙向串流則像是電話交談——流暢、自然，能隨時打斷、澄清並即時回應。
 
 ### 主要特點
 
-以下這些特點，使雙向串流與傳統 AI 互動方式截然不同，並賦予其打造高度互動使用者體驗的獨特優勢：
+以下這些特性讓雙向串流有別於傳統 AI 互動，並成為打造引人入勝用戶體驗的關鍵：
 
-- **雙向溝通**：資料可持續雙向傳遞，無需等待完整回應。無論是使用者還是 AI，都能在你還沒說完問題的前幾個字時就開始回應，讓對話體驗更像真正的交流，而非單純的交易。
+- **雙向溝通**：資料能持續雙向流動，無需等到完整回應。無論是使用者還是 AI，都能在你還沒說完問題的前幾個字時就開始回應，讓互動更像真實對話，而非單純的交易。
 
-- **即時中斷回應**：這或許是最貼近自然對話的關鍵特性——使用者可在 agent 回應途中隨時以新輸入打斷，就像人與人之間的交談。如果 AI 正在解釋量子物理，你突然問「等等，什麼是電子？」，AI 會立刻停止原本的說明，直接回應你的新問題。
+- **即時中斷回應**：這或許是最貼近自然體驗的關鍵特色——使用者可以在 agent 回覆到一半時，隨時以新輸入打斷，就像現實生活中的對話。如果 AI 正在解釋量子物理，而你突然問「等等，什麼是電子？」，AI 會立刻停止並直接回答你的新問題。
 
-- **多模態最佳化**：可同時支援文字、語音與影像輸入，創造豐富且自然的互動體驗。使用者可以邊說話邊展示文件，在語音通話中輸入追問，或在不同溝通模式間無縫切換，且不會失去上下文。
+- **最適合多模態互動**：同時支援文字、語音與視訊輸入，帶來豐富且自然的互動體驗。使用者可以一邊說話一邊展示文件、在語音通話時輸入追問，或在不同溝通模式間無縫切換而不會失去情境脈絡。
 
 ```mermaid
 sequenceDiagram
@@ -36,23 +36,23 @@ sequenceDiagram
 
 ### 與其他串流類型的差異
 
-了解雙向串流（bidirectional streaming）與其他方法的不同，有助於認識其獨特價值。串流技術的應用場景包含數種明確的模式，各自適用於不同的使用情境：
+了解雙向串流（bidirectional streaming）與其他方法的不同之處，有助於認識其獨特價值。串流領域包含數種不同的模式，每種模式都適用於不同的使用情境：
 
-!!! info "串流類型比較"
+!!! info "Streaming Types Comparison"
 
-    **Bidi-streaming** differs fundamentally from other streaming approaches:
+    **雙向串流（Bidi-streaming）** 與其他串流方式有根本性的不同：
 
-    - **Server-Side Streaming**: One-way data flow from server to client. Like watching a live video stream—you receive continuous data but can't interact with it in real-time. Useful for dashboards or live feeds, but not for conversations.
+- **伺服器端串流 (server-side streaming)**：資料僅單向從伺服器流向用戶端。就像觀看直播影片一樣——你會持續收到資料，但無法即時互動。這種方式適合儀表板或即時資訊流，但不適合對話場景。
 
-    - **Token-Level Streaming**: Sequential text token delivery without interruption. The AI generates response word-by-word, but you must wait for completion before sending new input. Like watching someone type a message in real-time—you see it forming, but can't interrupt.
+- **逐字元串流 (token-level streaming)**：文字逐字傳送，不中斷。AI 會一字一句地產生回應，但你必須等它完成後才能送出新輸入。這就像看著別人即時打字——你看到內容逐漸成形，但無法中途插話。
 
-    - **Bidirectional Streaming**: Full two-way communication with interruption support. True conversational AI where both parties can speak, listen, and respond simultaneously. This is what enables natural dialogue where you can interrupt, clarify, or change topics mid-conversation.
+- **雙向串流（bidirectional streaming）**：完全的雙向即時溝通，支援中斷。這是真正的對話式 AI，雙方可以同時說話、聆聽並回應。這使得對話更加自然，你可以隨時插話、澄清或在對話中途更換主題。
 
 ### 真實世界應用
 
-雙向串流（Bidirectional streaming）徹底革新了 agentic AI 應用，讓 agent 能以類似人類的即時反應與智慧進行互動。這些應用展示了串流如何將靜態的 AI 互動轉變為動態、由 agent 主導的體驗，讓人感受到真正的智慧與主動性。
+雙向串流（bidirectional streaming）徹底革新了 agentic AI 應用，使 agent 能以類似人類的即時反應與智慧運作。這些應用展示了串流如何將靜態的 AI 互動轉變為動態、以 agent 為主體的體驗，讓 AI 顯得真正聰明且積極主動。
 
-在 [Shopper's Concierge demo](https://www.youtube.com/watch?v=LwHPYyw7u6U) 的影片中，多模態、雙向串流功能大幅提升了電子商務的使用者體驗，使購物過程更快速、更直覺。結合對話理解與快速、平行化搜尋，實現了如虛擬試穿等進階功能，提升買家信心並降低線上購物的摩擦。
+在 [Shopper's Concierge 示範 (demo)](https://www.youtube.com/watch?v=LwHPYyw7u6U) 的影片中，多模態、雙向串流功能大幅提升了電商的用戶體驗，讓購物過程更快速、更直覺。結合對話理解能力與快速、平行化的搜尋，實現了如虛擬試穿等進階功能，提升買家信心並降低線上購物的摩擦。
 
 <div class="video-grid">
   <div class="video-item">
@@ -62,36 +62,36 @@ sequenceDiagram
   </div>
 </div>
 
-此外，你可以想像許多雙向串流在真實世界中的應用場景：
+此外，你可以想像許多雙向串流（bidirectional streaming）在真實世界的應用場景：
 
-1. **客戶服務與聯絡中心**：這是最直接的應用。該技術可打造遠超傳統聊天機器人的進階虛擬 agent。
+1. **客服與聯絡中心**：這是最直接的應用。該技術可打造遠超傳統聊天機器人的智慧虛擬 agent。
 
-    - **應用案例**：顧客致電零售公司的客服專線，反映產品有瑕疵。
-    - **多模態（影像）**：顧客可以說：「我的咖啡機底部在漏水，我給你看一下。」然後用手機鏡頭即時串流問題畫面。AI agent 可利用視覺能力辨識機型及故障點。
-    - **即時互動與打斷**：當 agent 說：「好的，我正在為您的 Model X 咖啡機辦理退貨。」顧客可以立刻打斷說：「等等，不是，是 Model Y Pro。」agent 能立即修正，不需重啟對話。
+    - **應用案例**：顧客致電零售公司客服，反映產品瑕疵。
+    - **多模態（視訊）**：顧客可以說：「我的咖啡機底部在漏水，我給你看一下。」然後用手機鏡頭即時串流問題畫面。AI agent 可利用視覺能力辨識機型及故障點。
+    - **即時互動與中斷**：若 agent 說：「好的，我正在為您的 Model X 咖啡機辦理退貨。」顧客可立即插話：「等等，是 Model Y Pro。」agent 可馬上修正，不需重啟對話。
 
-1. **現場服務與技術支援**：現場技術人員可利用免持、語音啟動的助手獲得即時協助。
+1. **現場服務與技術支援**：現場技術人員可用免持、語音啟動的助手獲得即時協助。
 
-    - **應用案例**：一位 HVAC 技術人員在現場診斷複雜的商用空調設備。
-    - **多模態（影像與語音）**：技術人員戴著智慧眼鏡或用手機，將第一人稱視角串流給 AI agent，並詢問：「這個壓縮機有怪聲，你能幫我辨識並調出這個型號的診斷流程圖嗎？」
-    - **即時互動**：agent 可逐步引導技術人員，技術人員也能隨時發問或打斷，無需放下工具。
+    - **應用案例**：HVAC 技師在現場診斷複雜的商用空調。
+    - **多模態（視訊與語音）**：技師戴著智慧眼鏡或用手機，將第一人稱視角串流給 AI agent，並詢問：「這個壓縮機有奇怪的聲音，你能辨識並調出這型號的診斷流程圖嗎？」
+    - **即時互動**：agent 可逐步引導技師，技師也能隨時提問或中斷，無需放下工具。
 
-1. **醫療保健與遠距醫療**：agent 可作為病患初步接觸、分診與基礎諮詢的第一線。
+1. **醫療與遠距醫療**：agent 可作為病患初步分診、問診與基本諮詢的第一接觸點。
 
-    - **應用案例**：病患透過醫療服務提供者的 app 進行皮膚狀況初步諮詢。
-    - **多模態（影像／照片）**：病患可安全地分享皮疹的即時影像或高解析度照片，AI 可進行初步分析並提出釐清問題。
+    - **應用案例**：病患透過醫療服務提供者的 app 進行皮膚問題初步諮詢。
+    - **多模態（視訊／影像）**：病患可安全分享皮疹的即時視訊或高解析度照片，AI 可進行初步分析並提出釐清問題。
 
 1. **金融服務與財富管理**：agent 可為客戶提供安全、互動性高且資料豐富的財務管理方式。
 
     - **應用案例**：客戶希望檢視投資組合並討論市場趨勢。
-    - **多模態（螢幕共享）**：agent 可共享螢幕，展示圖表、投資組合績效等資料。客戶也可共享螢幕，指向特定新聞並詢問：「這個事件對我的科技股有什麼潛在影響？」
-    - **即時互動**：agent 可存取客戶帳戶資料，分析現有投組配置，並模擬潛在交易對風險狀況的影響。
+    - **多模態（螢幕共享）**：agent 可分享螢幕，展示圖表、績效資料。客戶也能分享自己的螢幕，指著某則新聞問：「這個事件對我的科技股有什麼潛在影響？」
+    - **即時互動**：agent 可存取帳戶資料，分析客戶現有投資組合配置，並模擬潛在交易對風險組合的影響。
 
 ## 1.2 ADK 雙向串流架構總覽 { #adk-bidi-streaming-architecture-overview }
 
-Agent Development Kit (ADK) 雙向串流架構讓 AI 雙向對話如同人類對話般自然。此架構透過精心設計的高效管線，無縫整合 Google 的 [Gemini Live API](https://ai.google.dev/gemini-api/docs/live)，實現低延遲與高吞吐量的通訊。
+Agent Development Kit (ADK) 雙向串流架構讓 AI 對話如同人類對話般自然。此架構透過精心設計的高效管線，無縫整合 Google 的 [Gemini Live API](https://ai.google.dev/gemini-api/docs/live)，實現低延遲與高吞吐量的通訊。
 
-系統可處理即時串流所需的複雜協調——管理多條並行資料流、優雅處理中斷、同時處理多模態輸入，並在動態互動中維持對話狀態。ADK 雙向串流將這些複雜性封裝為簡單直覺的 API，開發者無需深入理解串流協定或 AI 模型通訊細節，即可輕鬆使用。
+系統負責處理即時串流所需的複雜協調——管理多個並發資料流、優雅處理中斷、同時處理多模態輸入，並在動態互動中維持對話狀態。ADK 雙向串流將這些複雜性抽象為簡單直覺的 API，開發者無需理解串流協定或 AI 模型通訊細節，即可輕鬆使用。
 
 ### 高階架構
 
@@ -142,13 +142,13 @@ graph TB
 
 | 開發者需提供： | ADK 提供： | Gemini 提供： |
 |:----------------------------|:------------------|:------------------------------|
-| **Web / Mobile**：使用者互動的前端應用程式，負責 UI/UX、使用者輸入擷取與回應顯示<br><br>**[WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket) / [SSE](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) 伺服器**：即時通訊伺服器（如 [FastAPI](https://fastapi.tiangolo.com/)），管理用戶端連線、處理串流協議，並在用戶端與 ADK 之間路由訊息<br><br>**Agent**：具備特定指令、工具與行為的自訂 AI agent，依應用需求量身打造 | **[LiveRequestQueue](https://github.com/google/adk-python/blob/main/src/google/adk/agents/live_request_queue.py)**：訊息佇列，負責緩衝與排序進入的使用者訊息（文字內容、音訊 blob、控制訊號），以便 agent 有序處理<br><br>**[Runner](https://github.com/google/adk-python/blob/main/src/google/adk/runners.py)**：執行引擎，協調 agent 工作階段、管理對話狀態，並提供 `run_live()` 串流介面<br><br>**[LLM Flow](https://github.com/google/adk-python/blob/main/src/google/adk/flows/llm_flows/base_llm_flow.py)**：處理串流對話邏輯的處理流程，管理上下文，並與大型語言模型 (LLM) 協作<br><br>**[GeminiLlmConnection](https://github.com/google/adk-python/blob/main/src/google/adk/models/gemini_llm_connection.py)**：抽象層，將 ADK 的串流架構與 Gemini Live API 連接，負責協議轉換與連線管理 | **[Gemini Live API](https://ai.google.dev/gemini-api/docs/live)**：Google 的即時大型語言模型 (LLM) 服務，處理串流輸入、生成回應、支援中斷、多模態內容（文字、音訊、影像），並具備進階 AI 能力，如函式呼叫與情境理解 |
+| **Web / Mobile**：使用者互動的前端應用程式，負責 UI/UX、使用者輸入擷取與回應顯示<br><br>**[WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket) / [SSE](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) 伺服器**：即時通訊伺服器（如 [FastAPI](https://fastapi.tiangolo.com/)），管理用戶端連線、處理串流協定，並在用戶端與 ADK 之間路由訊息<br><br>**Agent**：依應用需求自訂的 AI agent 定義，包含專屬指令、工具與行為 | **[LiveRequestQueue](https://github.com/google/adk-python/blob/main/src/google/adk/agents/live_request_queue.py)**：訊息佇列，負責緩衝與排序進入的使用者訊息（文字內容、音訊 blob、控制訊號），以便 agent 有序處理<br><br>**[Runner](https://github.com/google/adk-python/blob/main/src/google/adk/runners.py)**：執行引擎，協調 agent session、管理對話狀態，並提供 `run_live()` 串流介面<br><br>**[LLM Flow](https://github.com/google/adk-python/blob/main/src/google/adk/flows/llm_flows/base_llm_flow.py)**：處理串流對話邏輯的處理管線，管理上下文，並與大型語言模型 (LLM) 協作<br><br>**[GeminiLlmConnection](https://github.com/google/adk-python/blob/main/src/google/adk/models/gemini_llm_connection.py)**：抽象層，將 ADK 的串流架構與 Gemini Live API 連接，負責協定轉換與連線管理 | **[Gemini Live API](https://ai.google.dev/gemini-api/docs/live)**：Google 的即時大型語言模型 (LLM) 服務，負責處理串流輸入、產生回應、支援中斷、支援多模態內容（文字、音訊、視訊），並提供如函式呼叫、上下文理解等進階 AI 能力 |
 
 ## 1.3 設定開發環境 { #setting-up-your-development-environment }
 
-現在你已經了解了 ADK 雙向串流架構的核心概念及其帶來的價值，是時候動手實作了。本節將協助你準備開發環境，讓你能開始打造前述的串流 agent 與應用程式。
+現在你已經理解了 ADK 雙向串流（Bidi-streaming）架構的核心概念與其帶來的價值，是時候動手實作了。本節將協助你準備開發環境，讓你可以開始打造前述的串流 agent 與應用程式。
 
-完成這些設定後，你將具備建立智慧語音助理、主動客服 agent、多 agent 協作平台等所需的一切。設定流程相當簡單——ADK 會處理複雜的串流基礎設施，讓你能專注於打造 agent 的獨特能力，而不用費心於底層的串流協議。
+完成這些設定後，你將具備建立智慧語音助理、主動客服 agent、多 agent 協作平台等所有必要條件。設定流程相當簡單——ADK 已經處理了複雜的串流基礎建設，你只需專注於開發 agent 的獨特功能，而不必煩惱底層串流協定。
 
 ### 安裝步驟
 
@@ -169,7 +169,7 @@ source .venv/bin/activate
 
 #### 2. 安裝 ADK { #install-adk }
 
-在你的專案根目錄下建立一個 `requirements.txt` 檔案。請注意，`google-adk` 函式庫已包含 FastAPI 及 uvicorn，你可以將它們作為雙向串流（bidi-streaming）應用程式的網頁伺服器使用。
+在你的專案根目錄下建立一個 `requirements.txt` 檔案。請注意，`google-adk` 函式庫已包含 FastAPI 與 uvicorn，你可以將其作為雙向串流（bidi-streaming）應用程式的網頁伺服器使用。
 
 ```txt
 google-adk==1.3.0
@@ -191,12 +191,12 @@ export SSL_CERT_FILE=$(python -m certifi)
 
 #### 4. 設定 API 金鑰 { #set-up-api-keys }
 
-選擇你偏好的平台來執行 agent：
+請選擇你偏好的平台來執行 agent：
 
 === "Google AI Studio"
 
     1. 從 [Google AI Studio](https://aistudio.google.com/apikey) 取得 API 金鑰
-    2. 在你的專案根目錄下建立一個 `.env` 檔案：
+    2. 在你的專案根目錄下建立 `.env` 檔案：
 
     ```env
     GOOGLE_GENAI_USE_VERTEXAI=FALSE
@@ -205,7 +205,7 @@ export SSL_CERT_FILE=$(python -m certifi)
 
 === "Google Cloud Vertex AI"
 
-    1. 設定 [Google Cloud project](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-gcp)
+    1. 設定 [Google Cloud 專案](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-gcp)
     2. 安裝並設定 [gcloud CLI](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-local)
     3. 驗證身份：`gcloud auth login`
     4. [啟用 Vertex AI API](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com)
@@ -219,7 +219,7 @@ export SSL_CERT_FILE=$(python -m certifi)
 
 #### 5. 建立環境設定腳本 { #create-environment-setup-script }
 
-我們將建立驗證腳本，用於驗證你的安裝：
+我們將建立驗證腳本，用來驗證你的安裝：
 
 ```bash
 # Create the directory structure
@@ -369,15 +369,15 @@ your-streaming-project/
 
 ### 執行
 
-請使用我們的完整環境設定腳本，以確保所有項目都已正確配置：
+請使用我們的完整環境設定腳本，以確保所有項目都已正確設定：
 
 ```bash
 python src/part1/1-3-1_environment_setup.py
 ```
 
-!!! example "預期輸出"
+!!! example "Expected Output"
 
-    When you run the validation script, you should see output similar to this:
+    當你執行驗證指令碼時，應該會看到類似以下的輸出：
 
     ```
     🔧 ADK Streaming Environment Validation
@@ -396,18 +396,18 @@ python src/part1/1-3-1_environment_setup.py
     🎉 Environment validation successful!
     ```
 
-    This comprehensive validation script checks:
+    這個完整的驗證腳本會檢查：
 
-    - ADK installation and version
-    - Required environment variables
-    - API key validation
-    - Basic import verification
+- Agent Development Kit (ADK) 的安裝與版本
+- 必要的環境變數
+- API KEY 驗證
+- 基本的 import 驗證
 
 ### 下一步
 
-當你的環境設定完成後，就可以開始深入了解核心串流 API 了。在下一部分（即將推出），你將學習以下內容：
+當你的環境設定完成後，你就可以開始深入核心串流 API 了。在下一部分（即將推出）你將學習：
 
 - **LiveRequestQueue**：雙向通訊的核心
-- **run_live() 方法**：啟動串流工作階段
+- **run_live() 方法**：啟動串流 session
 - **事件處理**：處理即時回應
 - **Gemini Live API**：直接整合的模式

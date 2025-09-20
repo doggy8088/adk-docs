@@ -1,16 +1,16 @@
-# Vertex AI Express 模式：免費使用 Vertex AI Sessions 與記憶體服務
+# Vertex AI Express 模式：免費使用 Vertex AI Sessions 與 Memory
 
-如果你有興趣使用 `VertexAiSessionService` 或 `VertexAiMemoryBankService`，但尚未擁有 Google Cloud 專案（Google Cloud Project），你可以註冊 Vertex AI Express 模式，免費取得存取權，體驗這些服務！你可以使用符合資格的 ***gmail*** 帳戶在[這裡](https://console.cloud.google.com/expressmode)註冊。關於 Vertex AI Express 模式的更多細節，請參閱[總覽頁面](https://cloud.google.com/vertex-ai/generative-ai/docs/start/express-mode/overview)。
-註冊完成後，取得[API 金鑰](https://cloud.google.com/vertex-ai/generative-ai/docs/start/express-mode/overview#api-keys)，即可開始使用你的本機 Agent Development Kit (ADK) agent 搭配 Vertex AI Session 與記憶體服務！
+如果你有興趣使用 `VertexAiSessionService` 或 `VertexAiMemoryBankService`，但尚未擁有 Google Cloud 專案，可以註冊 Vertex AI Express 模式，免費存取並體驗這些服務！你可以使用符合資格的 ***gmail*** 帳號在[這裡](https://console.cloud.google.com/expressmode)註冊。如需更多 Vertex AI Express 模式的詳細資訊，請參閱[總覽頁面](https://cloud.google.com/vertex-ai/generative-ai/docs/start/express-mode/overview)。  
+註冊完成後，取得[API key](https://cloud.google.com/vertex-ai/generative-ai/docs/start/express-mode/overview#api-keys)，即可開始在本機使用你的 Agent Development Kit (ADK) agent 搭配 Vertex AI Session 與 Memory 服務！
 
-!!! info Vertex AI Express 模式限制
+!!! info Vertex AI Express mode limitations
 
-    Vertex AI Express Mode has certain limitations in the free tier. Free Express mode projects are only valid for 90 days and only select services are available to be used with limited quota. For example, the number of Agent Engines is restricted to 10 and deployment to Agent Engine is reserved for the paid tier only. To remove the quota restrictions and use all of Vertex AI's services, add a billing account to your Express Mode project.
+    Vertex AI Express 模式在免費方案中有一些限制。免費的 Express 模式專案僅有效 90 天，且僅能使用部分服務，且配額有限。例如，Agent Engine 的數量限制為 10 個，且僅付費方案才能部署到 Agent Engine。若要解除配額限制並使用 Vertex AI 的所有服務，請將帳單帳戶新增至您的 Express 模式專案。
 
 ## 建立 Agent Engine
 
-`Session` 物件是 `AgentEngine` 的子物件。在使用 Vertex AI Express Mode 時，我們可以建立一個空的 `AgentEngine` 父物件來管理所有的 `Session` 和 `Memory` 物件。
-首先，請確保您的環境變數已正確設定。例如，在 Python 中：
+`Session` 物件是 `AgentEngine` 的子物件。在使用 Vertex AI Express 模式時，我們可以建立一個空的 `AgentEngine` 父物件來管理所有的 `Session` 和 `Memory` 物件。
+首先，請確保您的環境變數設定正確。例如，在 Python 中：
 
 ```env title="weather_agent/.env"
 GOOGLE_GENAI_USE_VERTEXAI=TRUE
@@ -41,7 +41,7 @@ GOOGLE_API_KEY=PASTE_YOUR_ACTUAL_EXPRESS_MODE_API_KEY_HERE
         response
         ```
 
-    3. 將 `YOUR_AGENT_ENGINE_DISPLAY_NAME` 和 `YOUR_AGENT_ENGINE_DESCRIPTION` 替換為您的使用情境。
+    3. 將 `YOUR_AGENT_ENGINE_DISPLAY_NAME` 和 `YOUR_AGENT_ENGINE_DESCRIPTION` 替換為你的使用情境。
     4. 從回應中取得 Agent Engine 的名稱與 ID
 
         ```py
@@ -49,9 +49,9 @@ GOOGLE_API_KEY=PASTE_YOUR_ACTUAL_EXPRESS_MODE_API_KEY_HERE
         APP_ID = APP_NAME.split('/')[-1]
         ```
 
-## 使用 `VertexAiSessionService` 管理工作階段
+## 使用 `VertexAiSessionService` 管理 Session
 
-[`VertexAiSessionService`](session.md###sessionservice-implementations) 相容於 Vertex AI Express mode API Keys。我們可以在不指定任何專案（project）或區域（location）的情況下初始化 session 物件。
+[`VertexAiSessionService`](session.md###sessionservice-implementations) 相容於 Vertex AI Express 模式 API KEY。我們可以在初始化 session 物件時，不需要指定任何專案（project）或位置（location）。
 
 ```py
 # Requires: pip install google-adk[vertexai]
@@ -69,16 +69,16 @@ session_service = VertexAiSessionService(agent_engine_id=APP_ID)
 # session = await session_service.create_session(app_name=REASONING_ENGINE_APP_ID, user_id= ...)
 ```
 
-!!! info Session Service 配額
+!!! info Session Service Quotas
 
-    For Free Express Mode Projects, `VertexAiSessionService` has the following quota:
+    對於免費 Vertex AI Express 模式專案，`VertexAiSessionService` 擁有以下配額：
 
-    - 100 Session Entities
-    - 10,000 Event Entities
+    - 100 個 Session 實體
+    - 10,000 個 Event 實體
 
 ## 使用 `VertexAiMemoryBankService` 管理記憶體
 
-[`VertexAiMemoryBankService`](memory.md###memoryservice-implementations) 相容於 Vertex AI Express mode API KEY。我們可以在不指定任何 GCP 專案或位置的情況下初始化記憶體物件。
+[`VertexAiMemoryBankService`](memory.md###memoryservice-implementations) 相容於 Vertex AI Express 模式 API KEY。我們可以在初始化記憶體物件時，不需要指定任何專案或位置。
 
 ```py
 # Requires: pip install google-adk[vertexai]
@@ -96,14 +96,14 @@ memory_service = VertexAiMemoryBankService(agent_engine_id=APP_ID)
 # memory = await memory_service.add_session_to_memory(session)
 ```
 
-!!! info 記憶體服務配額
+!!! info Memory Service Quotas
 
-    For Free Express Mode Projects, `VertexAiMemoryBankService` has the following quota:
+    對於免費的 Vertex AI Express 模式專案，`VertexAiMemoryBankService` 有以下配額：
 
-    - 200 Memory Entities
+    - 200 個記憶體實體（Memory Entities）
 
-## 程式碼範例：使用 Vertex AI Express Mode 的 Weather Agent（支援 Session 與 Memory）
+## 範例程式碼：使用 Session 與 Memory 的天氣代理（Weather Agent），採用 Vertex AI Express 模式
 
-在本範例中，我們建立了一個 weather agent，利用 `VertexAiSessionService` 和 `VertexAiMemoryBankService` 來進行情境管理，讓 agent 能夠記住使用者偏好與對話內容！
+在此範例中，我們建立了一個天氣代理（weather agent），同時運用 `VertexAiSessionService` 與 `VertexAiMemoryBankService` 進行情境管理（context management），讓我們的 agent 能夠記住使用者偏好與對話內容！
 
-**[使用 Vertex AI Express Mode 的 Weather Agent（支援 Session 與 Memory）](https://github.com/google/adk-docs/blob/main/examples/python/notebooks/express-mode-weather-agent.ipynb)**
+**[使用 Vertex AI Express 模式的 Session 與 Memory 建立天氣代理](https://github.com/google/adk-docs/blob/main/examples/python/notebooks/express-mode-weather-agent.ipynb)**

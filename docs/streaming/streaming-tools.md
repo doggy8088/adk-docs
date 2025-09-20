@@ -2,21 +2,21 @@
 
 !!! info
 
-    This is only supported in streaming(live) agents/api.
+    僅支援於串流（即時）agent/API。
 
-串流工具（Streaming tools）允許工具（函式）將中間結果即時串流回 Agent，並且 Agent 可以對這些中間結果做出回應。
-例如，我們可以使用串流工具來監控股票價格的變化，並讓 Agent 根據變化做出反應。另一個例子是，讓 Agent 監控視訊串流，當視訊串流發生變化時，Agent 可以回報這些變化。
+串流工具（Streaming Tools）允許 tools（functions）將中間結果以串流方式回傳給 agent，agent 也可以對這些中間結果做出回應。
+舉例來說，我們可以利用串流工具來監控股價的變化，並讓 agent 根據變化做出反應。另一個例子是，agent 可以監控視訊串流（video stream），當視訊串流有變化時，agent 會回報這些變化。
 
-要定義一個串流工具，必須遵循以下規範：
+若要定義一個串流工具，必須遵循以下規範：
 
-1.  **非同步函式（Asynchronous Function）：** 工具必須是一個 `async` Python 函式。
-2.  **AsyncGenerator 回傳型別：** 此函式必須標註為回傳 `AsyncGenerator`。`AsyncGenerator` 的第一個型別參數是你要`yield`的資料型別（例如：`str` 代表文字訊息，或自訂物件代表結構化資料）。第二個型別參數通常是 `None`，如果該 generator 沒有透過 `send()` 接收值。
+1.  **非同步函式（Asynchronous Function）：** 該工具必須是一個 `async` Python 函式。
+2.  **AsyncGenerator 回傳型別：** 此函式必須標註為回傳 `AsyncGenerator`。`AsyncGenerator` 的第一個型別參數是你要`yield`的資料型別（例如，`str` 表示文字訊息，或自訂物件用於結構化資料）。第二個型別參數通常為 `None`，如果 generator 沒有透過 `send()` 接收值。
 
 我們支援兩種類型的串流工具：
-- 簡單型（Simple type）：這種類型的串流工具僅接受非視訊/音訊串流（即你傳遞給 ADK Web 或 ADK Runner 的串流）作為輸入。
-- 視訊串流工具（Video streaming tools）：這僅適用於視訊串流，並且會將視訊串流（即你傳遞給 ADK Web 或 ADK Runner 的串流）傳入此函式。
+- 簡單型（Simple type）：這類串流工具僅接受非視訊/音訊串流（即你傳遞給 adk web 或 adk runner 的串流）作為輸入。
+- 視訊串流工具（Video streaming tools）：僅適用於視訊串流，且會將視訊串流（即你傳遞給 adk web 或 adk runner 的串流）傳入此函式。
 
-現在，讓我們定義一個可以同時監控股票價格變化與視訊串流變化的 Agent。 
+現在，讓我們定義一個可以同時監控股價變化與視訊串流變化的 agent。 
 
 ```python
 import asyncio
@@ -148,5 +148,5 @@ root_agent = Agent(
 ```
 
 以下是一些可用來測試的範例查詢：
-- 幫我監控 $XYZ 股票的股價。
-- 幫我監控影片串流中有多少人。
+- 請協助我監控 $XYZ 股票的股價。
+- 請協助我監控視訊串流中有多少人。

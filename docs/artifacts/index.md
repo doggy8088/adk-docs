@@ -1,17 +1,17 @@
 # Artifacts
 
-在 Agent Development Kit (ADK)（ADK）中，**Artifacts**（產物）是一種關鍵機制，用於管理具名、具版本的二進位資料。這些資料可以與特定的使用者互動工作階段（session）相關聯，或是跨多個工作階段持久地與使用者綁定。Artifacts 讓你的代理（agent）與工具（tools）能處理超越純文字字串的資料，實現更豐富的互動，例如檔案、圖片、音訊及其他二進位格式。
+在 Agent Development Kit (ADK) 中，**Artifacts**（產物）是一種關鍵機制，用於管理具名且有版本的二進位資料，這些資料可以與特定使用者互動 session 綁定，或是跨多個 session 持久保存於使用者名下。Artifacts 讓你的 agent 和 tools 能處理不僅限於純文字字串的資料，進一步支援包含檔案、圖片、音訊及其他二進位格式的更豐富互動。
 
 !!! Note
-    不同 SDK 語言的 primitive 參數或方法名稱可能略有不同（例如：Python 中為 `save_artifact`，Java 中為 `saveArtifact`）。詳細資訊請參閱各語言的 API 文件。
+    特定的基本操作（primitive）所使用的參數或方法名稱，可能會依不同 SDK 語言略有差異（例如：Python 中為 `save_artifact`，Java 中為 `saveArtifact`）。詳細資訊請參考各語言的 API 文件說明。
 
-## 什麼是 Artifacts？
+## 什麼是 Artifact？
 
-*   **定義：** Artifact 本質上是一段二進位資料（如檔案內容），在特定範圍（session 或 user）內由唯一的 `filename` 字串識別。每次以相同檔名儲存 artifact 時，會建立一個新版本。
+*   **定義：** Artifact 本質上是一段二進位資料（如檔案內容），在特定範圍（session 或 user）內以唯一的 `filename` 字串作為識別。每次以相同檔名儲存 artifact 時，系統都會建立一個新版本。
 
-*   **表示方式：** Artifacts 始終以標準的 `google.genai.types.Part` 物件表示。其核心資料通常儲存在 `Part` 的內嵌資料結構中（可透過 `inline_data` 存取），其內容包含：
-    *   `data`：以 bytes 形式儲存的原始二進位內容。
-    *   `mime_type`：表示資料型態的字串（例如 `"image/png"`、`"application/pdf"`）。這對於後續正確解析資料非常重要。
+*   **表示方式：** Artifact 一律以標準的 `google.genai.types.Part` 物件來表示。其核心資料通常儲存在 `Part` 的內嵌資料結構中（可透過 `inline_data` 存取），該結構包含：
+    *   `data`：原始二進位內容，以 bytes 形式儲存。
+    *   `mime_type`：一個字串，標示資料的型態（例如：`"image/png"`、`"application/pdf"`）。這對於後續正確解讀資料非常重要。
 
 
 === "Python"
@@ -60,65 +60,65 @@
     }
     ```
 
-*   **持久化與管理：** Artifact（人工產物）並不會直接儲存在 agent 或 session 狀態中。它們的儲存與讀取由專門的 **Artifact Service**（`BaseArtifactService` 的一種實作，定義於 `google.adk.artifacts`）負責管理。Agent Development Kit (ADK) 提供了多種實作方式，例如：
-    *   用於測試或暫存的記憶體內服務（例如 Python 的 `InMemoryArtifactService`，定義於 `google.adk.artifacts.in_memory_artifact_service.py`）。
-    *   使用 Google Cloud Storage (GCS) 進行持久化儲存的服務（例如 Python 的 `GcsArtifactService`，定義於 `google.adk.artifacts.gcs_artifact_service.py`）。
-    所選擇的服務實作在你儲存資料時會自動處理版本控管。
+*   **持久化與管理：** Artifact（人工產物）並不會直接儲存在 agent 或 session state 之中。它們的儲存與存取由專門的 **Artifact Service**（`BaseArtifactService` 的實作，定義於 `google.adk.artifacts`）負責管理。Agent Development Kit (ADK) 提供了多種實作方式，例如：
+    *   用於測試或暫存的記憶體內服務（如 Python 的 `InMemoryArtifactService`，定義於 `google.adk.artifacts.in_memory_artifact_service.py`）。
+    *   使用 Google Cloud Storage (GCS) 進行持久化儲存的服務（如 Python 的 `GcsArtifactService`，定義於 `google.adk.artifacts.gcs_artifact_service.py`）。
+    當你儲存資料時，所選擇的服務實作會自動處理版本管理。
 
 ## 為什麼要使用 Artifact？
 
-雖然 session `state` 適合用來儲存小型的設定或對話上下文（如字串、數字、布林值，或小型字典/清單），但 Artifact 則設計用於處理二進位或大型資料的情境：
+雖然 session state 適合用來儲存小型的設定或對話上下文（如字串、數字、布林值，或小型字典/清單），Artifact 則專為處理二進位或大型資料的情境而設計：
 
-1. **處理非文字型資料：** 可輕鬆儲存與讀取圖片、音訊片段、影片片段、PDF、試算表，或其他與 agent 功能相關的任何檔案格式。  
-2. **持久化大型資料：** session 狀態通常不適合儲存大量資料。Artifact 提供專屬機制來持久化較大的二進位資料（blob），避免 session 狀態雜亂。  
-3. **使用者檔案管理：** 提供使用者上傳檔案（可儲存為 artifact）的能力，並可讓使用者取得或下載 agent 產生的檔案（從 artifact 載入）。  
-4. **輸出分享：** 讓工具或 agent 產生二進位輸出（如 PDF 報告或生成圖片），可透過 `save_artifact` 儲存，並讓應用程式其他部分，甚至後續 session（若有使用使用者命名空間）存取。  
-5. **二進位資料快取：** 將計算成本高、會產生二進位資料的運算結果（例如複雜圖表的圖片渲染）儲存為 artifact，以避免後續請求時重複產生。
+1. **處理非文字型資料：** 可以輕鬆儲存與讀取圖片、音訊片段、影片片段、PDF、試算表，或任何與 agent 功能相關的檔案格式。  
+2. **持久化大型資料：** session state 通常不適合儲存大量資料。Artifact 提供專屬機制來持久化較大的二進位資料，不會讓 session state 混亂。  
+3. **使用者檔案管理：** 提供使用者上傳檔案（可儲存為 artifact）的能力，並能讓使用者取得或下載 agent 產生的檔案（從 artifact 載入）。  
+4. **輸出共享：** 讓工具或 agent 產生二進位輸出（如 PDF 報告或產生的圖片），可透過 `save_artifact` 儲存，並在應用程式的其他部分或後續 session（若使用使用者命名空間）中存取。  
+5. **二進位資料快取：** 將運算成本高、會產生二進位資料的結果（如渲染複雜圖表圖片）以 artifact 形式儲存，避免每次請求都重新產生。
 
-簡而言之，當你的 agent 需要處理需被持久化、版本控管或分享的檔案型二進位資料時，由 `ArtifactService` 管理的 Artifact 是在 ADK 中最合適的機制。
+簡而言之，當你的 agent 需要處理需被持久化、版本化或共享的檔案型二進位資料時，由 `ArtifactService` 管理的 Artifact 就是 Agent Development Kit (ADK) 中最合適的機制。
 
 ## 常見使用情境
 
-Artifact 提供了靈活的方式，讓你在 ADK 應用中處理二進位資料。
+Artifact 為你的 Agent Development Kit (ADK) 應用提供了靈活處理二進位資料的方式。
 
-以下是一些典型且具價值的應用場景：
+以下是它們特別有價值的一些典型情境：
 
 * **產生報告/檔案：**
     * 工具或 agent 產生報告（如 PDF 分析、CSV 資料匯出、圖表圖片）。
 
 * **處理使用者上傳：**
 
-    * 使用者透過前端介面上傳檔案（如分析用圖片、摘要用文件）。
+    * 使用者透過前端介面上傳檔案（如分析用的圖片、摘要用的文件）。
 
 * **儲存中間二進位結果：**
 
-    * agent 執行複雜多步驟流程，其中某步產生中間二進位資料（如語音合成、模擬結果）。
+    * agent 執行複雜的多步驟流程，其中某一步會產生中間二進位資料（如語音合成、模擬結果）。
 
 * **持久化使用者資料：**
 
-    * 儲存非單純鍵值狀態的使用者專屬設定或資料。
+    * 儲存使用者專屬的設定或資料，這些資料不是單純的鍵值狀態。
 
 * **快取產生的二進位內容：**
 
-    * agent 經常根據特定輸入產生相同的二進位輸出（如公司標誌圖片、標準語音問候）。
+    * agent 根據特定輸入經常產生相同的二進位輸出（如公司 Logo 圖片、標準語音問候）。
 
 ## 核心概念
 
-理解 artifact 涉及幾個關鍵元件：管理 artifact 的服務、儲存 artifact 的資料結構，以及 artifact 的識別與版本控管方式。
+理解 Artifact 涉及掌握幾個關鍵元件：負責管理的服務、用來承載資料的資料結構，以及它們的識別與版本管理方式。
 
 ### Artifact Service（`BaseArtifactService`）
 
-* **角色：** 負責 artifact 實際儲存與讀取邏輯的核心元件。它定義 artifact *如何* 以及 *儲存於何處*。  
+* **角色：** 負責 Artifact 實際儲存與存取邏輯的核心元件。它定義了 Artifact *如何* 以及 *儲存在哪裡*。
 
-* **介面：** 由抽象基底類別 `BaseArtifactService` 定義。任何具體實作都必須提供以下方法：  
+* **介面：** 由抽象基底類別 `BaseArtifactService` 定義。任何具體實作都必須提供下列方法：
 
-    * `Save Artifact`：儲存 artifact 資料並回傳分配的版本號。  
-    * `Load Artifact`：讀取特定版本（或最新版本）的 artifact。  
-    * `List Artifact keys`：列出指定範圍內 artifact 的唯一檔名。  
-    * `Delete Artifact`：移除 artifact（以及依實作可能包含的所有版本）。  
+    * `Save Artifact`：儲存 artifact 資料並回傳其指派的版本號。
+    * `Load Artifact`：讀取特定版本（或最新版本）的 artifact。
+    * `List Artifact keys`：列出指定範圍內 artifact 的唯一檔名。
+    * `Delete Artifact`：移除 artifact（以及視實作而定，可能包含所有版本）。
     * `List versions`：列出特定 artifact 檔名下所有可用的版本號。
 
-* **設定：** 在初始化 `Runner` 時，你需提供一個 artifact service 實例（如 `InMemoryArtifactService`、`GcsArtifactService`）。`Runner` 會透過 `InvocationContext` 將此服務提供給 agent 與工具使用。
+* **設定方式：** 當你初始化 `Runner` 時，需提供一個 artifact service 的實例（如 `InMemoryArtifactService`、`GcsArtifactService`）。`Runner` 會透過 `InvocationContext` 將此服務提供給 agent 與 tools 使用。
 
 === "Python"
 
@@ -164,12 +164,12 @@ Artifact 提供了靈活的方式，讓你在 ADK 應用中處理二進位資料
 
 ### Artifact 資料
 
-* **標準表示法：** Artifact 內容皆以 `google.genai.types.Part` 物件來表示，這與大型語言模型 (LLM) 訊息的部分結構相同。
+* **標準表示法：** Artifact 內容會以 `google.genai.types.Part` 物件作為通用表示方式，這與大型語言模型 (LLM) 訊息的部分結構相同。
 
-* **主要屬性（`inline_data`）：** 對於 artifact 而言，最重要的屬性是 `inline_data`，它是一個 `google.genai.types.Blob` 物件，包含以下內容：
+* **主要屬性 (`inline_data`)：** 對於 artifact，最相關的屬性是 `inline_data`，它是一個 `google.genai.types.Blob` 物件，包含：
 
-    * `data`（`bytes`）：artifact 的原始二進位內容。
-    * `mime_type`（`str`）：標準的 MIME type 字串（例如：`'application/pdf'`、`'image/png'`、`'audio/mpeg'`），用於描述二進位資料的類型。**這對於載入 artifact 時正確解讀內容至關重要。**
+    * `data` (`bytes`)：artifact 的原始二進位內容。
+    * `mime_type` (`str`)：標準的 MIME type 字串（例如 `'application/pdf'`、`'image/png'`、`'audio/mpeg'`），用於描述二進位資料的類型。**這對於正確載入 artifact 時的解讀至關重要。**
 
 === "Python"
 
@@ -199,27 +199,27 @@ Artifact 提供了靈活的方式，讓你在 ADK 應用中處理二進位資料
 
 ### 檔名（Filename）
 
-* **識別子（Identifier）：** 一個簡單的字串，用於在特定命名空間內為 artifact 命名並進行檢索。  
-* **唯一性（Uniqueness）：** 檔名在其作用範圍內（Session 或 User 命名空間）必須是唯一的。  
-* **最佳實踐（Best Practice）：** 建議使用具描述性的名稱，並可包含副檔名（例如：`"monthly_report.pdf"`、`"user_avatar.jpg"`），但副檔名本身不會決定行為——實際行為由 `mime_type` 決定。
+* **識別子（Identifier）：** 一個簡單的字串，用於在特定命名空間內命名並檢索 artifact。  
+* **唯一性（Uniqueness）：** 檔名在其範圍內（session 或 user 命名空間）必須是唯一的。  
+* **最佳實踐（Best Practice）：** 建議使用具描述性的名稱，並可包含副檔名（例如：`"monthly_report.pdf"`、`"user_avatar.jpg"`），但副檔名本身不會決定行為——`mime_type` 才會。
 
-### 版本控制（Versioning）
+### 版本控管（Versioning）
 
-* **自動版本控制（Automatic Versioning）：** artifact service 會自動處理版本控制。當你呼叫 `save_artifact` 時，服務會為該檔名及作用範圍決定下一個可用的版本號（通常從 0 開始遞增）。  
-* **由 `save_artifact` 回傳：** `save_artifact` 方法會回傳分配給新儲存 artifact 的整數版本號。  
+* **自動版本控管（Automatic Versioning）：** artifact 服務會自動處理版本控管。當你呼叫 `save_artifact` 時，服務會為該檔名及範圍決定下一個可用的版本號（通常從 0 開始遞增）。  
+* **由 `save_artifact` 回傳：** `save_artifact` 方法會回傳新儲存 artifact 所分配的整數版本號。  
 * **檢索（Retrieval）：**  
-  * `load_artifact(..., version=None)`（預設）：取得該 artifact *最新* 可用的版本。  
-  * `load_artifact(..., version=N)`：取得特定版本 `N`。  
-* **列出所有版本（Listing Versions）：** 可使用 `list_versions` 方法（在 service 上，而非 context）來查詢某個 artifact 所有現有的版本號。
+  * `load_artifact(..., version=None)`（預設）：取得該 artifact 的*最新*可用版本。  
+  * `load_artifact(..., version=N)`：取得指定版本 `N`。  
+* **列出所有版本（Listing Versions）：** `list_versions` 方法（在服務上，而非 context）可用來查詢某個 artifact 所有已存在的版本號。
 
 ### 命名空間（Session vs. User）
 
-* **概念（Concept）：** artifact 可以限定在特定 Session，或更廣泛地限定於使用者（User）在應用程式內的所有 Session。這個作用範圍由 `filename` 格式決定，並由 `ArtifactService` 於內部處理。  
+* **概念（Concept）：** artifact 可以限定於特定 session，或更廣泛地限定於使用者在應用程式內的所有 session。這個範圍由 `filename` 格式決定，並由 `ArtifactService` 於內部處理。  
 
-* **預設（Session 範圍）：** 如果你使用像 `"report.pdf"` 這樣的純檔名，artifact 會與特定的 `app_name`、`user_id` *以及* `session_id` 關聯。它僅能在該特定 Session context 中存取。  
+* **預設（Session 範圍）：** 如果你使用像 `"report.pdf"` 這樣的純檔名，artifact 會與特定的 `app_name`、`user_id` *以及* `session_id` 相關聯。它僅能在該 session context 下存取。  
 
 
-* **User 範圍（`"user:"` 前綴）：** 如果你在檔名前加上 `"user:"`，例如 `"user:profile.png"`，artifact 只會與 `app_name` 和 `user_id` 關聯。此時，該 artifact 可在該使用者於應用程式內的*任何* Session 中存取或更新。  
+* **User 範圍（`"user:"` 前綴）：** 如果你在檔名前加上 `"user:"`，例如 `"user:profile.png"`，artifact 只會與 `app_name` 和 `user_id` 相關聯。該 artifact 可在該使用者於應用程式中的*任何* session 存取或更新。  
 
 
 === "Python"
@@ -262,15 +262,15 @@ Artifact 提供了靈活的方式，讓你在 ADK 應用中處理二進位資料
     // artifactService.saveArtifact(appName, userId, sessionId1, userConfigFilename, someData);
     ```
 
-這些核心概念相互配合，為 Agent Development Kit (ADK)（ADK）框架內的二進位資料管理提供了一個靈活的系統。
+這些核心概念協同運作，為 Agent Development Kit (ADK) 框架內的二進位資料管理提供了一個靈活的系統。
 
 ## 與 Artifact 互動（透過 Context 物件）
 
-在你的 agent 邏輯中（特別是在 callbacks 或 tools 內），你主要是透過 `CallbackContext` 和 `ToolContext` 物件所提供的方法來與 artifact 互動。這些方法將底層由 `ArtifactService` 管理的儲存細節進行了抽象化。
+在 agent 邏輯中（特別是在 callbacks 或 tools 內），你主要是透過 `CallbackContext` 和 `ToolContext` 物件所提供的方法來與 artifact 互動。這些方法將底層由 `ArtifactService` 管理的儲存細節進行了抽象化。
 
 ### 前置作業：設定 `ArtifactService`
 
-在你能夠透過 context 物件使用任何 artifact 方法之前，初始化 `Runner` 時，你**必須**提供一個 [`BaseArtifactService` 實作](#available-implementations)（例如 [`InMemoryArtifactService`](#inmemoryartifactservice) 或 [`GcsArtifactService`](#gcsartifactservice)）的實例。
+在你能夠透過 context 物件使用任何 artifact 方法之前，初始化 `Runner` 時**必須**提供一個 [`BaseArtifactService` 實作](#可用實作)（例如 [`InMemoryArtifactService`](#inmemoryartifactservice) 或 [`GcsArtifactService`](#gcsartifactservice)）的實例。
 
 === "Python"
 
@@ -335,7 +335,7 @@ Artifact 提供了靈活的方式，讓你在 ADK 應用中處理二進位資料
 
 ### 存取方法
 
-這些 artifact 互動方法可直接在 `CallbackContext`（傳遞給 agent 與 model 回呼函式）以及 `ToolContext`（傳遞給工具回呼函式）的實例上使用。請注意，`ToolContext` 是從 `CallbackContext` 繼承而來。
+artifact 互動方法可直接在 `CallbackContext`（傳遞給 agent 和 model 回呼函式）以及 `ToolContext`（傳遞給工具回呼函式）實例上使用。請注意，`ToolContext` 是繼承自 `CallbackContext`。
 
 *   **程式碼範例：**
 
@@ -645,7 +645,7 @@ Artifact 提供了靈活的方式，讓你在 ADK 應用中處理二進位資料
         }
         ```
 
-這些儲存、載入與列舉的方法，無論是在 Python 的 context 物件中使用，還是直接於 Java 操作 `BaseArtifactService`，都為在 Agent Development Kit (ADK)（ADK）中管理二進位資料持久化提供了方便且一致的方式，並且不受所選後端儲存實作的影響。
+這些用於儲存、載入與列舉的方法，無論是在 Python 的 context 物件中，還是直接在 Java 中與 `BaseArtifactService` 互動，都為在 Agent Development Kit (ADK) 內部管理二進位資料持久化提供了便利且一致的方式，且不受所選後端儲存實作的影響。
 
 ## 可用實作
 
@@ -654,16 +654,16 @@ Agent Development Kit (ADK) 提供了 `BaseArtifactService` 介面的具體實�
 ### InMemoryArtifactService
 
 *   **儲存機制：**
-    *   Python：使用應用程式記憶體中的 Python 字典（`self.artifacts`）。字典的鍵代表 artifact 路徑，值為 `types.Part` 的清單，每個清單元素對應一個版本。
-    *   Java：使用記憶體中的巢狀 `HashMap` 實例（`private final Map<String, Map<String, Map<String, Map<String, List<Part>>>>> artifacts;`）。每一層的鍵分別為 `appName`、`userId`、`sessionId` 和 `filename`。最內層的 `List<Part>` 用來儲存 artifact 的各個版本，清單索引即為版本號。
+    *   Python：使用應用程式記憶體中的 Python 字典（``self.artifacts``）。字典的 key 代表 artifact 路徑，value 則是 `types.Part` 的列表，每個列表元素代表一個版本。
+    *   Java：使用記憶體中的巢狀 `HashMap` 實例（`private final Map<String, Map<String, Map<String, Map<String, List<Part>>>>> artifacts;`）。每一層的 key 分別為 `appName`、`userId`、`sessionId` 與 `filename`。最內層的 `List<Part>` 儲存 artifact 的各個版本，列表索引對應版本號。
 *   **主要特點：**
-    *   **簡單易用：** 除了核心 ADK 函式庫外，無需額外設定或相依套件。
-    *   **速度快：** 操作通常極為迅速，僅涉及記憶體中的 map/字典查找與清單操作。
-    *   **暫態性：** 所有儲存的 artifact 會在應用程式程序結束時**遺失**。資料不會在應用程式重啟後保留。
+    *   **簡單易用：** 除了核心 ADK 函式庫外，不需額外設定或相依套件。
+    *   **速度快：** 操作通常非常快速，因為僅涉及記憶體中的 map/字典查找與列表操作。
+    *   **暫存性：** 所有儲存的 artifact 會在應用程式程序終止時**全部遺失**。資料不會在應用程式重啟間保留。
 *   **適用情境：**
-    *   非常適合本機開發與測試，不需要資料持久化的場合。
-    *   適用於短暫展示或 artifact 資料僅需於單次應用程式執行期間暫存的情境。
-*   **實例化方式：**
+    *   適合本機開發與測試，不需要資料持久化的場合。
+    *   適用於短暫展示或 artifact 資料僅需在單次應用程式執行期間暫存的情境。
+*   **建立方式：**
 
     === "Python"
 
@@ -701,15 +701,15 @@ Agent Development Kit (ADK) 提供了 `BaseArtifactService` 介面的具體實�
 
 ### GcsArtifactService
 
-*   **儲存機制：** 採用 Google Cloud Storage（GCS）作為持久性 artifact 儲存。每個 artifact 的版本都會以獨立的物件（blob）儲存在指定的 GCS bucket 中。
-*   **物件命名規則：** 使用階層式路徑結構來組成 GCS 物件名稱（blob 名稱）。
+*   **儲存機制：** 採用 Google Cloud Storage（GCS）作為持久性 artifact 儲存空間。每個 artifact 的版本都會以獨立的物件（blob）儲存在指定的 GCS bucket 中。
+*   **物件命名規則：** 透過階層式路徑結構來組成 GCS 物件名稱（blob 名稱）。
 *   **主要特點：**
-    *   **持久性：** 儲存在 GCS 的 artifact 會在應用程式重啟與部署後持續保留。
+    *   **持久性：** 儲存在 GCS 的 artifact 可在應用程式重啟及部署後持續保留。
     *   **可擴展性：** 利用 Google Cloud Storage 的可擴展性與高耐久性。
-    *   **版本管理：** 明確地將每個版本作為獨立的 GCS 物件儲存。`saveArtifact` 方法在 `GcsArtifactService` 中。
-    *   **所需權限：** 應用程式執行環境需具備適當的認證（如 Application Default Credentials）及 IAM 權限，以讀取與寫入指定的 GCS bucket。
+    *   **版本管理：** 明確地將每個版本儲存為獨立的 GCS 物件。相關方法請參考 `saveArtifact` 於 `GcsArtifactService`。
+    *   **所需權限：** 應用程式執行環境需具備適當的憑證（例如 Application Default Credentials）及 IAM 權限，以讀取和寫入指定的 GCS bucket。
 *   **適用情境：**
-    *   需要持久性 artifact 儲存的正式環境。
+    *   生產環境中需要持久性 artifact 儲存的情境。
     *   需要在不同應用程式實例或服務間共用 artifact 的情境（透過存取同一個 GCS bucket）。
     *   需要長期儲存與擷取使用者或 session 資料的應用程式。
 *   **實例化方式：**
@@ -743,23 +743,23 @@ Agent Development Kit (ADK) 提供了 `BaseArtifactService` 介面的具體實�
         --8<-- "examples/java/snippets/src/main/java/artifacts/GcsServiceSetup.java:full_code"
         ```
 
-選擇合適的 `ArtifactService` 實作，取決於您的應用程式對於資料持久性、可擴展性，以及運行環境的需求。
+選擇合適的 `ArtifactService` 實作，取決於您的應用程式對資料持久性、可擴展性以及運行環境的需求。
 
 ## 最佳實踐
 
-為了有效且可維護地使用 artifact，建議遵循以下做法：
+為了有效且可維護地使用 artifacts（產物），建議遵循以下做法：
 
-* **選擇合適的服務：** 若需快速原型開發、測試，或不需要資料持久性的情境，請使用 `InMemoryArtifactService`。若在需要資料持久性與可擴展性的生產環境中，請使用 `GcsArtifactService`（或針對其他後端自行實作 `BaseArtifactService`）。  
-* **有意義的檔名：** 請使用清楚且具描述性的檔案名稱。即使 `mime_type` 會決定程式上的處理方式，加入相關副檔名（如 `.pdf`、`.png`、`.wav`）有助於人類理解內容。請建立暫存 artifact 與持久 artifact 檔名的命名慣例。  
-* **指定正確的 MIME 類型：** 建立 `types.Part` 給 `save_artifact` 時，務必提供正確的 `mime_type`。這對於後續需要正確解析 `bytes` 資料的應用程式或工具來說至關重要。請盡量使用標準 IANA MIME 類型。  
-* **理解版本管理：** 請注意，`load_artifact()` 若未指定 `version` 參數，將會取得*最新*版本。如果您的邏輯依賴於 artifact 的特定歷史版本，請在載入時務必提供整數型的版本號。  
-* **謹慎使用命名空間（`user:`）：** 僅當資料確實屬於使用者，且應跨所有 session 可存取時，才在檔名中使用 `"user:"` 前綴。若資料僅屬於單一對話或 session，則請使用一般檔名，不加前綴。  
+* **選擇合適的服務：** 若需快速原型開發、測試或不需要持久化的情境，請使用 `InMemoryArtifactService`。若為需要資料持久性與可擴展性的正式環境，請使用 `GcsArtifactService`（或針對其他後端自行實作 `BaseArtifactService`）。  
+* **有意義的檔名：** 請使用清楚且具描述性的檔名。雖然 `mime_type` 會決定程式如何處理檔案，但加上相關副檔名（如 `.pdf`、`.png`、`.wav`）有助於人員理解內容。請建立暫存與持久性 artifact 檔名的命名慣例。  
+* **指定正確的 MIME 類型：** 在為 `save_artifact` 建立 `types.Part` 時，務必提供正確的 `mime_type`。這對於後續需要正確解析 `bytes` 資料的應用程式或工具至關重要。請盡可能使用標準的 IANA MIME 類型。  
+* **理解版本管理：** 請注意，`load_artifact()` 若未指定 `version` 參數，會取得*最新*版本。如果您的邏輯依賴於 artifact 的特定歷史版本，載入時請務必提供整數版本號。  
+* **有意識地使用命名空間（`user:`）：** 僅當資料確實屬於使用者且應跨所有 session 可存取時，才在檔名加上 `"user:"` 前綴。若資料僅屬於單一對話或 session，請使用一般檔名，不加前綴。  
 * **錯誤處理：**  
-    * 在呼叫 context 方法（如 `save_artifact`、`load_artifact`、`list_artifacts`）前，務必先檢查 `artifact_service` 是否已正確設定——否則會拋出 `ValueError`，若服務為 `None`。 
+    * 在呼叫 context 方法（`save_artifact`、`load_artifact`、`list_artifacts`）前，務必先檢查 `artifact_service` 是否已正確設定——若服務為 `None`，這些方法會拋出 `ValueError`。  
     * 請檢查 `load_artifact` 的回傳值，若 artifact 或版本不存在，將會是 `None`。不要假設它一定會回傳 `Part`。  
-    * 應準備好處理底層儲存服務的例外狀況，特別是在使用 `GcsArtifactService` 時（例如：`google.api_core.exceptions.Forbidden` 代表權限問題，`NotFound` 表示 bucket 不存在，或網路錯誤）。  
-* **檔案大小考量：** artifact 適用於一般檔案大小，但若處理極大檔案，尤其是雲端儲存時，請留意潛在成本與效能影響。`InMemoryArtifactService` 若儲存大量大型 artifact，可能會消耗大量記憶體。若需處理非常大的資料，建議考慮直接使用 GCS 連結或其他專門的儲存解決方案，而非將整個位元組陣列存於記憶體中傳遞。  
-* **清理策略：** 對於如 `GcsArtifactService` 這類持久性儲存，artifact 會一直保留，直到明確刪除。如果 artifact 代表暫時性資料或有存續期限，請實作清理策略。這可能包括：  
-    * 在 bucket 上使用 GCS 生命週期政策。  
-    * 建立專用工具或管理功能，利用 `artifact_service.delete_artifact` 方法（注意：為安全起見，delete 並未透過 context 物件公開）。  
-    * 謹慎管理檔名，以便日後可依模式進行批次刪除。
+    * 應準備好處理底層儲存服務的例外狀況，特別是在使用 `GcsArtifactService` 時（例如：`google.api_core.exceptions.Forbidden` 代表權限問題、`NotFound` 表示 bucket 不存在、網路錯誤等）。  
+* **檔案大小考量：** artifact 適用於一般檔案大小，但若為極大檔案，特別是在雲端儲存時，請注意可能的成本與效能影響。`InMemoryArtifactService` 若儲存大量大型 artifact，可能會佔用大量記憶體。若資料量極大，建議考慮直接使用 GCS 連結或其他專門的儲存方案，而非直接以記憶體傳遞整個位元組陣列。  
+* **清理策略：** 對於像 `GcsArtifactService` 這類持久性儲存，artifact 會一直保留，直到明確刪除。如果 artifact 代表暫存資料或僅需短暫保存，請實作清理策略。這可包括：  
+    * 在 bucket 上設定 GCS 生命週期政策。  
+    * 建立專用工具或管理功能，利用 `artifact_service.delete_artifact` 方法（注意：為安全起見，context 物件並未提供 delete 功能）。  
+    * 謹慎管理檔名，以便日後可依模式批次刪除。

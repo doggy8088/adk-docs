@@ -1,17 +1,17 @@
 # 使用 Arize AX 進行 Agent 可觀測性
 
-[Arize AX](https://arize.com/docs/ax) 是一個具備生產等級的可觀測性平台，可用於大規模監控、除錯及優化大型語言模型 (LLM) 應用程式與 AI 代理（agent）。它為你的 Google Agent Development Kit (ADK)（ADK）應用程式提供完整的追蹤、評估與監控功能。開始使用前，請先註冊一個[免費帳號](https://app.arize.com/auth/join)。
+[Arize AX](https://arize.com/docs/ax) 是一個具備生產等級的可觀測性平台，可用於大規模監控、除錯及優化大型語言模型 (LLM) 應用程式與 AI agent。它為你的 Google Agent Development Kit (ADK) 應用程式提供完整的追蹤、評估與監控能力。開始使用前，請先註冊[免費帳號](https://app.arize.com/auth/join)。
 
-如果你需要開源且可自我託管的替代方案，請參考 [Phoenix](https://arize.com/docs/phoenix)。
+若你需要開源且可自我託管的替代方案，請參考 [Phoenix](https://arize.com/docs/phoenix)。
 
 ## 概覽
 
 Arize AX 可透過 [OpenInference instrumentation](https://github.com/Arize-ai/openinference/tree/main/python/instrumentation/openinference-instrumentation-google-adk) 自動從 Google Agent Development Kit (ADK) 收集追蹤資料，讓你能夠：
 
-- **追蹤 agent 互動** — 自動擷取每一次 agent 執行、工具呼叫、模型請求與回應，並包含相關上下文與中繼資料
-- **評估效能** — 使用自訂或預設的評估器評估 agent 行為，並執行實驗以測試 agent 設定
-- **生產環境監控** — 建立即時儀表板與警示，持續追蹤效能
-- **除錯問題** — 分析詳細追蹤資料，快速找出瓶頸、失敗的工具呼叫，以及任何異常的 agent 行為
+- **追蹤 agent 互動** — 自動擷取每一次 agent 執行、工具呼叫 (tool calls)、模型請求與回應，並保留相關上下文與中繼資料
+- **評估效能** — 使用自訂或內建的評估器來評量 agent 行為，並執行實驗測試 agent 設定
+- **生產環境監控** — 建立即時儀表板與警示，追蹤效能狀態
+- **除錯問題** — 分析詳細追蹤資料，快速找出瓶頸、失敗的工具呼叫 (tool calls) 及任何異常的 agent 行為
 
 ![Agent Traces](https://storage.googleapis.com/arize-phoenix-assets/assets/images/google-adk-traces.png)
 
@@ -27,13 +27,13 @@ pip install openinference-instrumentation-google-adk google-adk arize-otel
 
 ### 1. 設定環境變數 { #configure-environment-variables }
 
-請設定你的 Google API 金鑰：
+設定你的 Google API 金鑰：
 
 ```bash
 export GOOGLE_API_KEY=[your_key_here]
 ```
 
-### 2. 將您的應用程式連接至 Arize AX { #connect-your-application-to-arize-ax }
+### 2. 將您的應用程式連接到 Arize AX { #connect-your-application-to-arize-ax }
 
 ```python
 from arize.otel import register
@@ -126,6 +126,6 @@ async for event in runner.run_async(
 ![Agent Experiments](https://storage.googleapis.com/arize-phoenix-assets/assets/images/google-adk-experiments.png)
 
 ## 支援與資源
-- [Arize AX 文件](https://arize.com/docs/ax/observe/tracing-integrations-auto/google-adk)
+- [Arize AX 文件說明](https://arize.com/docs/ax/observe/tracing-integrations-auto/google-adk)
 - [Arize 社群 Slack](https://arize-ai.slack.com/join/shared_invite/zt-11t1vbu4x-xkBIHmOREQnYnYDH1GDfCg#/shared-invite/email)
 - [OpenInference 套件](https://github.com/Arize-ai/openinference/tree/main/python/instrumentation/openinference-instrumentation-google-adk)
