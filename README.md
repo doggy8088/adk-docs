@@ -10,48 +10,35 @@
   </h2>
 </html>
 
-**An open-source, code-first toolkit for building, evaluating, and
-deploying sophisticated AI agents with flexibility and control.**
+**一個開源、以程式碼為核心的工具包，讓您能靈活且可控地建構、評估與部署高階 AI agent。**
 
-Agent Development Kit (ADK) is a flexible and modular framework for **developing
-and deploying AI agents**. While optimized for Gemini and the Google ecosystem,
-ADK is **model-agnostic**, **deployment-agnostic**, and is built for
-**compatibility with other frameworks**. ADK was designed to make agent
-development feel more like software development, to make it easier for
-developers to create, deploy, and orchestrate agentic architectures that range
-from simple tasks to complex workflows.
+Agent Development Kit (ADK) 是一個靈活且模組化的框架，專為**開發與部署 AI agent**而設計。雖然 ADK 針對 Gemini 及 Google 生態系進行了最佳化，但它本身具備**模型無關性**、**部署無關性**，並且**可與其他框架相容**。ADK 的設計理念是讓 agent 開發更像軟體開發，讓開發者能更輕鬆地建立、部署與協調從簡單任務到複雜工作流程的 agent 架構。
 
 ---
 
-## ✨ Key Features
+## ✨ 主要特色
 
-- **Rich Tool Ecosystem**: Utilize pre-built tools, custom functions,
-  OpenAPI specs, or integrate existing tools to give agents diverse
-  capabilities, all for tight integration with the Google ecosystem.
+- **豐富的工具生態系**：可利用預建工具、自訂函式、OpenAPI 規格，或整合現有工具，賦予 agent 多元能力，並與 Google 生態系緊密整合。
 
-- **Code-First Development**: Define agent logic, tools, and orchestration
-  directly in Python and Java for ultimate flexibility, testability, and versioning.
+- **以程式碼為核心的開發體驗**：直接在 Python 與 Java 中定義 agent 邏輯、工具與協作流程，實現極致彈性、可測試性與版本控管。
 
-- **Modular Multi-Agent Systems**: Design scalable applications by composing
-  multiple specialized agents into flexible hierarchies.
+- **模組化多 agent 系統**：可將多個專業化 agent 組合成彈性的階層架構，設計具擴展性的應用程式。
 
-- **Tracing and Monitoring**: Built-in agent observability for debugging and optimizing
-  workflows with support from external providers like [AgentOps](https://www.agentops.ai).
+- **追蹤與監控**：內建 agent 可觀察性，方便除錯與優化工作流程，並支援 [AgentOps](https://www.agentops.ai) 等外部服務。
 
-- **Deploy Anywhere**: Easily containerize and deploy agents on Cloud Run or
-  scale seamlessly with Vertex AI Agent Engine.
+- **隨處部署**：可輕鬆將 agent 容器化並部署於 Cloud Run，或透過 Vertex AI Agent Engine 無縫擴展。
 
-## 🚀 Installation
+## 🚀 安裝方式
 
-You can install the Agent Development Kit (ADK) using your preferred package manager for Python or build tool for Java.
+您可以使用偏好的 Python 套件管理工具或 Java 建構工具來安裝 Agent Development Kit (ADK)。
 
-### For Python (pip)
+### 適用於 Python（pip）
 
 ```bash
 pip install google-adk
 ```
 
-### For Java (Maven)
+### 適用於 Java（Maven）
 
 ```xml
 <dependency>
@@ -61,7 +48,7 @@ pip install google-adk
 </dependency>
 ```
 
-### For Java (Gradle)
+### 適用於 Java（Gradle）
 
 ```groovy
 dependencies {
@@ -69,24 +56,20 @@ dependencies {
 }
 ```
 
-## 📚 Documentation
+## 📚 文件說明
 
-Explore the full documentation for detailed guides on building, evaluating, and
-deploying agents:
+請參閱完整文件，獲取有關建構、評估與部署 agent 的詳細指南：
 
-* **[Documentation](https://google.github.io/adk-docs)**
+* **[文件說明](https://google.github.io/adk-docs)**
 
-## 🤝 Contributing
+## 🤝 貢獻指南
 
-We welcome contributions from the community! Whether it's bug reports, feature
-requests, documentation improvements, or code contributions, please see our
-[**Contributing Guidelines**](./CONTRIBUTING.md) to get started.
+我們歡迎社群的各種貢獻！無論是錯誤回報、功能請求、文件改進，或是程式碼貢獻，請參考我們的[**貢獻指南**](./CONTRIBUTING.md)以開始參與。
 
-## 📄 License
+## 📄 授權條款
 
-This project is licensed under the Apache 2.0 License - see the
-[LICENSE](LICENSE) file for details.
+本專案採用 Apache 2.0 授權條款，詳情請參閱 [LICENSE](LICENSE) 檔案。
 
 ---
 
-*Happy Agent Building!*
+*祝您順利打造 Agent！*

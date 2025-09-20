@@ -1,37 +1,35 @@
-!!! warning "Advanced Concept"
+!!! warning "進階概念"
 
     Building custom agents by directly implementing `_run_async_impl` (or its equivalent in other languages) provides powerful control but is more complex than using the predefined `LlmAgent` or standard `WorkflowAgent` types. We recommend understanding those foundational agent types first before tackling custom orchestration logic.
 
-# Custom agents
+# 自訂 agent
 
-Custom agents provide the ultimate flexibility in ADK, allowing you to define **arbitrary orchestration logic** by inheriting directly from `BaseAgent` and implementing your own control flow. This goes beyond the predefined patterns of `SequentialAgent`, `LoopAgent`, and `ParallelAgent`, enabling you to build highly specific and complex agentic workflows.
+自訂 agent 提供了 Agent Development Kit (ADK)（ADK）中最高的彈性，允許你直接繼承自 `BaseAgent`，並實作**任意的協作邏輯（orchestration logic）**，打造專屬的控制流程。這種方式突破了 `SequentialAgent`、`LoopAgent`、`ParallelAgent` 等預先定義模式的限制，使你能夠建立高度特定且複雜的 agent 工作流程。
 
-## Introduction: Beyond Predefined Workflows
+## 介紹：超越預設工作流程
 
-### What is a Custom Agent?
+### 什麼是自訂 Agent？
 
-A Custom Agent is essentially any class you create that inherits from `google.adk.agents.BaseAgent` and implements its core execution logic within the `_run_async_impl` asynchronous method. You have complete control over how this method calls other agents (sub-agents), manages state, and handles events. 
+自訂 Agent 本質上是你自行建立、繼承自 `google.adk.agents.BaseAgent` 的任何類別，並在 `_run_async_impl` 非同步方法中實作其核心執行邏輯。你可以完全掌控這個方法如何呼叫其他 agent（子 agent）、管理狀態，以及處理事件。
 
 !!! Note
-    The specific method name for implementing an agent's core asynchronous logic may vary slightly by SDK language (e.g., `runAsyncImpl` in Java, `_run_async_impl` in Python). Refer to the language-specific API documentation for details.
+    實作 agent 核心非同步邏輯的方法名稱，可能會依照不同 SDK 語言略有差異（例如：Java 中為 `runAsyncImpl`，Python 中為 `_run_async_impl`）。請參考各語言的 API 文件以取得詳細資訊。
 
-### Why Use Them?
+### 為什麼要使用自訂 Agent？
 
-While the standard [Workflow Agents](workflow-agents/index.md) (`SequentialAgent`, `LoopAgent`, `ParallelAgent`) cover common orchestration patterns, you'll need a Custom agent when your requirements include:
+雖然標準的 [Workflow Agents](workflow-agents/index.md)（`SequentialAgent`、`LoopAgent`、`ParallelAgent`）已涵蓋常見的協作模式，但當你的需求包含以下情境時，就需要自訂 agent：
 
-* **Conditional Logic:** Executing different sub-agents or taking different paths based on runtime conditions or the results of previous steps.
-* **Complex State Management:** Implementing intricate logic for maintaining and updating state throughout the workflow beyond simple sequential passing.
-* **External Integrations:** Incorporating calls to external APIs, databases, or custom libraries directly within the orchestration flow control.
-* **Dynamic Agent Selection:** Choosing which sub-agent(s) to run next based on dynamic evaluation of the situation or input.
-* **Unique Workflow Patterns:** Implementing orchestration logic that doesn't fit the standard sequential, parallel, or loop structures.
-
+* **條件邏輯：** 根據執行時條件或前一步驟的結果，執行不同的子 agent 或採取不同流程。
+* **複雜狀態管理：** 實作複雜的邏輯，以在整個工作流程中維護與更新狀態，超越單純的序列傳遞。
+* **外部整合：** 在協作流程控制中，直接整合對外部 API、資料庫或自訂函式庫的呼叫。
+* **動態 agent 選擇：** 根據動態評估的情境或輸入，決定接下來要執行哪些子 agent。
+* **獨特的工作流程模式：** 實作不屬於標準序列、平行或迴圈結構的協作邏輯。
 
 ![intro_components.png](../assets/custom-agent-flow.png)
 
+## 實作自訂邏輯：
 
-## Implementing Custom Logic:
-
-The core of any custom agent is the method where you define its unique asynchronous behavior. This method allows you to orchestrate sub-agents and manage the flow of execution.
+任何自訂 agent 的核心，就是你定義其獨特非同步行為的方法。透過這個方法，你可以協作子 agent 並管理執行流程。
 
 === "Python"
 
@@ -43,17 +41,20 @@ The core of any custom agent is the method where you define its unique asynchron
 
 === "Java"
 
+
+（此區段為標題分頁標記，無需翻譯內容）
+
     The heart of any custom agent is the `runAsyncImpl` method, which you override from `BaseAgent`.
 
     *   **Signature:** `protected Flowable<Event> runAsyncImpl(InvocationContext ctx)`
     *   **Reactive Stream (`Flowable`):** It must return an `io.reactivex.rxjava3.core.Flowable<Event>`. This `Flowable` represents a stream of events that will be produced by the custom agent's logic, often by combining or transforming multiple `Flowable` from sub-agents.
     *   **`ctx` (InvocationContext):** Provides access to crucial runtime information, most importantly `ctx.session().state()`, which is a `java.util.concurrent.ConcurrentMap<String, Object>`. This is the primary way to share data between steps orchestrated by your custom agent.
 
-**Key Capabilities within the Core Asynchronous Method:**
+**核心非同步方法中的關鍵能力：**
 
 === "Python"
 
-    1. **Calling Sub-Agents:** You invoke sub-agents (which are typically stored as instance attributes like `self.my_llm_agent`) using their `run_async` method and yield their events:
+    1. **呼叫子代理（sub-agent）：** 你可以透過呼叫子代理（通常會以實例屬性如 `self.my_llm_agent` 儲存）的 `run_async` 方法，並讓渡（yield）它們的事件：
 
           ```python
           async for event in self.some_sub_agent.run_async(ctx):
@@ -62,6 +63,9 @@ The core of any custom agent is the method where you define its unique asynchron
           ```
 
     2. **Managing State:** Read from and write to the session state dictionary (`ctx.session.state`) to pass data between sub-agent calls or make decisions:
+
+
+2. **狀態管理：** 讀取與寫入 session state 字典（`ctx.session.state`），以便在子代理（sub-agent）呼叫之間傳遞資料或進行決策：
           ```python
           # Read data set by a previous agent
           previous_result = ctx.session.state.get("some_key")
@@ -76,13 +80,13 @@ The core of any custom agent is the method where you define its unique asynchron
           # ctx.session.state["my_custom_result"] = "calculated_value"
           ```
 
-    3. **Implementing Control Flow:** Use standard Python constructs (`if`/`elif`/`else`, `for`/`while` loops, `try`/`except`) to create sophisticated, conditional, or iterative workflows involving your sub-agents.
+    3. **實作控制流程：** 使用標準的 Python 結構（`if`/`elif`/`else`、`for`/`while` 迴圈、`try`/`except`）來建立更進階、有條件或具迭代性的工作流程，讓你的子代理（sub-agent）能夠參與其中。
 
 === "Java"
 
-    1. **Calling Sub-Agents:** You invoke sub-agents (which are typically stored as instance attributes or objects) using their asynchronous run method and return their event streams:
+    1. **呼叫子代理（Sub-Agents）：** 你可以透過子代理（通常儲存為實例屬性或物件）的非同步執行方法來呼叫它們，並回傳它們的事件串流：
 
-           You typically chain `Flowable`s from sub-agents using RxJava operators like `concatWith`, `flatMapPublisher`, or `concatArray`.
+           通常你會使用 RxJava 的運算子（如 `concatWith`、`flatMapPublisher` 或 `concatArray`）來串接來自子代理的 `Flowable`。
 
            ```java
            // Example: Running one sub-agent
@@ -99,9 +103,9 @@ The core of any custom agent is the method where you define its unique asynchron
       
            return firstAgentEvents.concatWith(secondAgentEvents);
            ```
-           The `Flowable.defer()` is often used for subsequent stages if their execution depends on the completion or state after prior stages.
+           `Flowable.defer()` 通常用於後續階段，特別是在這些階段的執行依賴於前一階段完成或其狀態時。
 
-    2. **Managing State:** Read from and write to the session state to pass data between sub-agent calls or make decisions. The session state is a `java.util.concurrent.ConcurrentMap<String, Object>` obtained via `ctx.session().state()`.
+    2. **管理狀態：** 透過讀取與寫入 session 狀態，在子代理（sub-agent）呼叫之間傳遞資料或進行決策。session 狀態是一個 `java.util.concurrent.ConcurrentMap<String, Object>`，可透過 `ctx.session().state()` 取得。
         
         ```java
         // Read data set by a previous agent
@@ -118,30 +122,30 @@ The core of any custom agent is the method where you define its unique asynchron
         // ctx.session().state().put("my_custom_result", "calculated_value");
         ```
 
-    3. **Implementing Control Flow:** Use standard language constructs (`if`/`else`, loops, `try`/`catch`) combined with reactive operators (RxJava) to create sophisticated workflows.
+    3. **實作流程控制：** 使用標準語言結構（`if`/`else`、迴圈、`try`/`catch`）結合 reactive operators（RxJava），以建立進階的工作流程。
 
-          *   **Conditional:** `Flowable.defer()` to choose which `Flowable` to subscribe to based on a condition, or `filter()` if you're filtering events within a stream.
-          *   **Iterative:** Operators like `repeat()`, `retry()`, or by structuring your `Flowable` chain to recursively call parts of itself based on conditions (often managed with `flatMapPublisher` or `concatMap`).
+          *   **條件式（Conditional）：** 使用 `Flowable.defer()` 根據條件選擇要訂閱哪個 `Flowable`，或在串流中過濾事件時使用 `filter()`。
+          *   **迭代式（Iterative）：** 可使用 `repeat()`、`retry()` 等 operators，或透過設計 `Flowable` 鏈，在條件判斷下遞迴呼叫自身部分（通常透過 `flatMapPublisher` 或 `concatMap` 來管理）。
 
-## Managing Sub-Agents and State
+## 管理子代理（Sub-Agents）與狀態
 
-Typically, a custom agent orchestrates other agents (like `LlmAgent`, `LoopAgent`, etc.).
+通常，自訂 agent 會協調其他代理（如 `LlmAgent`、`LoopAgent` 等）。
 
-* **Initialization:** You usually pass instances of these sub-agents into your custom agent's constructor and store them as instance fields/attributes (e.g., `this.story_generator = story_generator_instance` or `self.story_generator = story_generator_instance`). This makes them accessible within the custom agent's core asynchronous execution logic (such as: `_run_async_impl` method).
-* **Sub Agents List:** When initializing the `BaseAgent` using it's `super()` constructor, you should pass a `sub agents` list. This list tells the ADK framework about the agents that are part of this custom agent's immediate hierarchy. It's important for framework features like lifecycle management, introspection, and potentially future routing capabilities, even if your core execution logic (`_run_async_impl`) calls the agents directly via `self.xxx_agent`. Include the agents that your custom logic directly invokes at the top level.
-* **State:** As mentioned, `ctx.session.state` is the standard way sub-agents (especially `LlmAgent`s using `output key`) communicate results back to the orchestrator and how the orchestrator passes necessary inputs down.
+* **初始化（Initialization）：** 通常會將這些子代理的實例傳入自訂 agent 的建構子，並以實例欄位/屬性（例如 `this.story_generator = story_generator_instance` 或 `self.story_generator = story_generator_instance`）儲存。如此可讓這些子代理在自訂 agent 的核心非同步執行邏輯（如：`_run_async_impl` 方法）中取得。
+* **子代理清單（Sub Agents List）：** 初始化 `BaseAgent` 時，透過其 `super()` 建構子，應傳入 `sub agents` 清單。此清單會告知 Agent Development Kit (ADK) 框架，這些代理是此自訂 agent 直接階層的一部分。這對於框架的生命週期管理、內省（introspection）、以及未來可能的路由功能都很重要，即使你的核心執行邏輯（`_run_async_impl`）是直接透過 `self.xxx_agent` 呼叫這些代理。請將你的自訂邏輯在最上層直接呼叫的代理都納入清單中。
+* **狀態（State）：** 如前所述，`ctx.session.state` 是子代理（特別是使用 `output key` 的 `LlmAgent`）回傳結果給協調者，以及協調者向下傳遞必要輸入的標準方式。
 
-## Design Pattern Example: `StoryFlowAgent`
+## 設計模式範例：`StoryFlowAgent`
 
-Let's illustrate the power of custom agents with an example pattern: a multi-stage content generation workflow with conditional logic.
+以下以一個設計模式範例說明自訂 agent 的強大功能：具備條件邏輯的多階段內容產生工作流程。
 
-**Goal:** Create a system that generates a story, iteratively refines it through critique and revision, performs final checks, and crucially, *regenerates the story if the final tone check fails*.
+**目標：** 建立一個系統，能夠產生故事，經過批判與修訂反覆精煉，進行最終檢查，並且在最終語氣檢查失敗時，*重新產生故事*。
 
-**Why Custom?** The core requirement driving the need for a custom agent here is the **conditional regeneration based on the tone check**. Standard workflow agents don't have built-in conditional branching based on the outcome of a sub-agent's task. We need custom logic (`if tone == "negative": ...`) within the orchestrator.
+**為什麼要自訂？** 這裡需要自訂 agent 的核心原因是**根據語氣檢查結果進行條件式再生**。標準的工作流程代理並未內建根據子代理任務結果進行條件分支的能力。我們需要在協調者中撰寫自訂邏輯（`if tone == "negative": ...`）。
 
 ---
 
-### Part 1: Simplified custom agent Initialization { #part-1-simplified-custom-agent-initialization }
+### 第 1 部分：簡化的自訂 agent 初始化 { #part-1-simplified-custom-agent-initialization }
 
 === "Python"
 
@@ -160,7 +164,7 @@ Let's illustrate the power of custom agents with an example pattern: a multi-sta
     ```
 ---
 
-### Part 2: Defining the Custom Execution Logic { #part-2-defining-the-custom-execution-logic }
+### 第 2 部分：定義自訂執行邏輯 { #part-2-defining-the-custom-execution-logic }
 
 === "Python"
 
@@ -193,12 +197,12 @@ Let's illustrate the power of custom agents with an example pattern: a multi-sta
 
 ---
 
-### Part 3: Defining the LLM Sub-Agents { #part-3-defining-the-llm-sub-agents }
+### 第 3 部分：定義大型語言模型 (LLM) 子代理 { #part-3-defining-the-llm-sub-agents }
 
-These are standard `LlmAgent` definitions, responsible for specific tasks. Their `output key` parameter is crucial for placing results into the `session.state` where other agents or the custom orchestrator can access them.
+這些是標準的 `LlmAgent` 定義，負責特定任務。它們的 `output key` 參數對於將結果放入 `session.state` 中至關重要，這樣其他代理（agent）或自訂協調器就能存取這些結果。
 
-!!! tip "Direct State Injection in Instructions"
-    Notice the `story_generator`'s instruction. The `{var}` syntax is a placeholder. Before the instruction is sent to the LLM, the ADK framework automatically replaces (Example:`{topic}`) with the value of `session.state['topic']`. This is the recommended way to provide context to an agent, using templating in the instructions. For more details, see the [State documentation](../sessions/state.md#accessing-session-state-in-agent-instructions).
+!!! tip "在指令中直接注入狀態"
+    請注意 `story_generator` 的指令。`{var}` 語法是一個占位符。在指令送往大型語言模型 (LLM) 前，Agent Development Kit (ADK) 框架會自動將 (範例：`{topic}`) 替換為 `session.state['topic']` 的值。這是為代理（agent）提供情境的推薦方式，透過指令中的樣板（templating）實現。更多細節請參閱 [State documentation](../sessions/state.md#accessing-session-state-in-agent-instructions)。
 
 === "Python"
 
@@ -214,9 +218,9 @@ These are standard `LlmAgent` definitions, responsible for specific tasks. Their
 
 ---
 
-### Part 4: Instantiating and Running the custom agent { #part-4-instantiating-and-running-the-custom-agent }
+### 第 4 部分：實例化並執行自訂 agent { #part-4-instantiating-and-running-the-custom-agent }
 
-Finally, you instantiate your `StoryFlowAgent` and use the `Runner` as usual.
+最後，您可以實例化您的 `StoryFlowAgent`，並如同往常一樣使用 `Runner`。
 
 === "Python"
 
@@ -226,15 +230,18 @@ Finally, you instantiate your `StoryFlowAgent` and use the `Runner` as usual.
 
 === "Java"
 
+
+（無需翻譯，僅標示語言標籤，請保留原樣）
+
     ```java
     --8<-- "examples/java/snippets/src/main/java/agents/StoryFlowAgentExample.java:story_flow_agent"
     ```
 
-*(Note: The full runnable code, including imports and execution logic, can be found linked below.)*
+*(注意：完整可執行程式碼（包含匯入與執行邏輯）請參見下方連結。)*
 
 ---
 
-## Full Code Example
+## 完整程式碼範例
 
 ???+ "Storyflow Agent"
 

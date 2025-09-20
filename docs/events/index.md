@@ -1,13 +1,13 @@
 # Events
 
-Events are the fundamental units of information flow within the Agent Development Kit (ADK). They represent every significant occurrence during an agent's interaction lifecycle, from initial user input to the final response and all the steps in between. Understanding events is crucial because they are the primary way components communicate, state is managed, and control flow is directed.
+事件（Events）是 Agent Development Kit (ADK)（ADK）中資訊流動的基本單位。它們代表了 agent 互動生命週期中每一個重要的發生時刻，從使用者的初始輸入到最終回應，以及中間的所有步驟。理解事件至關重要，因為事件是元件之間溝通、狀態管理與控制流程導向的主要方式。
 
-## What Events Are and Why They Matter
+## 什麼是事件，以及它們為何重要
 
-An `Event` in ADK is an immutable record representing a specific point in the agent's execution. It captures user messages, agent replies, requests to use tools (function calls), tool results, state changes, control signals, and errors.
+在 ADK 中，`Event` 是一個不可變的紀錄，用來表示 agent 執行過程中的特定時點。它會捕捉使用者訊息、agent 回覆、工具使用請求（函式呼叫）、工具結果、狀態變更、控制訊號以及錯誤等資訊。
 
 === "Python"
-    Technically, it's an instance of the `google.adk.events.Event` class, which builds upon the basic `LlmResponse` structure by adding essential ADK-specific metadata and an `actions` payload.
+    技術上來說，它是 `google.adk.events.Event` 類別的實例，該類別在基本的 `LlmResponse` 結構上，加入了 ADK 特有的必要中繼資料以及 `actions` 載荷（payload）。
 
     ```python
     # Conceptual Structure of an Event (Python)
@@ -31,7 +31,7 @@ An `Event` in ADK is an immutable record representing a specific point in the ag
     ```
 
 === "Java"
-    In Java, this is an instance of the `com.google.adk.events.Event` class. It also builds upon a basic response structure by adding essential ADK-specific metadata and an `actions` payload.
+    在 Java 中，這是一個 `com.google.adk.events.Event` 類別的實例。它在基本回應結構的基礎上，加入了重要的 Agent Development Kit (ADK) 專屬中繼資料以及 `actions` 載荷（payload）。
 
     ```java
     // Conceptual Structure of an Event (Java - See com.google.adk.events.Event.java)
@@ -53,42 +53,42 @@ An `Event` in ADK is an immutable record representing a specific point in the ag
     // }
     ```
 
-Events are central to ADK's operation for several key reasons:
+事件（Events）在 Agent Development Kit (ADK) 的運作中扮演核心角色，主要原因如下：
 
-1.  **Communication:** They serve as the standard message format between the user interface, the `Runner`, agents, the LLM, and tools. Everything flows as an `Event`.
+1.  **溝通（Communication）：** 事件作為用戶介面、`Runner`、代理（agent）、大型語言模型 (LLM) 以及工具（tools）之間的標準訊息格式。所有資料皆以`Event`的形式流動。
 
-2.  **Signaling State & Artifact Changes:** Events carry instructions for state modifications and track artifact updates. The `SessionService` uses these signals to ensure persistence. In Python changes are signaled via `event.actions.state_delta` and `event.actions.artifact_delta`.
+2.  **狀態與產物變更的訊號（Signaling State & Artifact Changes）：** 事件攜帶狀態修改指令並追蹤產物（artifact）更新。`SessionService`會利用這些訊號來確保資料持久化。在 Python 中，變更會透過`event.actions.state_delta`與`event.actions.artifact_delta`來傳遞訊號。
 
-3.  **Control Flow:** Specific fields like `event.actions.transfer_to_agent` or `event.actions.escalate` act as signals that direct the framework, determining which agent runs next or if a loop should terminate.
+3.  **控制流程（Control Flow）：** 特定欄位如`event.actions.transfer_to_agent`或`event.actions.escalate`可作為框架的控制訊號，用以決定下一個執行的 agent，或判斷是否應該結束迴圈。
 
-4.  **History & Observability:** The sequence of events recorded in `session.events` provides a complete, chronological history of an interaction, invaluable for debugging, auditing, and understanding agent behavior step-by-step.
+4.  **歷史紀錄與可觀察性（History & Observability）：** 在`session.events`中記錄的事件序列，完整且按時間順序保存了互動歷程，對於除錯、稽核以及逐步理解 agent 行為極為寶貴。
 
-In essence, the entire process, from a user's query to the agent's final answer, is orchestrated through the generation, interpretation, and processing of `Event` objects.
+總結來說，從用戶發出查詢到 agent 給出最終回應，整個過程都是透過`Event`物件的產生、解讀與處理來協調完成的。
 
 
-## Understanding and Using Events
+## 理解與使用事件（Understanding and Using Events）
 
-As a developer, you'll primarily interact with the stream of events yielded by the `Runner`. Here's how to understand and extract information from them:
+作為開發者，你主要會與`Runner`所產生的事件串流互動。以下說明如何理解並擷取這些事件中的資訊：
 
 !!! Note
-    The specific parameters or method names for the primitives may vary slightly by SDK language (e.g., `event.content()` in Python, `event.content().get().parts()` in Java). Refer to the language-specific API documentation for details.
+    不同 SDK 語言的基礎參數或方法名稱可能略有不同（例如 Python 中為`event.content()`，Java 中為`event.content().get().parts()`）。請參考各語言的 API 參考文件以取得詳細資訊。
 
-### Identifying Event Origin and Type
+### 辨識事件來源與類型（Identifying Event Origin and Type）
 
-Quickly determine what an event represents by checking:
+你可以透過以下方式快速判斷事件的意義：
 
-*   **Who sent it? (`event.author`)**
-    *   `'user'`: Indicates input directly from the end-user.
-    *   `'AgentName'`: Indicates output or action from a specific agent (e.g., `'WeatherAgent'`, `'SummarizerAgent'`).
-*   **What's the main payload? (`event.content` and `event.content.parts`)**
-    *   **Text:** Indicates a conversational message. For Python, check if `event.content.parts[0].text` exists. For Java, check if `event.content()` is present, its `parts()` are present and not empty, and the first part's `text()` is present.
-    *   **Tool Call Request:** Check `event.get_function_calls()`. If not empty, the LLM is asking to execute one or more tools. Each item in the list has `.name` and `.args`.
-    *   **Tool Result:** Check `event.get_function_responses()`. If not empty, this event carries the result(s) from tool execution(s). Each item has `.name` and `.response` (the dictionary returned by the tool). *Note:* For history structuring, the `role` inside the `content` is often `'user'`, but the event `author` is typically the agent that requested the tool call.
+*   **誰發送的？（`event.author`）**
+    *   `'user'`：表示來自最終用戶的直接輸入。
+    *   `'AgentName'`：表示來自特定 agent 的輸出或動作（例如：`'WeatherAgent'`、`'SummarizerAgent'`）。
+*   **主要負載內容為何？（`event.content` 與 `event.content.parts`）**
+    *   **文字（Text）：** 表示對話訊息。在 Python 中，請檢查`event.content.parts[0].text`是否存在；在 Java 中，請確認`event.content()`存在、其`parts()`不為空，且第一個部分的`text()`存在。
+    *   **工具呼叫請求（Tool Call Request）：** 檢查`event.get_function_calls()`。若不為空，代表 LLM 請求執行一個或多個工具。清單中的每個項目都包含`.name`與`.args`。
+    *   **工具執行結果（Tool Result）：** 檢查`event.get_function_responses()`。若不為空，表示此事件包含工具執行的結果。每個項目都會有`.name`與`.response`（工具回傳的 dictionary）。*注意：* 為了結構化歷史紀錄，`content`中的`role`通常是`'user'`，但事件的`author`通常是請求工具呼叫的 agent。
 
-*   **Is it streaming output? (`event.partial`)**
-    Indicates whether this is an incomplete chunk of text from the LLM.
-    *   `True`: More text will follow.
-    *   `False` or `None`/`Optional.empty()`: This part of the content is complete (though the overall turn might not be finished if `turn_complete` is also false).
+*   **是否為串流輸出？（`event.partial`）**
+    表示這是否為 LLM 輸出的未完成文字片段。
+    *   `True`：後續還會有更多文字。
+    *   `False` 或 `None`/`Optional.empty()`：此部分內容已完成（但若`turn_complete`同時為 false，則整個回合尚未結束）。
 
 === "Python"
     ```python
@@ -150,14 +150,14 @@ Quickly determine what an event represents by checking:
     // });
     ```
 
-### Extracting Key Information
+### 擷取關鍵資訊
 
-Once you know the event type, access the relevant data:
+當你知道事件類型後，可以存取相關資料：
 
-*   **Text Content:**
-    Always check for the presence of content and parts before accessing text. In Python its `text = event.content.parts[0].text`.
+*   **文字內容：**  
+    在存取文字前，請務必先檢查 content 和 parts 是否存在。在 Python 中為 `text = event.content.parts[0].text`。
 
-*   **Function Call Details:**
+*   **函式呼叫細節：**
     
     === "Python"
         ```python
@@ -188,7 +188,7 @@ Once you know the event type, access the relevant data:
         }
         ```
 
-*   **Function Response Details:**
+*   **函式回應細節：**
     
     === "Python"
         ```python
@@ -216,18 +216,18 @@ Once you know the event type, access the relevant data:
         }
         ```
 
-*   **Identifiers:**
-    *   `event.id`: Unique ID for this specific event instance.
-    *   `event.invocation_id`: ID for the entire user-request-to-final-response cycle this event belongs to. Useful for logging and tracing.
+*   **識別碼：**
+    *   `event.id`：此特定事件實例的唯一 ID。
+    *   `event.invocation_id`：此事件所屬的整個使用者請求到最終回應流程的 ID。對於日誌記錄與追蹤非常有用。
 
-### Detecting Actions and Side Effects
+### 偵測動作與副作用
 
-The `event.actions` object signals changes that occurred or should occur. Always check if `event.actions` and it's fields/ methods exists before accessing them.
+`event.actions` 物件用於標示已發生或應該發生的變更。在存取 `event.actions` 及其欄位／方法之前，請務必先檢查其是否存在。
 
-*   **State Changes:** Gives you a collection of key-value pairs that were modified in the session state during the step that produced this event.
+*   **狀態變更：** 提供在產生此事件的步驟中，於 session 狀態被修改的鍵值對集合。
     
     === "Python"
-        `delta = event.actions.state_delta` (a dictionary of `{key: value}` pairs).
+        `delta = event.actions.state_delta`（`{key: value}` 鍵值對的字典）。
         ```python
         if event.actions and event.actions.state_delta:
             print(f"  State changes: {event.actions.state_delta}")
@@ -248,10 +248,10 @@ The `event.actions` object signals changes that occurred or should occur. Always
         }
         ```
 
-*   **Artifact Saves:** Gives you a collection indicating which artifacts were saved and their new version number (or relevant `Part` information).
+*   **Artifact Saves：** 提供一個集合，指出哪些 artifact 已被儲存，以及它們的新版本號（或相關的 `Part` 資訊）。
     
     === "Python"
-        `artifact_changes = event.actions.artifact_delta` (a dictionary of `{filename: version}`).
+        `artifact_changes = event.actions.artifact_delta`（一個 `{filename: version}` 的字典）。
         ```python
         if event.actions and event.actions.artifact_delta:
             print(f"  Artifacts saved: {event.actions.artifact_delta}")
@@ -274,12 +274,12 @@ The `event.actions` object signals changes that occurred or should occur. Always
         }
         ```
 
-*   **Control Flow Signals:** Check boolean flags or string values:
-    
+*   **控制流程訊號（Control Flow Signals）：** 檢查布林旗標或字串值：
+
     === "Python"
-        *   `event.actions.transfer_to_agent` (string): Control should pass to the named agent.
-        *   `event.actions.escalate` (bool): A loop should terminate.
-        *   `event.actions.skip_summarization` (bool): A tool result should not be summarized by the LLM.
+        *   `event.actions.transfer_to_agent`（string）：控制流程應該交給指定名稱的 agent。
+        *   `event.actions.escalate`（bool）：應該終止迴圈。
+        *   `event.actions.skip_summarization`（bool）：工具的結果不應由大型語言模型 (LLM) 進行摘要。
         ```python
         if event.actions:
             if event.actions.transfer_to_agent:
@@ -290,9 +290,9 @@ The `event.actions` object signals changes that occurred or should occur. Always
                 print("  Signal: Skip summarization for tool result")
         ```
     === "Java"
-        *   `event.actions().transferToAgent()` (returns `Optional<String>`): Control should pass to the named agent.
-        *   `event.actions().escalate()` (returns `Optional<Boolean>`): A loop should terminate.
-        *   `event.actions().skipSummarization()` (returns `Optional<Boolean>`): A tool result should not be summarized by the LLM.
+        *   `event.actions().transferToAgent()`（回傳 `Optional<String>`）：控制權應該交給指定的 agent。
+        *   `event.actions().escalate()`（回傳 `Optional<Boolean>`）：應該終止迴圈。
+        *   `event.actions().skipSummarization()`（回傳 `Optional<Boolean>`）：大型語言模型 (LLM) 不應該摘要工具結果。
 
         ```java
         import com.google.adk.events.EventActions;
@@ -317,21 +317,21 @@ The `event.actions` object signals changes that occurred or should occur. Always
         }
         ```
 
-### Determining if an Event is a "Final" Response
+### 判斷事件是否為「最終」回應
 
-Use the built-in helper method `event.is_final_response()` to identify events suitable for display as the agent's complete output for a turn.
+請使用內建輔助函式 `event.is_final_response()` 來判斷哪些事件適合作為 agent 在單一回合中的完整輸出顯示給使用者。
 
-*   **Purpose:** Filters out intermediate steps (like tool calls, partial streaming text, internal state updates) from the final user-facing message(s).
-*   **When `True`?**
-    1.  The event contains a tool result (`function_response`) and `skip_summarization` is `True`.
-    2.  The event contains a tool call (`function_call`) for a tool marked as `is_long_running=True`. In Java, check if the `longRunningToolIds` list is empty: 
-        *   `event.longRunningToolIds().isPresent() && !event.longRunningToolIds().get().isEmpty()` is `true`.
-    3.  OR, **all** of the following are met:
-        *   No function calls (`get_function_calls()` is empty).
-        *   No function responses (`get_function_responses()` is empty).
-        *   Not a partial stream chunk (`partial` is not `True`).
-        *   Doesn't end with a code execution result that might need further processing/display.
-*   **Usage:** Filter the event stream in your application logic.
+*   **目的：** 過濾掉中間步驟（例如工具呼叫、部分串流文字、內部狀態更新），僅保留最終要呈現給使用者的訊息。
+*   **什麼時候會是 `True`？**
+    1.  事件包含工具結果（`function_response`），且 `skip_summarization` 為 `True`。
+    2.  事件包含工具呼叫（`function_call`），且該工具被標記為 `is_long_running=True`。在 Java 中，請檢查 `longRunningToolIds` 清單是否為空：
+        *   `event.longRunningToolIds().isPresent() && !event.longRunningToolIds().get().isEmpty()` 為 `true`。
+    3.  或者，**同時**符合以下所有條件：
+        *   沒有 function calls（`get_function_calls()` 為空）。
+        *   沒有 function responses（`get_function_responses()` 為空）。
+        *   不是部分串流區塊（`partial` 不是 `True`）。
+        *   結尾不是需要進一步處理／顯示的程式碼執行結果。
+*   **用法：** 請在您的應用程式邏輯中過濾 event stream。
 
     === "Python"
         ```python
@@ -407,36 +407,34 @@ Use the built-in helper method `event.is_final_response()` to identify events su
          });
         ```
 
-By carefully examining these aspects of an event, you can build robust applications that react appropriately to the rich information flowing through the ADK system.
+透過仔細檢視事件的這些面向，您可以打造出能夠正確回應 Agent Development Kit (ADK) 系統中豐富資訊流的強健應用程式。
 
-## How Events Flow: Generation and Processing
+## 事件流程：產生與處理
 
-Events are created at different points and processed systematically by the framework. Understanding this flow helps clarify how actions and history are managed.
+事件會在不同階段被建立，並由框架系統化地處理。理解這個流程有助於釐清動作與歷史紀錄的管理方式。
 
-*   **Generation Sources:**
-    *   **User Input:** The `Runner` typically wraps initial user messages or mid-conversation inputs into an `Event` with `author='user'`.
-    *   **Agent Logic:** Agents (`BaseAgent`, `LlmAgent`) explicitly `yield Event(...)` objects (setting `author=self.name`) to communicate responses or signal actions.
-    *   **LLM Responses:** The ADK model integration layer translates raw LLM output (text, function calls, errors) into `Event` objects, authored by the calling agent.
-    *   **Tool Results:** After a tool executes, the framework generates an `Event` containing the `function_response`. The `author` is typically the agent that requested the tool, while the `role` inside the `content` is set to `'user'` for the LLM history.
+*   **產生來源：**
+    *   **使用者輸入：** `Runner` 通常會將初始使用者訊息或對話中的輸入包裝成帶有 `author='user'` 的 `Event`。
+    *   **agent 邏輯：** 代理（`BaseAgent`、`LlmAgent`）會明確建立 `yield Event(...)` 物件（設定 `author=self.name`）以傳達回應或發出動作信號。
+    *   **大型語言模型 (LLM) 回應：** ADK 模型整合層會將原始 LLM 輸出（文字、函式呼叫、錯誤）轉換為由呼叫 agent 所建立的 `Event` 物件。
+    *   **工具結果：** 工具執行完畢後，框架會產生包含 `function_response` 的 `Event`。`author` 通常是請求該工具的 agent，而 `content` 內的 `role` 則會為 LLM 歷史紀錄設為 `'user'`。
 
+*   **處理流程：**
+    1.  **讓渡／回傳：** 事件由來源產生並以 yield（Python）或 return/emit（Java）的方式讓渡或回傳。
+    2.  **Runner 接收：** 執行 agent 的主要 `Runner` 會接收到該事件。
+    3.  **SessionService 處理：** `Runner` 會將事件傳送至已設定的 `SessionService`。這是關鍵步驟：
+        *   **套用狀態差異（delta）：** 該服務會將 `event.actions.state_delta` 合併進 `session.state`，並根據 `event.actions.artifact_delta` 更新內部紀錄。（注意：實際的 artifact *儲存* 通常會在較早呼叫 `context.save_artifact` 時發生）。
+        *   **完成中繼資料：** 若尚未存在，則指派唯一的 `event.id`，並可能更新 `event.timestamp`。
+        *   **寫入歷史紀錄：** 將處理後的事件附加到 `session.events` 清單中。
+    4.  **對外讓渡：** `Runner` 會將處理後的事件以 yield（Python）或 return/emit（Java）的方式對外傳遞給呼叫應用程式（例如呼叫 `runner.run_async` 的程式碼）。
 
-*   **Processing Flow:**
-    1.  **Yield/Return:** An event is generated and yielded (Python) or returned/emitted (Java) by its source.
-    2.  **Runner Receives:** The main `Runner` executing the agent receives the event.
-    3.  **SessionService Processing:** The `Runner` sends the event to the configured `SessionService`. This is a critical step:
-        *   **Applies Deltas:** The service merges `event.actions.state_delta` into `session.state` and updates internal records based on `event.actions.artifact_delta`. (Note: The actual artifact *saving* usually happened earlier when `context.save_artifact` was called).
-        *   **Finalizes Metadata:** Assigns a unique `event.id` if not present, may update `event.timestamp`.
-        *   **Persists to History:** Appends the processed event to the `session.events` list.
-    4.  **External Yield:** The `Runner` yields (Python) or returns/emits (Java) the processed event outwards to the calling application (e.g., the code that invoked `runner.run_async`).
+此流程確保每個事件的狀態變更與歷史紀錄，能與其溝通內容一同被一致地記錄下來。
 
-This flow ensures that state changes and history are consistently recorded alongside the communication content of each event.
+## 常見事件範例（說明性模式）
 
+以下是您在事件串流中可能看到的典型事件簡要範例：
 
-## Common Event Examples (Illustrative Patterns)
-
-Here are concise examples of typical events you might see in the stream:
-
-*   **User Input:**
+*   **使用者輸入：**
     ```json
     {
       "author": "user",
@@ -445,7 +443,7 @@ Here are concise examples of typical events you might see in the stream:
       // actions usually empty
     }
     ```
-*   **Agent Final Text Response:** (`is_final_response() == True`)
+*   **Agent 最終文字回應：** (`is_final_response() == True`)
     ```json
     {
       "author": "TravelAgent",
@@ -456,7 +454,7 @@ Here are concise examples of typical events you might see in the stream:
       // actions might have state delta, etc.
     }
     ```
-*   **Agent Streaming Text Response:** (`is_final_response() == False`)
+*   **Agent 串流文字回應：** (`is_final_response() == False`)
     ```json
     {
       "author": "SummaryAgent",
@@ -467,7 +465,7 @@ Here are concise examples of typical events you might see in the stream:
     }
     // ... more partial=True events follow ...
     ```
-*   **Tool Call Request (by LLM):** (`is_final_response() == False`)
+*   **工具呼叫請求（由大型語言模型 (LLM) 發出）：** (`is_final_response() == False`)
     ```json
     {
       "author": "TravelAgent",
@@ -476,7 +474,7 @@ Here are concise examples of typical events you might see in the stream:
       // actions usually empty
     }
     ```
-*   **Tool Result Provided (to LLM):** (`is_final_response()` depends on `skip_summarization`)
+*   **工具結果已提供（給大型語言模型 (LLM)）：**（`is_final_response()` 依賴於 `skip_summarization`）
     ```json
     {
       "author": "TravelAgent", // Author is agent that requested the call
@@ -488,7 +486,7 @@ Here are concise examples of typical events you might see in the stream:
       // actions might have skip_summarization=True
     }
     ```
-*   **State/Artifact Update Only:** (`is_final_response() == False`)
+*   **僅狀態／產物（Artifact）更新：**（`is_final_response() == False`）
     ```json
     {
       "author": "InternalUpdater",
@@ -500,7 +498,7 @@ Here are concise examples of typical events you might see in the stream:
       }
     }
     ```
-*   **Agent Transfer Signal:** (`is_final_response() == False`)
+*   **Agent Transfer Signal:**（`is_final_response() == False`）
     ```json
     {
       "author": "OrchestratorAgent",
@@ -509,7 +507,7 @@ Here are concise examples of typical events you might see in the stream:
       "actions": {"transfer_to_agent": "BillingAgent"} // Added by framework
     }
     ```
-*   **Loop Escalation Signal:** (`is_final_response() == False`)
+*   **Loop Escalation Signal：**（`is_final_response() == False`）
     ```json
     {
       "author": "CheckerAgent",
@@ -519,30 +517,30 @@ Here are concise examples of typical events you might see in the stream:
     }
     ```
 
-## Additional Context and Event Details
+## 額外的上下文與事件細節
 
-Beyond the core concepts, here are a few specific details about context and events that are important for certain use cases:
+除了核心概念外，以下是針對特定使用情境時，關於上下文與事件的一些重要細節說明：
 
-1.  **`ToolContext.function_call_id` (Linking Tool Actions):**
-    *   When an LLM requests a tool (FunctionCall), that request has an ID. The `ToolContext` provided to your tool function includes this `function_call_id`.
-    *   **Importance:** This ID is crucial for linking actions like authentication back to the specific tool request that initiated them, especially if multiple tools are called in one turn. The framework uses this ID internally.
+1.  **`ToolContext.function_call_id`（工具動作連結）：**
+    *   當大型語言模型 (LLM) 請求一個工具（FunctionCall）時，該請求會有一個 ID。提供給你的工具函式的 `ToolContext` 會包含這個 `function_call_id`。
+    *   **重要性：** 這個 ID 對於將像是驗證等動作，回溯連結到發起該動作的特定工具請求非常關鍵，特別是在同一回合呼叫多個工具時。框架會在內部使用這個 ID。
 
-2.  **How State/Artifact Changes are Recorded:**
-    *   When you modify state or save an artifact using `CallbackContext` or `ToolContext`, these changes aren't immediately written to persistent storage.
-    *   Instead, they populate the `state_delta` and `artifact_delta` fields within the `EventActions` object.
-    *   This `EventActions` object is attached to the *next event* generated after the change (e.g., the agent's response or a tool result event).
-    *   The `SessionService.append_event` method reads these deltas from the incoming event and applies them to the session's persistent state and artifact records. This ensures changes are tied chronologically to the event stream.
+2.  **狀態／產物變更的記錄方式：**
+    *   當你透過 `CallbackContext` 或 `ToolContext` 修改狀態或儲存產物時，這些變更不會立即寫入永久儲存。
+    *   相反地，這些變更會填入 `state_delta` 與 `artifact_delta` 欄位，並存放於 `EventActions` 物件中。
+    *   這個 `EventActions` 物件會附加在變更後產生的*下一個事件*上（例如 agent 的回應或工具結果事件）。
+    *   `SessionService.append_event` 方法會從收到的事件中讀取這些差異（delta），並套用到 session 的永久狀態與產物記錄中。這確保所有變更都會依事件流程的時間順序綁定。
 
-3.  **State Scope Prefixes (`app:`, `user:`, `temp:`):**
-    *   When managing state via `context.state`, you can optionally use prefixes:
-        *   `app:my_setting`: Suggests state relevant to the entire application (requires a persistent `SessionService`).
-        *   `user:user_preference`: Suggests state relevant to the specific user across sessions (requires a persistent `SessionService`).
-        *   `temp:intermediate_result` or no prefix: Typically session-specific or temporary state for the current invocation.
-    *   The underlying `SessionService` determines how these prefixes are handled for persistence.
+3.  **狀態作用域前綴（`app:`、`user:`、`temp:`）：**
+    *   當你透過 `context.state` 管理狀態時，可以選擇性地使用前綴：
+        *   `app:my_setting`：表示與整個應用程式相關的狀態（需有永久性的 `SessionService`）。
+        *   `user:user_preference`：表示特定使用者跨 session 相關的狀態（需有永久性的 `SessionService`）。
+        *   `temp:intermediate_result` 或無前綴：通常為目前呼叫的 session 專屬或暫時性狀態。
+    *   底層的 `SessionService` 會決定這些前綴在持久化時的處理方式。
 
-4.  **Error Events:**
-    *   An `Event` can represent an error. Check the `event.error_code` and `event.error_message` fields (inherited from `LlmResponse`).
-    *   Errors might originate from the LLM (e.g., safety filters, resource limits) or potentially be packaged by the framework if a tool fails critically. Check tool `FunctionResponse` content for typical tool-specific errors.
+4.  **錯誤事件：**
+    *   `Event` 可以代表一個錯誤。請檢查 `event.error_code` 與 `event.error_message` 欄位（繼承自 `LlmResponse`）。
+    *   錯誤可能來自大型語言模型 (LLM)（例如安全過濾、資源限制），也可能是框架在工具嚴重失敗時包裝產生。對於常見的工具專屬錯誤，請檢查工具的 `FunctionResponse` 內容。
     ```json
     // Example Error Event (conceptual)
     {
@@ -555,23 +553,23 @@ Beyond the core concepts, here are a few specific details about context and even
     }
     ```
 
-These details provide a more complete picture for advanced use cases involving tool authentication, state persistence scope, and error handling within the event stream.
+這些細節為進階使用情境（如工具驗證、狀態持久化範圍，以及事件串流中的錯誤處理）提供了更完整的說明。
 
-## Best Practices for Working with Events
+## 使用事件的最佳實踐
 
-To use events effectively in your ADK applications:
+要在您的 Agent Development Kit (ADK) 應用程式中有效地使用事件，請遵循以下建議：
 
-*   **Clear Authorship:** When building custom agents, ensure correct attribution for agent actions in the history. The framework generally handles authorship correctly for LLM/tool events.
+*   **明確標註作者（Authorship）：** 當您建立自訂 agent 時，請確保 agent 行為在 session 歷史紀錄中有正確的作者歸屬。框架通常會正確處理大型語言模型 (LLM)/工具事件的作者標註。
     
     === "Python"
-        Use `yield Event(author=self.name, ...)` in `BaseAgent` subclasses.
+        在 `BaseAgent` 的子類別中使用 `yield Event(author=self.name, ...)`。
     === "Java"
-        When constructing an `Event` in your custom agent logic, set the author, for example: `Event.builder().author(this.getAgentName()) // ... .build();`
+        在自訂 agent 邏輯中建立 `Event` 時，請設定作者，例如：`Event.builder().author(this.getAgentName()) // ... .build();`
 
-*   **Semantic Content & Actions:** Use `event.content` for the core message/data (text, function call/response). Use `event.actions` specifically for signaling side effects (state/artifact deltas) or control flow (`transfer`, `escalate`, `skip_summarization`).
-*   **Idempotency Awareness:** Understand that the `SessionService` is responsible for applying the state/artifact changes signaled in `event.actions`. While ADK services aim for consistency, consider potential downstream effects if your application logic re-processes events.
-*   **Use `is_final_response()`:** Rely on this helper method in your application/UI layer to identify complete, user-facing text responses. Avoid manually replicating its logic.
-*   **Leverage History:** The session's event list is your primary debugging tool. Examine the sequence of authors, content, and actions to trace execution and diagnose issues.
-*   **Use Metadata:** Use `invocation_id` to correlate all events within a single user interaction. Use `event.id` to reference specific, unique occurrences.
+*   **語意內容與動作分離：** 使用 `event.content` 來承載核心訊息/資料（文字、函式呼叫/回應）。使用 `event.actions` 專門用於標示副作用（狀態/產物變更）或控制流程（`transfer`、`escalate`、`skip_summarization`）。
+*   **注意冪等性（Idempotency）：** 請理解 `SessionService` 負責套用 `event.actions` 中標示的狀態/產物變更。雖然 ADK 服務致力於確保一致性，但若您的應用程式邏輯重複處理事件，請考慮可能的下游影響。
+*   **善用 `is_final_response()`：** 在您的應用程式/UI 層依賴這個輔助方法來判斷完整、面向使用者的文字回應。請避免手動複製其邏輯。
+*   **活用歷史紀錄：** session 的事件清單是您主要的除錯工具。檢查作者、內容與動作的順序，以追蹤執行流程並診斷問題。
+*   **利用中繼資料（Metadata）：** 使用 `invocation_id` 來關聯單一使用者互動中的所有事件。使用 `event.id` 來參照特定且唯一的事件發生。
 
-Treating events as structured messages with clear purposes for their content and actions is key to building, debugging, and managing complex agent behaviors in ADK.
+將事件視為具有明確內容與動作目的的結構化訊息，是在 ADK 中建構、除錯與管理複雜 agent 行為的關鍵。

@@ -1,85 +1,85 @@
-# State: The Session's Scratchpad
+# 狀態：Session 的暫存區
 
-Within each `Session` (our conversation thread), the **`state`** attribute acts like the agent's dedicated scratchpad for that specific interaction. While `session.events` holds the full history, `session.state` is where the agent stores and updates dynamic details needed *during* the conversation.
+在每個 `Session`（我們的對話執行緒）中，**`state`** 屬性就像該次互動專屬於 agent 的暫存區。雖然 `session.events` 儲存完整歷史紀錄，`session.state` 則是 agent 在對話過程中儲存和更新所需動態細節的地方。
 
-## What is `session.state`?
+## 什麼是 `session.state`？
 
-Conceptually, `session.state` is a collection (dictionary or Map) holding key-value pairs. It's designed for information the agent needs to recall or track to make the current conversation effective:
+概念上，`session.state` 是一個集合（dictionary 或 Map），用來儲存鍵值對。它設計用於 agent 需要記憶或追蹤的資訊，以提升當前對話的效率：
 
-* **Personalize Interaction:** Remember user preferences mentioned earlier (e.g., `'user_preference_theme': 'dark'`).
-* **Track Task Progress:** Keep tabs on steps in a multi-turn process (e.g., `'booking_step': 'confirm_payment'`).
-* **Accumulate Information:** Build lists or summaries (e.g., `'shopping_cart_items': ['book', 'pen']`).
-* **Make Informed Decisions:** Store flags or values influencing the next response (e.g., `'user_is_authenticated': True`).
+* **個人化互動：** 記住先前提及的使用者偏好（例如 `'user_preference_theme': 'dark'`）。
+* **追蹤任務進度：** 監控多輪流程中的步驟（例如 `'booking_step': 'confirm_payment'`）。
+* **累積資訊：** 建立清單或摘要（例如 `'shopping_cart_items': ['book', 'pen']`）。
+* **做出明智決策：** 儲存影響下次回應的旗標或數值（例如 `'user_is_authenticated': True`）。
 
-### Key Characteristics of `State`
+### `State` 的主要特性
 
-1. **Structure: Serializable Key-Value Pairs**
+1. **結構：可序列化的鍵值對**
 
-    * Data is stored as `key: value`.
-    * **Keys:** Always strings (`str`). Use clear names (e.g., `'departure_city'`, `'user:language_preference'`).
-    * **Values:** Must be **serializable**. This means they can be easily saved and loaded by the `SessionService`. Stick to basic types in the specific languages (Python/ Java) like strings, numbers, booleans, and simple lists or dictionaries containing *only* these basic types. (See API documentation for precise details).
-    * **⚠️ Avoid Complex Objects:** **Do not store non-serializable objects** (custom class instances, functions, connections, etc.) directly in the state. Store simple identifiers if needed, and retrieve the complex object elsewhere.
+    * 資料以 `key: value` 形式儲存。
+    * **鍵（Keys）：** 一律為字串（`str`）。請使用清楚明確的名稱（例如 `'departure_city'`、`'user:language_preference'`）。
+    * **值（Values）：** 必須是**可序列化**的。也就是說，這些值可以被 `SessionService` 輕鬆地儲存與載入。請僅使用各語言（Python/Java）中的基本型別，如字串、數字、布林值，以及只包含這些基本型別的簡單 list 或 dictionary。（詳細請參考 API 文件）
+    * **⚠️ 避免複雜物件：** **請勿直接在 state 中儲存不可序列化的物件**（自訂類別實例、函式、連線等）。如有需要，請僅儲存簡單識別碼，並於其他地方取得複雜物件。
 
-2. **Mutability: It Changes**
+2. **可變性：內容會變動**
 
-    * The contents of the `state` are expected to change as the conversation evolves.
+    * 隨著對話進行，`state` 的內容預期會隨之變化。
 
-3. **Persistence: Depends on `SessionService`**
+3. **持久性：取決於 `SessionService`**
 
-    * Whether state survives application restarts depends on your chosen service:
-      * `InMemorySessionService`: **Not Persistent.** State is lost on restart.
-      * `DatabaseSessionService` / `VertexAiSessionService`: **Persistent.** State is saved reliably.
+    * 狀態是否能在應用程式重啟後保留，取決於你選用的服務：
+      * `InMemorySessionService`：**不具持久性。** 重啟後狀態會遺失。
+      * `DatabaseSessionService` / `VertexAiSessionService`：**具持久性。** 狀態會被可靠地儲存。
 
 !!! Note
-    The specific parameters or method names for the primitives may vary slightly by SDK language (e.g., `session.state['current_intent'] = 'book_flight'` in Python, `session.state().put("current_intent", "book_flight)` in Java). Refer to the language-specific API documentation for details.
+    各語言 SDK 的原始方法名稱或參數可能略有不同（例如 Python 的 `session.state['current_intent'] = 'book_flight'`，Java 的 `session.state().put("current_intent", "book_flight)`）。請參考各語言的 API 文件以獲取詳細資訊。
 
-### Organizing State with Prefixes: Scope Matters
+### 使用前綴組織狀態：作用域很重要
 
-Prefixes on state keys define their scope and persistence behavior, especially with persistent services:
+狀態鍵的前綴決定其作用域與持久化行為，特別是在使用持久化服務時：
 
-* **No Prefix (Session State):**
+* **無前綴（Session 狀態）：**
 
-    * **Scope:** Specific to the *current* session (`id`).
-    * **Persistence:** Only persists if the `SessionService` is persistent (`Database`, `VertexAI`).
-    * **Use Cases:** Tracking progress within the current task (e.g., `'current_booking_step'`), temporary flags for this interaction (e.g., `'needs_clarification'`).
-    * **Example:** `session.state['current_intent'] = 'book_flight'`
+    * **作用域：** 限於*當前* session（`id`）。
+    * **持久性：** 僅在 `SessionService` 具持久性時才會保存（`Database`、`VertexAI`）。
+    * **使用情境：** 追蹤當前任務進度（例如 `'current_booking_step'`）、本次互動的暫時旗標（例如 `'needs_clarification'`）。
+    * **範例：** `session.state['current_intent'] = 'book_flight'`
 
-* **`user:` Prefix (User State):**
+* **`user:` 前綴（User 狀態）：**
 
-    * **Scope:** Tied to the `user_id`, shared across *all* sessions for that user (within the same `app_name`).
-    * **Persistence:** Persistent with `Database` or `VertexAI`. (Stored by `InMemory` but lost on restart).
-    * **Use Cases:** User preferences (e.g., `'user:theme'`), profile details (e.g., `'user:name'`).
-    * **Example:** `session.state['user:preferred_language'] = 'fr'`
+    * **作用域：** 綁定於 `user_id`，在同一 `app_name` 下該使用者的*所有* session 共享。
+    * **持久性：** 搭配 `Database` 或 `VertexAI` 時具持久性。（由 `InMemory` 儲存，但重啟後會遺失）
+    * **使用情境：** 使用者偏好（例如 `'user:theme'`）、個人資料細節（例如 `'user:name'`）。
+    * **範例：** `session.state['user:preferred_language'] = 'fr'`
 
-* **`app:` Prefix (App State):**
+* **`app:` 前綴（App 狀態）：**
 
-    * **Scope:** Tied to the `app_name`, shared across *all* users and sessions for that application.
-    * **Persistence:** Persistent with `Database` or `VertexAI`. (Stored by `InMemory` but lost on restart).
-    * **Use Cases:** Global settings (e.g., `'app:api_endpoint'`), shared templates.
-    * **Example:** `session.state['app:global_discount_code'] = 'SAVE10'`
+    * **作用域：** 綁定於 `app_name`，該應用程式下*所有*使用者與 session 共享。
+    * **持久性：** 搭配 `Database` 或 `VertexAI` 時具持久性。（由 `InMemory` 儲存，但重啟後會遺失）
+    * **使用情境：** 全域設定（例如 `'app:api_endpoint'`）、共用範本。
+    * **範例：** `session.state['app:global_discount_code'] = 'SAVE10'`
 
-* **`temp:` Prefix (Temporary Invocation State):**
+* **`temp:` 前綴（暫時性呼叫狀態）：**
 
-    * **Scope:** Specific to the current **invocation** (the entire process from an agent receiving user input to generating the final output for that input).
-    * **Persistence:** **Not Persistent.** Discarded after the invocation completes and does not carry over to the next one.
-    * **Use Cases:** Storing intermediate calculations, flags, or data passed between tool calls within a single invocation.
-    * **When Not to Use:** For information that must persist across different invocations, such as user preferences, conversation history summaries, or accumulated data.
-    * **Example:** `session.state['temp:raw_api_response'] = {...}`
+    * **作用域：** 限於當前**呼叫**（即 agent 從接收使用者輸入到為該輸入產生最終輸出這整個過程）。
+    * **持久性：** **不具持久性。** 呼叫結束後即丟棄，不會延續到下一次呼叫。
+    * **使用情境：** 在單次呼叫內於工具呼叫間傳遞的中間計算結果、旗標或資料。
+    * **不適用情境：** 需跨多次呼叫保存的資訊，例如使用者偏好、對話歷史摘要或累積資料。
+    * **範例：** `session.state['temp:raw_api_response'] = {...}`
 
-!!! note "Sub-Agents and Invocation Context"
-    When a parent agent calls a sub-agent (e.g., using `SequentialAgent` or `ParallelAgent`), it passes its `InvocationContext` to the sub-agent. This means the entire chain of agent calls shares the same invocation ID and, therefore, the same `temp:` state.
+!!! note "子 agent 與呼叫上下文"
+    當父 agent 呼叫子 agent（例如使用 `SequentialAgent` 或 `ParallelAgent`）時，會將其 `InvocationContext` 傳遞給子 agent。這表示整個 agent 呼叫鏈會共用同一個呼叫 ID，因此也共用同一份 `temp:` 狀態。
 
-**How the Agent Sees It:** Your agent code interacts with the *combined* state through the single `session.state` collection (dict/ Map). The `SessionService` handles fetching/merging state from the correct underlying storage based on prefixes.
+**Agent 如何看待這一切：** 你的 agent 程式碼會透過單一的 `session.state` 集合（dict/Map）來操作*合併後*的狀態。`SessionService` 會根據前綴，自動從正確的底層儲存空間提取/合併狀態。
 
-### Accessing Session State in Agent Instructions
+### 在 Agent 指令中存取 Session 狀態
 
-When working with `LlmAgent` instances, you can directly inject session state values into the agent's instruction string using a simple templating syntax. This allows you to create dynamic and context-aware instructions without relying solely on natural language directives.
+當你操作 `LlmAgent` 實例時，可以使用簡單的樣板語法，直接將 session 狀態值注入 agent 的指令字串。這讓你能建立動態且具情境感知的指令，而不必完全依賴自然語言描述。
 
-#### Using `{key}` Templating
+#### 使用 `{key}` 樣板語法
 
-To inject a value from the session state, enclose the key of the desired state variable within curly braces: `{key}`. The framework will automatically replace this placeholder with the corresponding value from `session.state` before passing the instruction to the LLM.
+要從 session 狀態注入變數值，只需將目標狀態變數的鍵以大括號包起來：`{key}`。框架會在將指令傳遞給大型語言模型 (LLM) 前，自動以 `session.state` 中對應的值取代這個佔位符。
 
-**Example:**
+**範例：**
 
 ```python
 from google.adk.agents import LlmAgent
@@ -95,19 +95,19 @@ story_generator = LlmAgent(
 # "Write a short story about a cat, focusing on the theme: friendship."
 ```
 
-#### Important Considerations
+#### 重要注意事項
 
-* Key Existence: Ensure that the key you reference in the instruction string exists in the session.state. If the key is missing, the agent will throw an error. To use a key that may or may not be present, you can include a question mark (?) after the key (e.g. {topic?}).
-* Data Types: The value associated with the key should be a string or a type that can be easily converted to a string.
-* Escaping: If you need to use literal curly braces in your instruction (e.g., for JSON formatting), you'll need to escape them.
+* 鍵值存在性：請確保你在指令字串中引用的鍵（key）已存在於 `session.state` 中。如果該鍵不存在，agent 會拋出錯誤。若你想使用一個可能存在也可能不存在的鍵，可以在鍵名後加上問號（?）（例如：`{topic?}`）。
+* 資料型別：與鍵相關聯的值應為字串，或是可以輕易轉換為字串的型別。
+* 跳脫字元：如果你需要在指令中使用字面上的大括號（例如用於 JSON 格式化），你需要對它們進行跳脫處理。
 
-#### Bypassing State Injection with `InstructionProvider`
+#### 使用 `InstructionProvider` 跳過狀態注入
 
-In some cases, you might want to use `{{` and `}}` literally in your instructions without triggering the state injection mechanism. For example, you might be writing instructions for an agent that helps with a templating language that uses the same syntax.
+在某些情境下，你可能希望在指令中直接使用 `{{` 和 `}}`，而不觸發狀態注入機制。例如，你可能正在為一個使用相同語法的樣板語言（templating language）撰寫 agent 指令。
 
-To achieve this, you can provide a function to the `instruction` parameter instead of a string. This function is called an `InstructionProvider`. When you use an `InstructionProvider`, the ADK will not attempt to inject state, and your instruction string will be passed to the model as-is.
+為達成此目的，你可以將 `instruction` 參數設為一個函式（function），而非字串。這個函式稱為 `InstructionProvider`。當你使用 `InstructionProvider` 時，Agent Development Kit (ADK) 不會嘗試進行狀態注入，並會將你的指令字串原封不動地傳遞給模型。
 
-The `InstructionProvider` function receives a `ReadonlyContext` object, which you can use to access session state or other contextual information if you need to build the instruction dynamically.
+`InstructionProvider` 函式會接收一個 `ReadonlyContext` 物件，你可以利用這個物件來存取 session state 或其他情境資訊，若你需要動態構建指令時會很有用。
 
 === "Python"
 
@@ -128,7 +128,7 @@ The `InstructionProvider` function receives a `ReadonlyContext` object, which yo
     )
     ```
 
-If you want to both use an `InstructionProvider` *and* inject state into your instructions, you can use the `inject_session_state` utility function.
+如果你想同時使用 `InstructionProvider` *並且* 將狀態注入到你的指令中，可以使用 `inject_session_state` 公用函式。
 
 === "Python"
 
@@ -149,28 +149,28 @@ If you want to both use an `InstructionProvider` *and* inject state into your in
     )
     ```
 
-**Benefits of Direct Injection**
+**直接注入的優點**
 
-* Clarity: Makes it explicit which parts of the instruction are dynamic and based on session state.
-* Reliability: Avoids relying on the LLM to correctly interpret natural language instructions to access state.
-* Maintainability: Simplifies instruction strings and reduces the risk of errors when updating state variable names.
+* 清晰性：明確指出指令中哪些部分是動態的，並且基於 session state（工作階段狀態）。
+* 可靠性：避免依賴大型語言模型 (LLM) 正確解讀自然語言指令以存取狀態。
+* 可維護性：簡化指令字串，並在更新狀態變數名稱時降低出錯風險。
 
-**Relation to Other State Access Methods**
+**與其他狀態存取方法的關係**
 
-This direct injection method is specific to LlmAgent instructions. Refer to the following section for more information on other state access methods.
+這種直接注入的方法是專為 LlmAgent 指令設計的。關於其他狀態存取方法，請參考下一節。
 
-### How State is Updated: Recommended Methods
+### 狀態如何更新：建議的方法
 
-!!! note "The Right Way to Modify State"
-    When you need to change the session state, the correct and safest method is to **directly modify the `state` object on the `Context`** provided to your function (e.g., `callback_context.state['my_key'] = 'new_value'`). This is considered "direct state manipulation" in the right way, as the framework automatically tracks these changes.
+!!! note "正確修改狀態的方法"
+    當你需要變更 session state（工作階段狀態）時，最正確且最安全的方法是**直接修改提供給你的函式（例如 `callback_context.state['my_key'] = 'new_value'`）中的 `Context` 上的 `state` 物件**。這被認為是「正確的直接狀態操作」，因為框架會自動追蹤這些變更。
 
     This is critically different from directly modifying the `state` on a `Session` object you retrieve from the `SessionService` (e.g., `my_session.state['my_key'] = 'new_value'`). **You should avoid this**, as it bypasses the ADK's event tracking and can lead to lost data. The "Warning" section at the end of this page has more details on this important distinction.
 
-State should **always** be updated as part of adding an `Event` to the session history using `session_service.append_event()`. This ensures changes are tracked, persistence works correctly, and updates are thread-safe.
+狀態應該**始終**在使用`session_service.append_event()`將`Event`新增到 session 歷史紀錄時進行更新。這可確保變更被正確追蹤、資料持久化運作正常，並且更新具備執行緒安全性。
 
-**1\. The Easy Way: `output_key` (for Agent Text Responses)**
+**1\. 最簡單的方法：`output_key`（適用於 agent 文字回應）**
 
-This is the simplest method for saving an agent's final text response directly into the state. When defining your `LlmAgent`, specify the `output_key`:
+這是將 agent 最終文字回應直接儲存到狀態中的最簡單方式。在定義您的`LlmAgent`時，請指定`output_key`：
 
 === "Python"
 
@@ -223,11 +223,11 @@ This is the simplest method for saving an agent's final text response directly i
     --8<-- "examples/java/snippets/src/main/java/state/GreetingAgentExample.java:full_code"
     ```
 
-Behind the scenes, the `Runner` uses the `output_key` to create the necessary `EventActions` with a `state_delta` and calls `append_event`.
+在幕後，`Runner` 會使用 `output_key` 來建立必要的 `EventActions`，並配合 `state_delta`，然後呼叫 `append_event`。
 
-**2\. The Standard Way: `EventActions.state_delta` (for Complex Updates)**
+**2\. 標準方式：`EventActions.state_delta`（用於複雜更新）**
 
-For more complex scenarios (updating multiple keys, non-string values, specific scopes like `user:` or `app:`, or updates not tied directly to the agent's final text), you manually construct the `state_delta` within `EventActions`.
+針對較複雜的情境（例如同時更新多個鍵值、非字串型別的值、特定範疇如 `user:` 或 `app:`，或是更新並非直接與 agent 最終文字綁定），你需要在 `EventActions` 中手動建構 `state_delta`。
 
 === "Python"
 
@@ -287,18 +287,18 @@ For more complex scenarios (updating multiple keys, non-string values, specific 
     --8<-- "examples/java/snippets/src/main/java/state/ManualStateUpdateExample.java:full_code"
     ```
 
-**3. Via `CallbackContext` or `ToolContext` (Recommended for Callbacks and Tools)**
+**3. 透過 `CallbackContext` 或 `ToolContext`（建議用於回呼函式與工具）**
 
-Modifying state within agent callbacks (e.g., `on_before_agent_call`, `on_after_agent_call`) or tool functions is best done using the `state` attribute of the `CallbackContext` or `ToolContext` provided to your function.
+在 agent 回呼函式（例如 `on_before_agent_call`、`on_after_agent_call`）或工具函式中修改狀態，最佳做法是使用傳遞給你函式的 `CallbackContext` 或 `ToolContext` 的 `state` 屬性。
 
 *   `callback_context.state['my_key'] = my_value`
 *   `tool_context.state['my_key'] = my_value`
 
-These context objects are specifically designed to manage state changes within their respective execution scopes. When you modify `context.state`, the ADK framework ensures that these changes are automatically captured and correctly routed into the `EventActions.state_delta` for the event being generated by the callback or tool. This delta is then processed by the `SessionService` when the event is appended, ensuring proper persistence and tracking.
+這些 context 物件專為在其各自執行範疇內管理狀態變更而設計。當你修改 `context.state` 時，Agent Development Kit (ADK) 框架會自動捕捉這些變更，並正確地將其導入由該回呼或工具所產生事件的 `EventActions.state_delta`。這個差異（delta）隨後會在事件被附加時由 `SessionService` 處理，確保正確的持久化與追蹤。
 
-This method abstracts away the manual creation of `EventActions` and `state_delta` for most common state update scenarios within callbacks and tools, making your code cleaner and less error-prone.
+這種方法將大多數在回呼與工具中常見的狀態更新情境下，手動建立 `EventActions` 與 `state_delta` 的過程抽象化，讓你的程式碼更簡潔且更不易出錯。
 
-For more comprehensive details on context objects, refer to the [Context documentation](../context/index.md).
+如需更完整的 context 物件說明，請參閱 [Context documentation](../context/index.md)。
 
 === "Python"
 
@@ -342,33 +342,33 @@ For more comprehensive details on context objects, refer to the [Context documen
     }
     ```
 
-**What `append_event` Does:**
+**`append_event` 的作用：**
 
-* Adds the `Event` to `session.events`.
-* Reads the `state_delta` from the event's `actions`.
-* Applies these changes to the state managed by the `SessionService`, correctly handling prefixes and persistence based on the service type.
-* Updates the session's `last_update_time`.
-* Ensures thread-safety for concurrent updates.
+* 將 `Event` 加入到 `session.events`。
+* 從事件的 `actions` 讀取 `state_delta`。
+* 將這些變更套用到由 `SessionService` 所管理的狀態，並根據服務類型正確處理前綴與持久化。
+* 更新 session 的 `last_update_time`。
+* 確保在多執行緒同時更新時的執行緒安全性。
 
-### ⚠️ A Warning About Direct State Modification
+### ⚠️ 關於直接修改狀態的警告
 
-Avoid directly modifying the `session.state` collection (dictionary/Map) on a `Session` object that was obtained directly from the `SessionService` (e.g., via `session_service.get_session()` or `session_service.create_session()`) *outside* of the managed lifecycle of an agent invocation (i.e., not through a `CallbackContext` or `ToolContext`). For example, code like `retrieved_session = await session_service.get_session(...); retrieved_session.state['key'] = value` is problematic.
+請避免在 agent 呼叫的受控生命週期*之外*（也就是不是透過 `CallbackContext` 或 `ToolContext`），直接修改從 `SessionService`（例如經由 `session_service.get_session()` 或 `session_service.create_session()`）取得的 `Session` 物件上的 `session.state` 集合（dictionary/Map）。例如，像 `retrieved_session = await session_service.get_session(...); retrieved_session.state['key'] = value` 這樣的程式碼就是有問題的。
 
-State modifications *within* callbacks or tools using `CallbackContext.state` or `ToolContext.state` are the correct way to ensure changes are tracked, as these context objects handle the necessary integration with the event system.
+在 callback 或 tools 中，透過 `CallbackContext.state` 或 `ToolContext.state` 進行狀態修改，才是確保變更能被正確追蹤的正確方式，因為這些 context 物件會處理與事件系統整合所需的相關作業。
 
-**Why direct modification (outside of contexts) is strongly discouraged:**
+**為什麼強烈不建議在 context 之外直接修改狀態：**
 
-1. **Bypasses Event History:** The change isn't recorded as an `Event`, losing auditability.
-2. **Breaks Persistence:** Changes made this way **will likely NOT be saved** by `DatabaseSessionService` or `VertexAiSessionService`. They rely on `append_event` to trigger saving.
-3. **Not Thread-Safe:** Can lead to race conditions and lost updates.
-4. **Ignores Timestamps/Logic:** Doesn't update `last_update_time` or trigger related event logic.
+1. **繞過事件歷史紀錄：** 這樣的變更不會被記錄為 `Event`，因此失去稽核能力。
+2. **破壞持久化機制：** 以這種方式做的變更**很可能不會被** `DatabaseSessionService` 或 `VertexAiSessionService` 儲存。這些元件依賴 `append_event` 來觸發保存。
+3. **非執行緒安全：** 可能導致競爭條件與資料遺失。
+4. **忽略時間戳與邏輯：** 不會更新 `last_update_time` 或觸發相關事件邏輯。
 
-**Recommendation:** Stick to updating state via `output_key`, `EventActions.state_delta` (when manually creating events), or by modifying the `state` property of `CallbackContext` or `ToolContext` objects when within their respective scopes. These methods ensure reliable, trackable, and persistent state management. Use direct access to `session.state` (from a `SessionService`-retrieved session) only for *reading* state.
+**建議做法：** 請透過 `output_key`、`EventActions.state_delta`（當你需要手動建立事件時），或在各自作用域內修改 `CallbackContext` 或 `ToolContext` 物件的 `state` 屬性來更新狀態。這些方法能確保狀態管理的可靠性、可追蹤性與持久性。僅在需要*讀取*狀態時，才直接存取從 `SessionService` 取得的 session 的 `session.state`。
 
-### Best Practices for State Design Recap
+### 狀態設計最佳實踐重點回顧
 
-* **Minimalism:** Store only essential, dynamic data.
-* **Serialization:** Use basic, serializable types.
-* **Descriptive Keys & Prefixes:** Use clear names and appropriate prefixes (`user:`, `app:`, `temp:`, or none).
-* **Shallow Structures:** Avoid deep nesting where possible.
-* **Standard Update Flow:** Rely on `append_event`.
+* **極簡主義：** 只儲存必要且具動態性的資料。
+* **可序列化：** 使用基本且可序列化的型別。
+* **具描述性的鍵與前綴：** 使用清楚的名稱與適當的前綴（`user:`、`app:`、`temp:` 或無前綴）。
+* **淺層結構：** 儘量避免深層巢狀結構。
+* **標準更新流程：** 依賴 `append_event`。

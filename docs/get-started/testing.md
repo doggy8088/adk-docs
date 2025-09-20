@@ -1,8 +1,6 @@
-# Testing your Agents
+# 測試你的代理（agent）
 
-Before you deploy your agent, you should test it to ensure that it is working as
-intended. The easiest way to test your agent in your development environment is
-to use the ADK API server.
+在部署你的 agent 之前，你應該先進行測試，以確保其運作符合預期。在開發環境中測試 agent 最簡單的方法，就是使用 Agent Development Kit (ADK) API 伺服器。
 
 === "Python"
 
@@ -20,17 +18,15 @@ to use the ADK API server.
     ```
     In Java, both the Dev UI and the API server are bundled together.
 
-This command will launch a local web server, where you can run cURL commands or send API requests to test your agent.
+此指令會啟動一個本機網頁伺服器，您可以在該伺服器上執行 cURL 指令或發送 API 請求，以測試您的 agent。
 
-!!! tip "Advanced Usage and Debugging"
+!!! tip "進階用法與除錯"
 
     For a complete reference on all available endpoints, request/response formats, and tips for debugging (including how to use the interactive API documentation), see the **ADK API Server Guide** below.
 
-## Local testing
+## 本機測試
 
-Local testing involves launching a local web server, creating a session, and
-sending queries to your agent. First, ensure you are in the correct working
-directory:
+本機測試包含啟動本機開發伺服器、建立工作階段，並向你的 agent 發送查詢。首先，請確保你位於正確的工作目錄下：
 
 ```console
 parent_folder/
@@ -38,11 +34,11 @@ parent_folder/
     └── agent.py (or Agent.java)
 ```
 
-**Launch the Local Server**
+**啟動本機開發伺服器**
 
-Next, launch the local server using the commands listed above.
+接下來，請使用上方列出的指令來啟動本機開發伺服器。
 
-The output should appear similar to:
+輸出結果應該會類似於：
 
 === "Python"
 
@@ -61,12 +57,11 @@ The output should appear similar to:
     2025-05-13T23:32:08.981-06:00  INFO 37864 --- [ebServer.main()] com.google.adk.web.AdkWebServer          : AdkWebServer application started successfully.
     ```
 
-Your server is now running locally. Ensure you use the correct **_port number_** in all the subsequent commands.
+您的伺服器現在已在本機運行。請確保在後續所有指令中使用正確的**_連接埠號碼_**。
 
-**Create a new session**
+**建立新工作階段**
 
-With the API server still running, open a new terminal window or tab and create
-a new session with the agent using:
+在 API 伺服器仍然運行的情況下，請開啟新的終端機視窗或分頁，並使用以下指令與 agent 建立新的工作階段：
 
 ```shell
 curl -X POST http://localhost:8000/apps/my_sample_agent/users/u_123/sessions/s_123 \
@@ -74,20 +69,12 @@ curl -X POST http://localhost:8000/apps/my_sample_agent/users/u_123/sessions/s_1
   -d '{"state": {"key1": "value1", "key2": 42}}'
 ```
 
-Let's break down what's happening:
+讓我們來拆解一下這段程式碼的運作方式：
 
-* `http://localhost:8000/apps/my_sample_agent/users/u_123/sessions/s_123`: This
-  creates a new session for your agent `my_sample_agent`, which is the name of
-  the agent folder, for a user ID (`u_123`) and for a session ID (`s_123`). You
-  can replace `my_sample_agent` with the name of your agent folder. You can
-  replace `u_123` with a specific user ID, and `s_123` with a specific session
-  ID.
-* `{"state": {"key1": "value1", "key2": 42}}`: This is optional. You can use
-  this to customize the agent's pre-existing state (dict) when creating the
-  session.
+* `http://localhost:8000/apps/my_sample_agent/users/u_123/sessions/s_123`：這會為你的 agent `my_sample_agent`（也就是 agent 資料夾的名稱）、使用者 ID（`u_123`）以及 session ID（`s_123`）建立一個新的 session。你可以將 `my_sample_agent` 替換為你自己的 agent 資料夾名稱，也可以將 `u_123` 替換為特定的使用者 ID，`s_123` 則可替換為特定的 session ID。
+* `{"state": {"key1": "value1", "key2": 42}}`：這是可選的。你可以用這個參數在建立 session 時自訂 agent 的預設狀態（dict）。
 
-This should return the session information if it was created successfully. The
-output should appear similar to:
+如果建立成功，這應該會回傳 session 的相關資訊。輸出結果應該會類似於：
 
 ```json
 {"id":"s_123","appName":"my_sample_agent","userId":"u_123","state":{"key1":"value1","key2":42},"events":[],"lastUpdateTime":1743711430.022186}
@@ -100,20 +87,14 @@ output should appear similar to:
     `{"detail":"Session already exists: s_123"}`. To fix this, you can either
     delete that session (e.g., `s_123`), or choose a different session ID.
 
-**Send a query**
+**發送查詢**
 
-There are two ways to send queries via POST to your agent, via the `/run` or
-`/run_sse` routes.
+有兩種方式可以透過 POST 向你的 agent 發送查詢，分別是 `/run` 或 `/run_sse` 路由。
 
-* `POST http://localhost:8000/run`: collects all events as a list and returns the
-  list all at once. Suitable for most users (if you are unsure, we recommend
-  using this one).
-* `POST http://localhost:8000/run_sse`: returns as Server-Sent-Events, which is a
-  stream of event objects. Suitable for those who want to be notified as soon as
-  the event is available. With `/run_sse`, you can also set `streaming` to
-  `true` to enable token-level streaming.
+* `POST http://localhost:8000/run`：將所有事件收集為一個清單，並一次性回傳該清單。適合大多數使用者（如果你不確定，建議使用這個）。
+* `POST http://localhost:8000/run_sse`：以 Server-Sent-Events（伺服器推送事件）方式回傳，會串流事件物件。適合希望在事件一產生就立即收到通知的使用者。使用 `/run_sse` 時，你也可以將 `streaming` 設為 `true`，以啟用 token 級別的串流。
 
-**Using `/run`**
+**使用 `/run`**
 
 ```shell
 curl -X POST http://localhost:8000/run \
@@ -131,14 +112,13 @@ curl -X POST http://localhost:8000/run \
 }'
 ```
 
-If using `/run`, you will see the full output of events at the same time, as a
-list, which should appear similar to:
+如果使用 `/run`，你將會同時看到所有事件的完整輸出，這些事件會以清單的形式顯示，內容應該類似於：
 
 ```json
 [{"content":{"parts":[{"functionCall":{"id":"af-e75e946d-c02a-4aad-931e-49e4ab859838","args":{"city":"new york"},"name":"get_weather"}}],"role":"model"},"invocationId":"e-71353f1e-aea1-4821-aa4b-46874a766853","author":"weather_time_agent","actions":{"stateDelta":{},"artifactDelta":{},"requestedAuthConfigs":{}},"longRunningToolIds":[],"id":"2Btee6zW","timestamp":1743712220.385936},{"content":{"parts":[{"functionResponse":{"id":"af-e75e946d-c02a-4aad-931e-49e4ab859838","name":"get_weather","response":{"status":"success","report":"The weather in New York is sunny with a temperature of 25 degrees Celsius (41 degrees Fahrenheit)."}}}],"role":"user"},"invocationId":"e-71353f1e-aea1-4821-aa4b-46874a766853","author":"weather_time_agent","actions":{"stateDelta":{},"artifactDelta":{},"requestedAuthConfigs":{}},"id":"PmWibL2m","timestamp":1743712221.895042},{"content":{"parts":[{"text":"OK. The weather in New York is sunny with a temperature of 25 degrees Celsius (41 degrees Fahrenheit).\n"}],"role":"model"},"invocationId":"e-71353f1e-aea1-4821-aa4b-46874a766853","author":"weather_time_agent","actions":{"stateDelta":{},"artifactDelta":{},"requestedAuthConfigs":{}},"id":"sYT42eVC","timestamp":1743712221.899018}]
 ```
 
-**Using `/run_sse`**
+**使用 `/run_sse`**
 
 ```shell
 curl -X POST http://localhost:8000/run_sse \
@@ -157,9 +137,7 @@ curl -X POST http://localhost:8000/run_sse \
 }'
 ```
 
-You can set `streaming` to `true` to enable token-level streaming, which means
-the response will be returned to you in multiple chunks and the output should
-appear similar to:
+你可以將 `streaming` 設為 `true` 以啟用逐 token 串流（token-level streaming），這表示回應會以多個區塊（chunk）傳回給你，輸出結果應該會類似如下：
 
 
 ```shell
@@ -169,7 +147,7 @@ data: {"content":{"parts":[{"functionResponse":{"id":"af-f83f8af9-f732-46b6-8cb5
 
 data: {"content":{"parts":[{"text":"OK. The weather in New York is sunny with a temperature of 25 degrees Celsius (41 degrees Fahrenheit).\n"}],"role":"model"},"invocationId":"e-3f6d7765-5287-419e-9991-5fffa1a75565","author":"weather_time_agent","actions":{"stateDelta":{},"artifactDelta":{},"requestedAuthConfigs":{}},"id":"rAnWGSiV","timestamp":1743712257.391317}
 ```
-**Send a query with a base64 encoded file using `/run` or `/run_sse`**
+**使用`/run`或`/run_sse`，傳送帶有 base64 編碼檔案的查詢**
 
 ```shell
 curl -X POST http://localhost:8000/run \
@@ -202,96 +180,88 @@ curl -X POST http://localhost:8000/run \
     If you are using `/run_sse`, you should see each event as soon as it becomes
     available.
 
-## Integrations
+## 整合
 
-ADK uses [Callbacks](../callbacks/index.md) to integrate with third-party
-observability tools. These integrations capture detailed traces of agent calls
-and interactions, which are crucial for understanding behavior, debugging
-issues, and evaluating performance.
+Agent Development Kit (ADK)（ADK）使用 [Callbacks](../callbacks/index.md) 來與第三方可觀測性工具整合。這些整合能夠捕捉 agent 呼叫與互動的詳細追蹤紀錄，對於理解行為、除錯問題以及評估效能都至關重要。
 
-* [Comet Opik](https://github.com/comet-ml/opik) is an open-source LLM
-  observability and evaluation platform that
-  [natively supports ADK](https://www.comet.com/docs/opik/tracing/integrations/adk).
+* [Comet Opik](https://github.com/comet-ml/opik) 是一個開源的大型語言模型 (LLM)
+  可觀測性與評估平台，並且
+  [原生支援 ADK](https://www.comet.com/docs/opik/tracing/integrations/adk)。
 
-## Deploying your agent
+## 部署你的 agent
 
-Now that you've verified the local operation of your agent, you're ready to move
-on to deploying your agent! Here are some ways you can deploy your agent:
+現在你已經驗證了 agent 在本機的運作，接下來就可以部署你的 agent 了！以下是幾種部署 agent 的方式：
 
-* Deploy to [Agent Engine](../deploy/agent-engine.md), the easiest way to deploy
-  your ADK agents to a managed service in Vertex AI on Google Cloud.
-* Deploy to [Cloud Run](../deploy/cloud-run.md) and have full control over how
-  you scale and manage your agents using serverless architecture on Google
-  Cloud.
+* 部署到 [Agent Engine](../deploy/agent-engine.md)，這是將你的 ADK agent 部署到 Google Cloud 上 Vertex AI 受管服務的最簡單方法。
+* 部署到 [Cloud Run](../deploy/cloud-run.md)，你可以完全掌控 agent 的擴展與管理，並利用 Google Cloud 的無伺服器架構。
 
+## ADK API Server
 
-## The ADK API Server
+ADK API Server 是一個預先封裝好的 [FastAPI](https://fastapi.tiangolo.com/) 網頁伺服器，透過 RESTful API 將你的 agent 對外提供服務。這是本機測試與開發的主要工具，讓你在部署前可以以程式化方式與 agent 互動。
 
-The ADK API Server is a pre-packaged [FastAPI](https://fastapi.tiangolo.com/) web server that exposes your agents through a RESTful API. It is the primary tool for local testing and development, allowing you to interact with your agents programmatically before deploying them.
+## 啟動伺服器
 
-## Running the Server
-
-To start the server, run the following command from your project's root directory:
+要啟動伺服器，請在你的專案根目錄執行以下指令：
 
 ```shell
 adk api_server
 ```
 
-By default, the server runs on `http://localhost:8000`. You will see output confirming that the server has started:
+預設情況下，伺服器會在 `http://localhost:8000` 上運行。你會看到伺服器已啟動的確認輸出：
 
 ```shell
 INFO:     Uvicorn running on http://localhost:8000 (Press CTRL+C to quit)
 ```
 
-## Debugging with Interactive API Docs
+## 使用互動式 API 文件進行除錯
 
-The API server automatically generates interactive API documentation using Swagger UI. This is an invaluable tool for exploring endpoints, understanding request formats, and testing your agent directly from your browser.
+API 伺服器會自動產生互動式 API 文件，並透過 Swagger UI 呈現。這是一個極為有價值的工具，可用於探索各個端點、了解請求格式，並直接從瀏覽器測試你的 agent。
 
-To access the interactive docs, start the API server and navigate to [http://localhost:8000/docs](http://localhost:8000/docs) in your web browser.
+要存取互動式文件，請啟動 API 伺服器，然後在瀏覽器中前往 [http://localhost:8000/docs](http://localhost:8000/docs)。
 
-You will see a complete, interactive list of all available API endpoints, which you can expand to see detailed information about parameters, request bodies, and response schemas. You can even click "Try it out" to send live requests to your running agents.
+你將會看到所有可用 API 端點的完整互動式清單，點擊展開即可查看參數、請求主體與回應結構的詳細資訊。你甚至可以點選「Try it out」來對正在執行的 agent 發送即時請求。
 
-## API Endpoints
+## API 端點
 
-The following sections detail the primary endpoints for interacting with your agents.
+以下章節將詳細說明與你的 agent 互動的主要端點。
 
-!!! note "JSON Naming Convention"
-    - **Request bodies** must use `snake_case` for field names (e.g., `"app_name"`).
-    - **Response bodies** will use `camelCase` for field names (e.g., `"appName"`).
+!!! note "JSON 命名慣例"
+    - **請求主體** 必須使用 `snake_case` 作為欄位名稱（例如：`"app_name"`）。
+    - **回應主體** 將會使用 `camelCase` 作為欄位名稱（例如：`"appName"`）。
 
-### Utility Endpoints
+### 工具端點
 
-#### List Available Agents
+#### 列出可用 agent
 
-Returns a list of all agent applications discovered by the server.
+回傳伺服器所發現的所有 agent 應用程式清單。
 
-*   **Method:** `GET`
-*   **Path:** `/list-apps`
+*   **方法 (Method)：** `GET`
+*   **路徑 (Path)：** `/list-apps`
 
-**Example Request**
+**範例請求**
 ```shell
 curl -X GET http://localhost:8000/list-apps
 ```
 
-**Example Response**
+**範例回應**
 ```json
 ["my_sample_agent", "another_agent"]
 ```
 
 ---
 
-### Session Management
+### 工作階段管理（Session Management）
 
-Sessions store the state and event history for a specific user's interaction with an agent.
+工作階段（Session）用於儲存特定使用者與 agent 互動時的狀態與事件歷史。
 
-#### Create or Update a Session
+#### 建立或更新工作階段
 
-Creates a new session or updates an existing one. If a session with the given IDs already exists, its state will be overwritten with the new state provided.
+建立新的工作階段，或更新現有的工作階段。如果已存在具有指定 ID 的工作階段，其狀態將會被提供的新狀態覆蓋。
 
-*   **Method:** `POST`
-*   **Path:** `/apps/{app_name}/users/{user_id}/sessions/{session_id}`
+*   **方法（Method）：** `POST`
+*   **路徑（Path）：** `/apps/{app_name}/users/{user_id}/sessions/{session_id}`
 
-**Request Body**
+**請求主體（Request Body）**
 ```json
 {
   "state": {
@@ -301,64 +271,64 @@ Creates a new session or updates an existing one. If a session with the given ID
 }
 ```
 
-**Example Request**
+**範例請求**
 ```shell
 curl -X POST http://localhost:8000/apps/my_sample_agent/users/u_123/sessions/s_abc \
   -H "Content-Type: application/json" \
   -d '{"state": {"visit_count": 5}}'
 ```
 
-**Example Response**
+**範例回應**
 ```json
 {"id":"s_abc","appName":"my_sample_agent","userId":"u_123","state":{"visit_count":5},"events":[],"lastUpdateTime":1743711430.022186}
 ```
 
-#### Get a Session
+#### 取得 Session
 
-Retrieves the details of a specific session, including its current state and all associated events.
+擷取特定 session 的詳細資訊，包括其目前狀態以及所有相關事件。
 
-*   **Method:** `GET`
-*   **Path:** `/apps/{app_name}/users/{user_id}/sessions/{session_id}`
+*   **Method：** `GET`
+*   **Path：** `/apps/{app_name}/users/{user_id}/sessions/{session_id}`
 
-**Example Request**
+**範例請求**
 ```shell
 curl -X GET http://localhost:8000/apps/my_sample_agent/users/u_123/sessions/s_abc
 ```
 
-**Example Response**
+**範例回應**
 ```json
 {"id":"s_abc","appName":"my_sample_agent","userId":"u_123","state":{"visit_count":5},"events":[...],"lastUpdateTime":1743711430.022186}
 ```
 
-#### Delete a Session
+#### 刪除 Session
 
-Deletes a session and all of its associated data.
+刪除一個 session 及其所有相關的資料。
 
-*   **Method:** `DELETE`
-*   **Path:** `/apps/{app_name}/users/{user_id}/sessions/{session_id}`
+*   **方法 (Method)：** `DELETE`
+*   **路徑 (Path)：** `/apps/{app_name}/users/{user_id}/sessions/{session_id}`
 
-**Example Request**
+**範例請求 (Example Request)**
 ```shell
 curl -X DELETE http://localhost:8000/apps/my_sample_agent/users/u_123/sessions/s_abc
 ```
 
-**Example Response**
-A successful deletion returns an empty response with a `204 No Content` status code.
+**範例回應**
+成功刪除時會回傳一個空的回應，並帶有 `204 No Content` 狀態碼。
 
 ---
 
-### Agent Execution
+### agent 執行
 
-These endpoints are used to send a new message to an agent and get a response.
+這些端點（endpoint）用於傳送新訊息給 agent 並取得回應。
 
-#### Run Agent (Single Response)
+#### 執行 agent（單一回應）
 
-Executes the agent and returns all generated events in a single JSON array after the run is complete.
+執行 agent，並在執行完成後，以單一 JSON 陣列回傳所有產生的事件。
 
-*   **Method:** `POST`
-*   **Path:** `/run`
+*   **方法：** `POST`
+*   **路徑：** `/run`
 
-**Request Body**
+**請求主體（Request Body）**
 ```json
 {
   "app_name": "my_sample_agent",
@@ -373,7 +343,7 @@ Executes the agent and returns all generated events in a single JSON array after
 }
 ```
 
-**Example Request**
+**範例請求**
 ```shell
 curl -X POST http://localhost:8000/run \
   -H "Content-Type: application/json" \
@@ -388,15 +358,15 @@ curl -X POST http://localhost:8000/run \
   }'
 ```
 
-#### Run Agent (Streaming)
+#### 執行 agent（串流模式）
 
-Executes the agent and streams events back to the client as they are generated using [Server-Sent Events (SSE)](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events).
+執行 agent，並在事件產生時，透過 [Server-Sent Events (SSE)](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) 將事件串流回傳給用戶端。
 
-*   **Method:** `POST`
-*   **Path:** `/run_sse`
+*   **Method：** `POST`
+*   **Path：** `/run_sse`
 
-**Request Body**
-The request body is the same as for `/run`, with an additional optional `streaming` flag.
+**Request Body**  
+請求主體與 `/run` 相同，額外可選擇加入 `streaming` 旗標。
 ```json
 {
   "app_name": "my_sample_agent",
@@ -411,9 +381,9 @@ The request body is the same as for `/run`, with an additional optional `streami
   "streaming": true
 }
 ```
-- `streaming`: (Optional) Set to `true` to enable token-level streaming for model responses. Defaults to `false`.
+- `streaming`：（選填）設為 `true` 可啟用模型回應的權杖級串流（token-level streaming）。預設為 `false`。
 
-**Example Request**
+**範例請求**
 ```shell
 curl -X POST http://localhost:8000/run_sse \
   -H "Content-Type: application/json" \

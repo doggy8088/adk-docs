@@ -1,6 +1,6 @@
 ## jQuery v3.7.1
 
-### jQuery License
+### jQuery 授權條款
 ```
 jQuery v 3.7.1
 Copyright OpenJS Foundation and other contributors, https://openjsf.org/

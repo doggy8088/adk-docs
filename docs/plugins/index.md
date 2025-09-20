@@ -1,71 +1,37 @@
-# Plugins
+# 外掛（Plugins）
 
-## What is a Plugin?
+## 什麼是外掛（Plugin）？
 
-A Plugin in Agent Development Kit (ADK) is a custom code module that can be
-executed at various stages of an agent workflow lifecycle using callback hooks.
-You use Plugins for functionality that is applicable across your agent workflow.
-Some typical applications of Plugins are as follows:
+在 Agent Development Kit (ADK) 中，外掛（Plugin）是一個自訂的程式碼模組，可以透過 callback hooks（回呼鉤子）在 agent 工作流程生命週期的不同階段被執行。你可以利用外掛來實現適用於整個 agent 工作流程的功能。外掛的常見應用包括：
 
--   **Logging and tracing**: Create detailed logs of agent, tool, and
-    generative AI model activity for debugging and performance analysis.
--   **Policy enforcement**: Implement security guardrails, such as a
-    function that checks if users are authorized to use a specific tool and
-    prevent its execution if they do not have permission.
--   **Monitoring and metrics**: Collect and export metrics on token usage,
-    execution times, and invocation counts to monitoring systems such as
-    Prometheus or 
-    [Google Cloud Observability](https://cloud.google.com/stackdriver/docs) 
-    (formerly Stackdriver).
--   **Response caching**: Check if a request has been made before, so you
-    can return a cached response, skipping expensive or time consuming AI model
-    or tool calls.
--   **Request or response modification**: Dynamically add information to AI
-    model prompts or standardize tool output responses.
+-   **日誌與追蹤（Logging and tracing）**：建立詳細的 agent、工具（tool）以及生成式 AI 模型活動日誌，用於除錯與效能分析。
+-   **政策強制執行（Policy enforcement）**：實作安全防護措施，例如檢查使用者是否有權限使用特定工具的函式，若無權限則阻止執行。
+-   **監控與指標（Monitoring and metrics）**：收集並匯出 token 使用量、執行時間及呼叫次數等指標至監控系統，例如 Prometheus 或 [Google Cloud Observability](https://cloud.google.com/stackdriver/docs)（前稱 Stackdriver）。
+-   **回應快取（Response caching）**：檢查請求是否已發生過，若是則回傳快取回應，省略耗時或高成本的 AI 模型或工具呼叫。
+-   **請求或回應修改（Request or response modification）**：動態為 AI 模型提示詞（prompt）新增資訊，或標準化工具的輸出回應。
 
 !!! tip
-    When implementing security guardrails and policies, use ADK Plugins for
-    better modularity and flexibility than Callbacks. For more details, see 
-    [Callbacks and Plugins for Security Guardrails](/adk-docs/safety/#callbacks-and-plugins-for-security-guardrails).
+    當你需要實作安全防護措施與政策時，建議使用 ADK 外掛（Plugin），其模組化與彈性優於 Callbacks。詳情請參閱 [Callbacks and Plugins for Security Guardrails](/adk-docs/safety/#callbacks-and-plugins-for-security-guardrails)。
 
-!!! warning "Caution"
-    Plugins are not supported by the 
-    [ADK web interface](../evaluate/#1-adk-web-run-evaluations-via-the-web-ui). 
-    If your ADK workflow uses Plugins, you must run your workflow without the 
-    web interface.
+!!! warning "注意"
+    外掛（Plugins）目前不支援 [ADK 網頁 UI](../evaluate/#1-adk-web-run-evaluations-via-the-web-ui)。
+    如果你的 ADK 工作流程使用了外掛，則必須在沒有網頁 UI 的情況下執行工作流程。
 
-Tip: When implementing security guardrails and policies, use ADK Plugins for better modularity and flexibility than Callbacks. For more details, see [Callbacks and Plugins for Security Guardrails](../safety/index.md#callbacks-and-plugins-for-security-guardrails).
+提示：當你需要實作安全防護措施與政策時，建議使用 ADK 外掛（Plugin），其模組化與彈性優於 Callbacks。詳情請參閱 [Callbacks and Plugins for Security Guardrails](../safety/index.md#callbacks-and-plugins-for-security-guardrails)。
 
-## How do Plugins work?
+## 外掛（Plugin）如何運作？
 
-An ADK Plugin extends the `BasePlugin` class and contains one or more
-`callback` methods, indicating where in the agent lifecycle the Plugin should be
-executed. You integrate Plugins into an agent by registering them in your
-agent's `Runner` class. For more information on how and where you can trigger
-Plugins in your agent application, see
-[Plugin callback hooks](#plugin-callback-hooks).
+ADK 外掛會繼承 `BasePlugin` 類別，並包含一個或多個 `callback` 方法，這些方法用來指定外掛應該在 agent 生命週期的哪個階段被執行。你可以透過將外掛註冊到 agent 的 `Runner` 類別中，將其整合進 agent。關於如何以及在哪些地方觸發外掛，請參閱 [Plugin callback hooks](#plugin-callback-hooks)。
 
-Plugin functionality builds on
-[Callbacks](../callbacks/), which is a key design
-element of the ADK's extensible architecture. While a typical Agent Callback is
-configured on a *single agent, a single tool* for a *specific task*, a Plugin is
-registered *once* on the `Runner` and its callbacks apply *globally* to every
-agent, tool, and LLM call managed by that runner. Plugins let you package
-related callback functions together to be used across a workflow. This makes
-Plugins an ideal solution for implementing features that cut across your entire
-agent application.
+外掛的功能是建立在 [Callbacks](../callbacks/) 之上，這是 ADK 可擴充架構的關鍵設計元素。一般來說，Agent Callback 會設定於「單一 agent、單一工具」並針對「特定任務」；而外掛則只需在 `Runner` 上註冊一次，其 callback 會*全域*套用至該 runner 管理的每一個 agent、工具與大型語言模型（LLM）呼叫。外掛讓你能將相關的 callback 函式打包，於整個工作流程中重複使用。因此，外掛非常適合實作橫跨整個 agent 應用程式的功能。
 
-## Define and register Plugins
+## 定義與註冊外掛（Plugins）
 
-This section explains how to define Plugin classes and register them as part of
-your agent workflow. For a complete code example, see
-[Plugin Basic](https://github.com/google/adk-python/tree/main/contributing/samples/plugin_basic)
-in the repository.
+本節說明如何定義外掛類別並將其註冊到你的 agent 工作流程中。完整的程式碼範例請參閱 [Plugin Basic](https://github.com/google/adk-python/tree/main/contributing/samples/plugin_basic)。
 
-### Create Plugin class
+### 建立外掛類別（Plugin class）
 
-Start by extending the `BasePlugin` class and add one or more `callback`
-methods, as shown in the following code example:
+首先，繼承 `BasePlugin` 類別，並新增一個或多個 `callback` 方法，如下方程式碼範例所示：
 
 ```py title="count_plugin.py"
 from google.adk.agents.base_agent import BaseAgent
@@ -98,17 +64,11 @@ class CountInvocationPlugin(BasePlugin):
     print(f"[Plugin] LLM request count: {self.llm_request_count}")
 ```
 
-This example code implements callbacks for `before_agent_callback` and
-`before_model_callback` to count execution of these tasks during the lifecycle
-of the agent.
+此範例程式碼實作了`before_agent_callback`與`before_model_callback`的回呼函式，用於在 agent 的生命週期中統計這些任務的執行次數。
 
-### Register Plugin class
+### 註冊 Plugin 類別
 
-Integrate your Plugin class by registering it during your agent initialization
-as part of your `Runner` class, using the `plugins` parameter. You can specify
-multiple Plugins with this parameter. The following code example shows how to
-register the `CountInvocationPlugin` plugin defined in the previous section with
-a simple ADK agent.
+在初始化 agent 時，透過在`Runner`類別中使用`plugins`參數，註冊你的 Plugin 類別以進行整合。你可以透過此參數指定多個 Plugin。以下程式碼範例展示如何將前一節定義的`CountInvocationPlugin` plugin，註冊到一個簡單的 Agent Development Kit (ADK) agent 中。
 
 ```py
 from google.adk.runners import InMemoryRunner
@@ -162,22 +122,18 @@ if __name__ == "__main__":
   asyncio.run(main())
 ```
 
-### Run the agent with the Plugin
+### 使用 Plugin 執行 agent
 
-Run the plugin as you typically would. The following shows how to run the
-command line:
+如同一般情況一樣執行 plugin。以下範例顯示如何在命令列執行：
 
 ```sh
 python3 -m path.to.main
 ```
 
-Plugins are not supported by the
-[ADK web interface](../evaluate/#1-adk-web-run-evaluations-via-the-web-ui).
-If your ADK workflow uses Plugins, you must run your workflow without the web
-interface.
+[ADK 網頁 UI](../evaluate/#1-adk-web-run-evaluations-via-the-web-ui) 不支援 Plugins。
+如果你的 Agent Development Kit (ADK) 工作流程使用 Plugins，你必須在沒有網頁 UI 的情況下執行你的工作流程。
 
-The output of this previously described agent should look similar to the
-following:
+前述 agent 的輸出應會類似以下內容：
 
 ```log
 [Plugin] Agent run count: 1
@@ -190,62 +146,28 @@ Hello world: query is [hello world]
 ```
 
 
-For more information on running ADK agents, see the
-[Quickstart](/get-started/quickstart/#run-your-agent)
-guide.
+如需有關執行 ADK agents 的更多資訊，請參閱
+[快速開始](/get-started/quickstart/#run-your-agent)
+指南。
 
-## Build workflows with Plugins
+## 使用 Plugins 建構工作流程
 
-Plugin callback hooks are a mechanism for implementing logic that intercepts,
-modifies, and even controls the agent's execution lifecycle. Each hook is a
-specific method in your Plugin class that you can implement to run code at a key
-moment. You have a choice between two modes of operation based on your hook's
-return value:
+Plugin callback hooks（外掛回呼掛鉤）是一種實現攔截、修改，甚至控制 agent 執行生命週期邏輯的機制。每個 hook 都是在你的 Plugin 類別中可實作的特定方法，能讓你在關鍵時刻執行自訂程式碼。根據 hook 的回傳值，你可以選擇以下兩種操作模式：
 
--   **To Observe:** Implement a hook with no return value (`None`). This
-    approach is for tasks such as logging or collecting metrics, as it allows
-    the agent's workflow to proceed to the next step without interruption. For
-    example, you could use `after_tool_callback` in a Plugin to log every
-    tool's result for debugging.
--   **To Intervene:** Implement a hook and return a value. This approach
-    short-circuits the workflow. The `Runner` halts processing, skips any
-    subsequent plugins and the original intended action, like a Model call, and
-    use a Plugin callback's return value as the result. A common use case is
-    implementing `before_model_callback` to return a cached `LlmResponse`,
-    preventing a redundant and costly API call.
--   **To Amend:** Implement a hook and modify the Context object. This
-    approach allows you to modify the context data for the module to be
-    executed without otherwise interrupting the execution of that module. For
-    example, adding additional, standardized prompt text for Model object execution.
+-   **觀察（Observe）：** 實作一個沒有回傳值的 hook（`None`）。這種方式適合用於記錄日誌或收集指標等任務，因為它允許 agent 的工作流程不受干擾地進行到下一步。例如，你可以在 Plugin 中使用 `after_tool_callback` 來記錄每個工具的結果以便除錯。
+-   **介入（Intervene）：** 實作一個 hook 並回傳值。這種方式會中斷（short-circuit）工作流程。`Runner` 會停止處理，跳過任何後續的 plugins 以及原本預期的動作（如 Model 呼叫），並將 Plugin callback 的回傳值作為結果。常見的使用情境是實作 `before_model_callback` 來回傳快取的 `LlmResponse`，避免重複且昂貴的 API 呼叫。
+-   **修正（Amend）：** 實作一個 hook 並修改 Context 物件。這種方式允許你在不影響該模組執行的情況下，修改該模組將要執行的 context 資料。例如，為 Model 物件執行時新增額外的標準化提示文字。
 
-**Caution:** Plugin callback functions have precedence over callbacks
-implemented at the object level. This behavior means that Any Plugin callbacks
-code is executed *before* any Agent, Model, or Tool objects callbacks are
-executed. Furthermore, if a Plugin-level agent callback returns any value, and
-not an empty (`None`) response, the Agent, Model, or Tool-level callback is *not
-executed* (skipped).
+**注意：** Plugin callback 函式的優先順序高於物件層級的 callback。這表示任何 Plugin callback 程式碼都會在 Agent、Model 或 Tool 物件的 callback 執行*之前*執行。此外，如果 Plugin 層級的 agent callback 有回傳任何值（而非空的 `None` 回應），則 Agent、Model 或 Tool 層級的 callback *不會執行*（會被略過）。
 
-The Plugin design establishes a hierarchy of code execution and separates
-global concerns from local agent logic. A Plugin is the stateful *module* you
-build, such as `PerformanceMonitoringPlugin`, while the callback hooks are the
-specific *functions* within that module that get executed. This architecture
-differs fundamentally from standard Agent Callbacks in these critical ways:
+Plugin 的設計建立了程式碼執行的階層，並將全域關注事項與本地 agent 邏輯分離。Plugin 是你所建立的有狀態*模組*（如 `PerformanceMonitoringPlugin`），而 callback hooks 則是該模組內部會被執行的特定*函式*。這種架構在以下幾個關鍵方面與標準 Agent Callback 有根本上的不同：
 
--   **Scope:** Plugin hooks are *global*. You register a Plugin once on the
-    `Runner`, and its hooks apply universally to every Agent, Model, and Tool
-    it manages. In contrast, Agent Callbacks are *local*, configured
-    individually on a specific agent instance.
--   **Execution Order:** Plugins have *precedence*. For any given event, the
-    Plugin hooks always run before any corresponding Agent Callback. This
-    system behavior makes Plugins the correct architectural choice for
-    implementing cross-cutting features like security policies, universal
-    caching, and consistent logging across your entire application.
+-   **範圍（Scope）：** Plugin hooks 是*全域*的。你只需在 `Runner` 上註冊一次 Plugin，其 hooks 就會普遍適用於它所管理的每個 Agent、Model 和 Tool。相較之下，Agent Callback 是*本地*的，需在特定 agent 實例上個別設定。
+-   **執行順序（Execution Order）：** Plugins 具有*優先權*。對於任何事件，Plugin hooks 都會在對應的 Agent Callback 之前執行。這種系統行為使 Plugins 成為實作跨層特性（如安全政策、全域快取、一致性日誌記錄等）的正確架構選擇，能應用於整個應用程式。
 
-### Agent Callbacks and Plugins
+### Agent Callback 與 Plugins
 
-As mentioned in the previous section, there are some functional similarities
-between Plugins and Agent Callbacks. The following table compares the
-differences between Plugins and Agent Callbacks in more detail.
+如前一節所述，Plugins 與 Agent Callback 在功能上有一些相似之處。下表更詳細地比較了 Plugins 與 Agent Callback 之間的差異。
 
 <table>
   <thead>
@@ -257,72 +179,56 @@ differences between Plugins and Agent Callbacks in more detail.
   </thead>
   <tbody>
     <tr>
-      <td><strong>Scope</strong></td>
-      <td><strong>Global</strong>: Apply to all agents/tools/LLMs in the
-<code>Runner</code>.</td>
-      <td><strong>Local</strong>: Apply only to the specific agent instance
-they are configured on.</td>
+      <td><strong>範圍（Scope）</strong></td>
+      <td><strong>全域（Global）</strong>：適用於
+所有 <code>Runner</code> 中的 agents/tools/LLMs。</td>
+      <td><strong>本地（Local）</strong>：僅適用於設定於其上的特定 agent 實例。</td>
     </tr>
     <tr>
-      <td><strong>Primary Use Case</strong></td>
-      <td><strong>Horizontal Features</strong>: Logging, policy, monitoring,
-global caching.</td>
-      <td><strong>Specific Agent Logic</strong>: Modifying the behavior or
-state of a single agent.</td>
+      <td><strong>主要用途（Primary Use Case）</strong></td>
+      <td><strong>橫向特性（Horizontal Features）</strong>：日誌記錄、政策、監控、全域快取。</td>
+      <td><strong>特定 agent 邏輯（Specific Agent Logic）</strong>：修改單一 agent 的行為或狀態。</td>
     </tr>
     <tr>
-      <td><strong>Configuration</strong></td>
-      <td>Configure once on the <code>Runner</code>.</td>
-      <td>Configure individually on each <code>BaseAgent</code> instance.</td>
+      <td><strong>設定方式（Configuration）</strong></td>
+      <td>在 <code>Runner</code> 上設定一次。</td>
+      <td>在每個 <code>BaseAgent</code> 實例上個別設定。</td>
     </tr>
     <tr>
-      <td><strong>Execution Order</strong></td>
-      <td>Plugin callbacks run <strong>before</strong> Agent Callbacks.</td>
-      <td>Agent callbacks run <strong>after</strong> Plugin callbacks.</td>
+      <td><strong>執行順序（Execution Order）</strong></td>
+      <td>Plugin callbacks 會在 Agent Callbacks <strong>之前</strong>執行。</td>
+      <td>Agent callbacks 會在 Plugin callbacks <strong>之後</strong>執行。</td>
     </tr>
   </tbody>
 </table>
 
 ## Plugin callback hooks
 
-You define when a Plugin is called with the callback functions to define in
-your Plugin class. Callbacks are available when a user message is received,
-before and after an `Runner`, `Agent`, `Model`, or `Tool` is called, for
-`Events`, and when a `Model`, or `Tool` error occurs. These callbacks include,
-and take precedence over, the any callbacks defined within your Agent, Model,
-and Tool classes.
+你可以在 Plugin 類別中定義 callback 函式，來決定 Plugin 何時被呼叫。當收到使用者訊息、在呼叫 `Runner`、`Agent`、`Model` 或 `Tool` 之前與之後、針對 `Events`，以及發生 `Model` 或 `Tool` 錯誤時，都可以使用這些 callback。這些 callback 包含並優先於你在 Agent、Model 和 Tool 類別中定義的任何 callback。
 
-The following diagram illustrates callback points where you can attach and run
-Plugin functionality during your agents workflow:
+下圖說明了你可以在 agents 工作流程中掛載並執行 Plugin 功能的 callback 節點：
 
 ![ADK Plugin callback hooks](../assets/workflow-plugin-hooks.svg)
-**Figure 1.** Diagram of ADK agent workflow with Plugin callback hook
-locations.
+**圖 1.** ADK agent 工作流程與 Plugin callback hook 位置示意圖。
 
-The following sections describe the available callback hooks for Plugins in
-more detail.
+以下各節將更詳細說明 Plugins 可用的 callback hooks。
 
--   [User Message callbacks](#user-message-callbacks)
--   [Runner start callbacks](#runner-start-callbacks)
--   [Agent execution callbacks](#agent-execution-callbacks)
+-   [使用者訊息 callbacks](#user-message-callbacks)
+-   [Runner 啟動 callbacks](#runner-start-callbacks)
+-   [Agent 執行 callbacks](#agent-execution-callbacks)
 -   [Model callbacks](#model-callbacks)
 -   [Tool callbacks](#tool-callbacks)
--   [Runner end callbacks](#runner-end-callbacks)
+-   [Runner 結束 callbacks](#runner-end-callbacks)
 
-### User Message callbacks
+### 使用者訊息 callbacks
 
-*A User Message c*allback (`on_user_message_callback`) happens when a user
-sends a message. The `on_user_message_callback` is the very first hook to run,
-giving you a chance to inspect or modify the initial input.\
+*使用者訊息 callback*（`on_user_message_callback`）會在使用者傳送訊息時觸發。`on_user_message_callback` 是最先執行的 hook，讓你有機會檢查或修改初始輸入。
 
--   **When It Runs:** This callback happens immediately after
-    `runner.run()`, before any other processing.
--   **Purpose:** The first opportunity to inspect or modify the user's raw
-    input.
--   **Flow Control:** Returns a `types.Content` object to **replace** the
-    user's original message.
+-   **觸發時機：** 此 callback 會在 `runner.run()` 之後立即執行，且在任何其他處理之前。
+-   **用途：** 第一個檢查或修改使用者原始輸入的機會。
+-   **流程控制：** 回傳 `types.Content` 物件以**取代**使用者的原始訊息。
 
-The following code example shows the basic syntax of this callback:
+以下程式碼範例顯示此 callback 的基本語法：
 
 ```py
 async def on_user_message_callback(
@@ -333,21 +239,15 @@ async def on_user_message_callback(
 ) -> Optional[types.Content]:
 ```
 
-### Runner start callbacks
+### Runner 啟動回呼（Runner start callbacks）
 
-A *Runner start* callback (`before_run_callback`) happens when the `Runner`
-object takes the potentially modified user message and prepares for execution.
-The `before_run_callback` fires here, allowing for global setup before any agent
-logic begins.
+*Runner 啟動*回呼（`before_run_callback`）會在 `Runner` 物件取得（可能已被修改的）使用者訊息並準備執行時觸發。此時會觸發 `before_run_callback`，允許在任何 agent 邏輯開始前進行全域初始化。
 
--   **When It Runs:** Immediately after `runner.run()` is called, before
-    any other processing.
--   **Purpose:** The first opportunity to inspect or modify the user's raw
-    input.
--   **Flow Control:** Return a `types.Content` object to **replace** the
-    user's original message.
+-   **觸發時機：** 在呼叫 `runner.run()` 後立即執行，且在任何其他處理之前。
+-   **用途：** 這是檢查或修改使用者原始輸入的第一個機會。
+-   **流程控制：** 回傳 `types.Content` 物件可**取代**使用者的原始訊息。
 
-The following code example shows the basic syntax of this callback:
+以下程式碼範例展示了此回呼的基本語法：
 
 ```py
 async def before_run_callback(
@@ -355,59 +255,38 @@ async def before_run_callback(
 ) -> Optional[types.Content]:
 ```
 
-### Agent execution callbacks
+### Agent 執行回呼（Agent execution callbacks）
 
-*Agent execution* callbacks (`before_agent`, `after_agent`) happen when a
-`Runner` object invokes an agent. The `before_agent_callback` runs immediately
-before the agent's main work begins. The main work encompasses the agent's
-entire process for handling the request, which could involve calling models or
-tools. After the agent has finished all its steps and prepared a result, the
-`after_agent_callback` runs.
+*Agent 執行*回呼（`before_agent`、`after_agent`）會在`Runner` 物件呼叫 agent 時發生。`before_agent_callback` 會在 agent 主要工作開始之前立即執行。主要工作包含 agent 處理請求的整個流程，這可能會涉及呼叫大型語言模型 (LLM) 或 tools。當 agent 完成所有步驟並準備好結果後，`after_agent_callback` 會被執行。
 
-**Caution:** Plugins that implement these callbacks are executed *before* the
-Agent-level callbacks are executed. Furthermore, if a Plugin-level agent
-callback returns anything other than a `None` or null response, the Agent-level
-callback is *not executed* (skipped).
+**注意：** 實作這些回呼的 Plugin 會在 Agent 層級的回呼之前執行。此外，如果 Plugin 層級的 agent 回呼回傳的不是 `None` 或 null 回應，則 Agent 層級的回呼*不會被執行*（會被略過）。
 
-For more information about Agent callbacks defined as part of an Agent object,
-see
-[Types of Callbacks](../callbacks/types-of-callbacks/#agent-lifecycle-callbacks).
+如需有關作為 Agent 物件一部分所定義的 Agent 回呼的更多資訊，請參閱
+[Types of Callbacks](../callbacks/types-of-callbacks/#agent-lifecycle-callbacks)。
 
-### Model callbacks
+### Model 回呼（Model callbacks）
 
-Model callbacks **(`before_model`, `after_model`, `on_model_error`)** happen
-before and after a Model object executes. The Plugins feature also supports a
-callback in the event of an error, as detailed below:
+Model 回呼 **（`before_model`、`after_model`、`on_model_error`）** 會在 Model 物件執行前後發生。Plugins 功能也支援在發生錯誤時的回呼，詳情如下：
 
--   If an agent needs to call an AI model, `before_model_callback` runs first.
--   If the model call is successful, `after_model_callback` runs next.
--   If the model call fails with an exception, the `on_model_error_callback`
-    is triggered instead, allowing for graceful recovery.
+-   如果 agent 需要呼叫 AI 模型，會先執行 `before_model_callback`。
+-   如果模型呼叫成功，接著會執行 `after_model_callback`。
+-   如果模型呼叫因例外狀況失敗，則會觸發 `on_model_error_callback`，以便進行優雅的錯誤處理。
 
-**Caution:** Plugins that implement the **`before_model`** and  `**after_model`
-**callback methods are executed *before* the Model-level callbacks are executed.
-Furthermore, if a Plugin-level model callback returns anything other than a
-`None` or null response, the Model-level callback is *not executed* (skipped).
+**注意：** 實作 **`before_model`** 和 `**after_model` 回呼方法的 Plugin 會在 Model 層級的回呼之前執行。此外，如果 Plugin 層級的 model 回呼回傳的不是 `None` 或 null 回應，則 Model 層級的回呼*不會被執行*（會被略過）。
 
-#### Model on error callback details
+#### Model on error 回呼細節
 
-The on error callback for Model objects is only supported by the Plugins
-feature works as follows:
+Model 物件的 on error 回呼僅由 Plugins 功能支援，運作方式如下：
 
--   **When It Runs:** When an exception is raised during the model call.
--   **Common Use Cases:** Graceful error handling, logging the specific
-    error, or returning a fallback response, such as "The AI service is
-    currently unavailable."
--   **Flow Control:**
-    -   Returns an `LlmResponse` object to **suppress the exception**
-        and provide a fallback result.
-    -   Returns `None` to allow the original exception to be raised.
+-   **觸發時機：** 在模型呼叫期間發生例外狀況時執行。
+-   **常見用途：** 優雅的錯誤處理、記錄特定錯誤，或回傳備用回應，例如「AI 服務目前無法使用」。
+-   **流程控制：**
+    -   回傳 `LlmResponse` 物件可**抑制例外狀況**並提供備用結果。
+    -   回傳 `None` 則會讓原始例外狀況被拋出。
 
-**Note**: If the execution of the Model object returns a `LlmResponse`, the
-system resumes the execution flow, and `after_model_callback` will be triggered
-normally.****
+**注意：** 如果 Model 物件的執行回傳 `LlmResponse`，系統會繼續執行流程，並正常觸發 `after_model_callback`。
 
-The following code example shows the basic syntax of this callback:
+以下程式碼範例顯示此回呼的基本語法：
 
 ```py
 async def on_model_error_callback(
@@ -419,42 +298,35 @@ async def on_model_error_callback(
 ) -> Optional[LlmResponse]:
 ```
 
-### Tool callbacks
+### 工具回呼
 
-Tool callbacks **(`before_tool`, `after_tool`, `on_tool_error`)** for Plugins
-happen before or after the execution of a tool, or when an error occurs. The
-Plugins feature also supports a callback in the event of an error, as detailed
-below:\
+插件的工具回呼 **(`before_tool`, `after_tool`, `on_tool_error`)**
+會在工具執行之前或之後，或發生錯誤時觸發。
+插件（Plugins）功能同時支援在發生錯誤時的回呼，詳情如下：\
 
--   When an agent executes a Tool, `before_tool_callback` runs first.
--   If the tool executes successfully, `after_tool_callback` runs next.
--   If the tool raises an exception, the `on_tool_error_callback` is
-    triggered instead, giving you a chance to handle the failure. If
-    `on_tool_error_callback` returns a dict, `after_tool_callback` will be
-    triggered normally.
+-   當 agent 執行工具時，`before_tool_callback` 會先執行。
+-   如果工具執行成功，接著會執行 `after_tool_callback`。
+-   如果工具拋出例外，則會觸發 `on_tool_error_callback`，
+    讓你有機會處理失敗情況。如果
+    `on_tool_error_callback` 回傳一個 dict，`after_tool_callback`
+    會照常被觸發。
 
-**Caution:** Plugins that implement these callbacks are executed *before* the
-Tool-level callbacks are executed. Furthermore, if a Plugin-level tool callback
-returns anything other than a `None` or null response, the Tool-level callback
-is *not executed* (skipped).
+**注意：** 實作這些回呼的插件會在工具層級回呼執行*之前*被執行。此外，如果插件層級的工具回呼回傳的不是 `None` 或 null 回應，則工具層級的回呼
+將*不會被執行*（會被略過）。
 
-#### Tool on error callback details
+#### 工具錯誤回呼細節
 
-The on error callback for Tool objects is only supported by the Plugins feature
-works as follows:
+工具物件的錯誤回呼僅由插件（Plugins）功能支援，運作方式如下：
 
--   **When It Runs:** When an exception is raised during the execution of a
-    tool's `run` method.
--   **Purpose:** Catching specific tool exceptions (like `APIError`),
-    logging the failure, and providing a user-friendly error message back to
-    the LLM.
--   **Flow Control:** Return a `dict` to **suppress the exception**, provide
-    a fallback result. Return `None` to allow the original exception to be raised.
+-   **觸發時機：** 當工具的 `run` 方法執行時發生例外時。
+-   **用途：** 捕捉特定工具例外（如 `APIError`），
+    記錄失敗，並將易於理解的錯誤訊息回傳給大型語言模型 (LLM)。
+-   **流程控制：** 回傳 `dict` 以**抑制例外**，提供備用結果。回傳 `None` 則會讓原本的例外繼續拋出。
 
-**Note**: By returning a `dict`, this resumes the execution flow, and
-`after_tool_callback` will be triggered normally.
+**注意：** 若回傳 `dict`，會恢復執行流程，並且
+`after_tool_callback` 會照常被觸發。
 
-The following code example shows the basic syntax of this callback:
+以下程式碼範例展示了此回呼的基本語法：
 
 ```py
 async def on_tool_error_callback(
@@ -467,21 +339,15 @@ async def on_tool_error_callback(
 ) -> Optional[dict]:
 ```
 
-### Event callbacks
+### 事件回呼（Event callbacks）
 
-An *Event callback* (`on_event_callback`) happens when an agent produces
-outputs such as a text response or a tool call result, it yields them as `Event`
-objects. The `on_event_callback` fires for each event, allowing you to modify it
-before it's streamed to the client.
+*事件回呼*（`on_event_callback`）發生於 agent 產生輸出（例如文字回應或工具呼叫結果）時，會將這些輸出以 `Event` 物件的形式讓渡（yield）。`on_event_callback` 會針對每個事件觸發，讓你在事件串流至用戶端之前進行修改。
 
--   **When It Runs:** After an agent yields an `Event` but before it's sent
-    to the user. An agent's run may produce multiple events.
--   **Purpose:** Useful for modifying or enriching events (e.g., adding
-    metadata) or for triggering side effects based on specific events.
--   **Flow Control:** Return an `Event` object to **replace** the original
-    event.
+-   **觸發時機：** 在 agent 讓渡（yield）`Event` 之後、傳送給使用者之前。一次 agent 執行可能產生多個事件。
+-   **用途：** 適合用於修改或豐富事件（例如新增中繼資料），或根據特定事件觸發副作用。
+-   **流程控制：** 回傳 `Event` 物件可**取代**原始事件。
 
-The following code example shows the basic syntax of this callback:
+以下程式碼範例展示了此回呼的基本語法：
 
 ```py
 async def on_event_callback(
@@ -489,21 +355,15 @@ async def on_event_callback(
 ) -> Optional[Event]:
 ```
 
-### Runner end callbacks
+### Runner 結束回呼
 
-The *Runner end* callback **(`after_run_callback`)** happens when the agent has
-finished its entire process and all events have been handled, the `Runner`
-completes its run. The `after_run_callback` is the final hook, perfect for
-cleanup and final reporting.
+*Runner end* 回呼 **(`after_run_callback`)** 會在 agent 完成其整個流程且所有事件都已處理後發生，`Runner` 完成其執行。`after_run_callback` 是最後一個 hook，非常適合用於清理和最終報告。
 
--   **When It Runs:** After the `Runner` fully completes the execution of a
-    request.
--   **Purpose:** Ideal for global cleanup tasks, such as closing connections
-    or finalizing logs and metrics data.
--   **Flow Control:** This callback is for teardown only and cannot alter
-    the final result.
+-   **觸發時機：** 在 `Runner` 完全執行完一個請求後。
+-   **用途：** 適合用於全域清理任務，例如關閉連線或完成日誌與指標資料的最終處理。
+-   **流程控制：** 此回呼僅用於拆卸（teardown），無法更改最終結果。
 
-The following code example shows the basic syntax of this callback:
+以下程式碼範例顯示此回呼的基本語法：
 
 ```py
 async def after_run_callback(

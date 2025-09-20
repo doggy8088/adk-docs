@@ -1,34 +1,34 @@
-# Deploy to Cloud Run
+# 部署至 Cloud Run
 
 [Cloud Run](https://cloud.google.com/run)
-is a fully managed platform that enables you to run your code directly on top of Google's scalable infrastructure.
+是一個全代管的平台，可讓你直接在 Google 可擴展的基礎架構上執行你的程式碼。
 
-To deploy your agent, you can use either the `adk deploy cloud_run` command _(recommended for Python)_, or with `gcloud run deploy` command through Cloud Run.
+要部署你的 agent，你可以使用 `adk deploy cloud_run` 指令（建議用於 Python），或透過 Cloud Run 使用 `gcloud run deploy` 指令。
 
-## Agent sample
+## agent 範例
 
-For each of the commands, we will reference a the `Capital Agent` sample defined on the [LLM agent](../agents/llm-agents.md) page. We will assume it's in a directory (eg: `capital_agent`).
+針對每個指令，我們都會參考 [大型語言模型 (LLM) agent](../agents/llm-agents.md) 頁面中定義的 `Capital Agent` 範例。我們假設它位於某個目錄下（例如：`capital_agent`）。
 
-To proceed, confirm that your agent code is configured as follows:
+請確認你的 agent 程式碼已依照下列方式設定：
 
 === "Python"
 
-    1. Agent code is in a file called `agent.py` within your agent directory.
-    2. Your agent variable is named `root_agent`.
-    3. `__init__.py` is within your agent directory and contains `from . import agent`.
-    4. Your `requirements.txt` file is present in the agent directory.
+    1. agent 程式碼位於你的 agent 目錄下名為 `agent.py` 的檔案中。
+    2. 你的 agent 變數名稱為 `root_agent`。
+    3. `__init__.py` 位於你的 agent 目錄下，且包含 `from . import agent`。
+    4. 你的 `requirements.txt` 檔案已存在於 agent 目錄中。
 
 === "Java"
 
-    1. Agent code is in a file called `CapitalAgent.java` within your agent directory.
-    2. Your agent variable is global and follows the format `public static final BaseAgent ROOT_AGENT`.
-    3. Your agent definition is present in a static class method.
+    1. agent 程式碼位於你的 agent 目錄下名為 `CapitalAgent.java` 的檔案中。
+    2. 你的 agent 變數為全域變數，並遵循 `public static final BaseAgent ROOT_AGENT` 格式。
+    3. 你的 agent 定義存在於靜態類別方法中。
 
-    Refer to the following section for more details. You can also find a [sample app](https://github.com/google/adk-docs/tree/main/examples/java/cloud-run) in the Github repo.
+    詳細內容請參閱下方章節。你也可以在 GitHub 儲存庫中找到 [範例應用程式](https://github.com/google/adk-docs/tree/main/examples/java/cloud-run)。
 
-## Environment variables
+## 環境變數
 
-Set your environment variables as described in the [Setup and Installation](../get-started/installation.md) guide.
+請依照 [設定與安裝](../get-started/installation.md) 指南中的說明設定你的環境變數。
 
 ```bash
 export GOOGLE_CLOUD_PROJECT=your-project-id
@@ -36,9 +36,9 @@ export GOOGLE_CLOUD_LOCATION=us-central1 # Or your preferred location
 export GOOGLE_GENAI_USE_VERTEXAI=True
 ```
 
-_(Replace `your-project-id` with your actual GCP project ID)_
+_(請將 `your-project-id` 替換為你實際的 GCP 專案 ID)_
 
-Alternatively you can also use an API key from AI Studio
+另外，你也可以使用來自 AI Studio 的 API KEY
 
 ```bash
 export GOOGLE_CLOUD_PROJECT=your-project-id
@@ -46,22 +46,22 @@ export GOOGLE_CLOUD_LOCATION=us-central1 # Or your preferred location
 export GOOGLE_GENAI_USE_VERTEXAI=FALSE
 export GOOGLE_API_KEY=your-api-key
 ```
-*(Replace `your-project-id` with your actual GCP project ID and `your-api-key` with your actual API key from AI Studio)*
+*(請將 `your-project-id` 替換為您的實際 GCP 專案 ID，並將 `your-api-key` 替換為您從 AI Studio 取得的實際 API KEY)*
 
-## Deployment payload {#payload}
+## 部署內容 {#payload}
 
-When you deploy your ADK agent workflow to the Google Cloud Run,
-the following content is uploaded to the service:
+當您將 Agent Development Kit (ADK) agent 工作流程部署到 Google Cloud Run 時，
+以下內容會被上傳至服務：
 
-- Your ADK agent code
-- Any dependencies declared in your ADK agent code
-- ADK API server code version used by your agent
+- 您的 ADK agent 程式碼
+- 在您的 ADK agent 程式碼中宣告的所有相依套件
+- 您的 agent 所使用的 ADK API server 程式碼版本
 
-The default deployment *does not* include the ADK web user interface libraries,
-unless you specify it as deployment setting, such as the `--with_ui` option for
-`adk deploy cloud_run` command.
+預設部署*不會*包含 ADK 網頁 UI 函式庫，
+除非您在部署設定中特別指定，例如在
+`adk deploy cloud_run` 指令中使用 `--with_ui` 選項。
 
-## Deployment commands
+## 部署指令
 
 === "Python - adk CLI"
 
@@ -140,6 +140,9 @@ unless you specify it as deployment setting, such as the `--with_ui` option for
     Upon successful execution, the command will deploy your agent to Cloud Run and provide the URL of the deployed service.
 
 === "Python - gcloud CLI"
+
+
+=== "Python - gcloud 命令列介面 (CLI)"
 
     ### gcloud CLI for Python
 
@@ -372,11 +375,11 @@ unless you specify it as deployment setting, such as the `--with_ui` option for
 
     For a full list of deployment options, see the [`gcloud run deploy` reference documentation](https://cloud.google.com/sdk/gcloud/reference/run/deploy).
 
-## Testing your agent
+## 測試你的 agent
 
-Once your agent is deployed to Cloud Run, you can interact with it via the deployed UI (if enabled) or directly with its API endpoints using tools like `curl`. You'll need the service URL provided after deployment.
+當你的 agent 部署到 Cloud Run 後，你可以透過已部署的網頁 UI（若已啟用）或使用像是 `curl` 這類工具，直接與其 API 端點互動。你將需要在部署完成後取得的服務 URL。
 
-=== "UI Testing"
+=== "UI 測試"
 
     ### UI Testing
 
@@ -401,7 +404,7 @@ Once your agent is deployed to Cloud Run, you can interact with it via the deplo
 
     If you experience any unexpected behavior, check the [Cloud Run](https://console.cloud.google.com/run) console logs.
 
-=== "API Testing (curl)"
+=== "API 測試（curl）"
 
     ### API Testing (curl)
 

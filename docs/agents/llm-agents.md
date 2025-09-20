@@ -1,41 +1,20 @@
 # LLM Agent
 
-The `LlmAgent` (often aliased simply as `Agent`) is a core component in ADK,
-acting as the "thinking" part of your application. It leverages the power of a
-Large Language Model (LLM) for reasoning, understanding natural language, making
-decisions, generating responses, and interacting with tools.
+`LlmAgent`（通常簡稱為 `Agent`）是 Agent Development Kit (ADK)（ADK）中的核心元件，負責作為應用程式的「思考」部分。它運用大型語言模型 (Large Language Model, LLM) 的強大能力來進行推理、理解自然語言、做出決策、產生回應，以及與工具互動。
 
-Unlike deterministic [Workflow Agents](workflow-agents/index.md) that follow
-predefined execution paths, `LlmAgent` behavior is non-deterministic. It uses
-the LLM to interpret instructions and context, deciding dynamically how to
-proceed, which tools to use (if any), or whether to transfer control to another
-agent.
+與遵循預先定義執行路徑的[Workflow Agents](workflow-agents/index.md)不同，`LlmAgent`的行為是非決定性的。它會利用 LLM 來解讀指令與上下文，動態決定如何執行、是否使用工具（如有需要），或是否將控制權轉交給其他 agent。
 
-Building an effective `LlmAgent` involves defining its identity, clearly guiding
-its behavior through instructions, and equipping it with the necessary tools and
-capabilities.
+要打造一個有效的 `LlmAgent`，需要定義其身份，透過明確的指令引導其行為，並賦予必要的工具與能力。
 
-## Defining the Agent's Identity and Purpose
+## 定義 agent 的身份與目的
 
-First, you need to establish what the agent *is* and what it's *for*.
+首先，你需要明確 agent *是什麼* 以及 *用途為何*。
 
-* **`name` (Required):** Every agent needs a unique string identifier. This
-  `name` is crucial for internal operations, especially in multi-agent systems
-  where agents need to refer to or delegate tasks to each other. Choose a
-  descriptive name that reflects the agent's function (e.g.,
-  `customer_support_router`, `billing_inquiry_agent`). Avoid reserved names like
-  `user`.
+* **`name`（必填）：** 每個 agent 都需要一個唯一的字串識別碼。這個 `name` 對於內部運作至關重要，特別是在多代理系統（multi-agent system）中，agent 之間需要互相指派或委派任務。請選擇一個能反映 agent 功能的描述性名稱（例如：`customer_support_router`、`billing_inquiry_agent`）。避免使用像 `user` 這類保留名稱。
 
-* **`description` (Optional, Recommended for Multi-Agent):** Provide a concise
-  summary of the agent's capabilities. This description is primarily used by
-  *other* LLM agents to determine if they should route a task to this agent.
-  Make it specific enough to differentiate it from peers (e.g., "Handles
-  inquiries about current billing statements," not just "Billing agent").
+* **`description`（選填，建議用於多代理系統）：** 提供一個簡明的 agent 能力說明。這個描述主要供*其他* LLM agent 判斷是否應將任務指派給此 agent。請具體說明以區分於其他 agent（例如：「處理有關當前帳單明細的查詢」，而非僅寫「帳單 agent」）。
 
-* **`model` (Required):** Specify the underlying LLM that will power this
-  agent's reasoning. This is a string identifier like `"gemini-2.0-flash"`. The
-  choice of model impacts the agent's capabilities, cost, and performance. See
-  the [Models](models.md) page for available options and considerations.
+* **`model`（必填）：** 指定將為此 agent 提供推理能力的底層 LLM。這是一個像 `"gemini-2.0-flash"` 這樣的字串識別碼。模型的選擇會影響 agent 的能力、成本與效能。請參閱 [Models](models.md) 頁面以了解可用選項與相關考量。
 
 === "Python"
 
@@ -63,31 +42,29 @@ First, you need to establish what the agent *is* and what it's *for*.
     ```
 
 
-## Guiding the Agent: Instructions (`instruction`)
+## 引導 agent：指令（`instruction`）
 
-The `instruction` parameter is arguably the most critical for shaping an
-`LlmAgent`'s behavior. It's a string (or a function returning a string) that
-tells the agent:
+`instruction` 參數可以說是決定 `LlmAgent` 行為最關鍵的要素。它是一個字串（或回傳字串的函式），用來告訴 agent：
 
-* Its core task or goal.
-* Its personality or persona (e.g., "You are a helpful assistant," "You are a witty pirate").
-* Constraints on its behavior (e.g., "Only answer questions about X," "Never reveal Y").
-* How and when to use its `tools`. You should explain the purpose of each tool and the circumstances under which it should be called, supplementing any descriptions within the tool itself.
-* The desired format for its output (e.g., "Respond in JSON," "Provide a bulleted list").
+* 其核心任務或目標。
+* 其個性或角色（例如：「你是一位樂於助人的助手」、「你是一位風趣的海盜」）。
+* 對其行為的限制（例如：「只回答有關 X 的問題」、「絕不透露 Y」）。
+* 如何以及何時使用其 `tools`。你應該說明每個工具的用途，以及應在何種情境下呼叫，補充工具本身的描述。
+* 輸出的期望格式（例如：「以 JSON 回應」、「請提供條列清單」）。
 
-**Tips for Effective Instructions:**
+**有效指令撰寫小技巧：**
 
-* **Be Clear and Specific:** Avoid ambiguity. Clearly state the desired actions and outcomes.
-* **Use Markdown:** Improve readability for complex instructions using headings, lists, etc.
-* **Provide Examples (Few-Shot):** For complex tasks or specific output formats, include examples directly in the instruction.
-* **Guide Tool Use:** Don't just list tools; explain *when* and *why* the agent should use them.
+* **清楚且具體：** 避免模稜兩可。明確說明期望的行動與結果。
+* **善用 Markdown：** 針對複雜指令，使用標題、清單等提升可讀性。
+* **提供範例（Few-Shot）：** 對於複雜任務或特定輸出格式，請直接在指令中加入範例。
+* **引導工具使用：** 不僅僅列出工具，還要說明 agent 應該在*什麼時候*、*為什麼*使用這些工具。
 
-**State:**
+**State（狀態）：**
 
-* The instruction is a string template, you can use the `{var}` syntax to insert dynamic values into the instruction.
-* `{var}` is used to insert the value of the state variable named var.
-* `{artifact.var}` is used to insert the text content of the artifact named var.
-* If the state variable or artifact does not exist, the agent will raise an error. If you want to ignore the error, you can append a `?` to the variable name as in `{var?}`.
+* 指令是一個字串模板，你可以使用 `{var}` 語法將動態值插入指令中。
+* `{var}` 用於插入名為 var 的狀態變數值。
+* `{artifact.var}` 用於插入名為 var 的 artifact 文字內容。
+* 如果狀態變數或 artifact 不存在，agent 會拋出錯誤。如果你想忽略該錯誤，可以在變數名稱後加上 `?`，如 `{var?}`。
 
 === "Python"
 
@@ -132,24 +109,18 @@ tells the agent:
             .build();
     ```
 
-*(Note: For instructions that apply to *all* agents in a system, consider using
-`global_instruction` on the root agent, detailed further in the
-[Multi-Agents](multi-agents.md) section.)*
+*(注意：若需對系統中*所有*代理（agent）設定指令，建議在 root agent 上使用`global_instruction`，詳情請參閱[Multi-Agents](multi-agents.md)章節。)*
 
-## Equipping the Agent: Tools (`tools`)
+## 裝備代理：工具（Tools，`tools`）
 
-Tools give your `LlmAgent` capabilities beyond the LLM's built-in knowledge or
-reasoning. They allow the agent to interact with the outside world, perform
-calculations, fetch real-time data, or execute specific actions.
+tools 能讓你的`LlmAgent`具備超越大型語言模型 (LLM) 內建知識或推理能力的功能。它們允許 agent 與外部世界互動、執行計算、取得即時資料，或執行特定動作。
 
-* **`tools` (Optional):** Provide a list of tools the agent can use. Each item in the list can be:
-    * A native function or method (wrapped as a `FunctionTool`). Python ADK automatically wraps the native function into a `FuntionTool` whereas, you must explicitly wrap your Java methods using `FunctionTool.create(...)`
-    * An instance of a class inheriting from `BaseTool`.
-    * An instance of another agent (`AgentTool`, enabling agent-to-agent delegation - see [Multi-Agents](multi-agents.md)).
+* **`tools`（可選）：** 提供 agent 可使用的 tools 清單。清單中的每個項目可以是：
+    * 原生函式或方法（需包裝為`FunctionTool`）。Python Agent Development Kit (ADK) 會自動將原生函式包裝成`FuntionTool`，而在 Java 中則需你明確使用`FunctionTool.create(...)`進行包裝。
+    * 繼承自`BaseTool`的類別實例。
+    * 另一個 agent 的實例（`AgentTool`，可實現 agent 之間的委派—詳見[Multi-Agents](multi-agents.md)）。
 
-The LLM uses the function/tool names, descriptions (from docstrings or the
-`description` field), and parameter schemas to decide which tool to call based
-on the conversation and its instructions.
+大型語言模型 (LLM) 會根據工具/函式名稱、描述（來自 docstring 或`description`欄位），以及參數結構，依據對話內容與指令判斷要呼叫哪個工具。
 
 === "Python"
 
@@ -204,17 +175,17 @@ on the conversation and its instructions.
             .build();
     ```
 
-Learn more about Tools in the [Tools](../tools/index.md) section.
+深入瞭解工具（tools），請參閱 [Tools](../tools/index.md) 章節。
 
-## Advanced Configuration & Control
+## 進階設定與控制
 
-Beyond the core parameters, `LlmAgent` offers several options for finer control:
+除了核心參數外，`LlmAgent` 還提供多種選項以進行更細緻的控制：
 
-### Configuring LLM Generation (`generate_content_config`) {#fine-tuning-llm-generation-generate_content_config}
+### 設定大型語言模型 (LLM) 生成行為（`generate_content_config`） {#fine-tuning-llm-generation-generate_content_config}
 
-You can adjust how the underlying LLM generates responses using `generate_content_config`.
+你可以透過 `generate_content_config` 調整底層大型語言模型 (LLM) 的回應生成方式。
 
-* **`generate_content_config` (Optional):** Pass an instance of [`google.genai.types.GenerateContentConfig`](https://googleapis.github.io/python-genai/genai.html#genai.types.GenerateContentConfig) to control parameters like `temperature` (randomness), `max_output_tokens` (response length), `top_p`, `top_k`, and safety settings.
+* **`generate_content_config`（可選）：** 傳入 [`google.genai.types.GenerateContentConfig`](https://googleapis.github.io/python-genai/genai.html#genai.types.GenerateContentConfig) 的實例，以控制如 `temperature`（隨機性）、`max_output_tokens`（回應長度）、`top_p`、`top_k` 以及安全性設定等參數。
 
 === "Python"
 
@@ -251,17 +222,17 @@ You can adjust how the underlying LLM generates responses using `generate_conten
             .build();
     ```
 
-### Structuring Data (`input_schema`, `output_schema`, `output_key`)
+### 結構化資料（`input_schema`, `output_schema`, `output_key`）
 
-For scenarios requiring structured data exchange with an `LLM Agent`, the ADK provides mechanisms to define expected input and desired output formats using schema definitions.
+針對需要與`LLM Agent`進行結構化資料交換的情境，Agent Development Kit (ADK)（ADK）提供了機制，可透過 schema 定義來指定預期的輸入與輸出格式。
 
-* **`input_schema` (Optional):** Define a schema representing the expected input structure. If set, the user message content passed to this agent *must* be a JSON string conforming to this schema. Your instructions should guide the user or preceding agent accordingly.
+* **`input_schema`（選用）：** 定義一個代表預期輸入結構的 schema。如果設定此項，傳遞給此 agent 的使用者訊息內容*必須*是符合該 schema 的 JSON 字串。你的指示應引導使用者或前一個 agent 依此格式提供資料。
 
-* **`output_schema` (Optional):** Define a schema representing the desired output structure. If set, the agent's final response *must* be a JSON string conforming to this schema.
+* **`output_schema`（選用）：** 定義一個代表期望輸出結構的 schema。如果設定此項，該 agent 的最終回應*必須*是符合該 schema 的 JSON 字串。
 
-* **`output_key` (Optional):** Provide a string key. If set, the text content of the agent's *final* response will be automatically saved to the session's state dictionary under this key. This is useful for passing results between agents or steps in a workflow.
-    * In Python, this might look like: `session.state[output_key] = agent_response_text`
-    * In Java: `session.state().put(outputKey, agentResponseText)`
+* **`output_key`（選用）：** 提供一個字串型的 key。如果設定此項，該 agent *最終*回應的文字內容將自動儲存至 session 的 state 字典中，並以此 key 作為索引。這對於在多個 agent 或工作流程步驟間傳遞結果特別有用。
+    * 在 Python 中，可能如下所示：`session.state[output_key] = agent_response_text`
+    * 在 Java 中：`session.state().put(outputKey, agentResponseText)`
 
 === "Python"
 
@@ -311,13 +282,13 @@ For scenarios requiring structured data exchange with an `LLM Agent`, the ADK pr
             .build();
     ```
 
-### Managing Context (`include_contents`)
+### 管理上下文（`include_contents`）
 
-Control whether the agent receives the prior conversation history.
+控制 agent 是否接收先前的對話歷史紀錄。
 
-* **`include_contents` (Optional, Default: `'default'`):** Determines if the `contents` (history) are sent to the LLM.
-    * `'default'`: The agent receives the relevant conversation history.
-    * `'none'`: The agent receives no prior `contents`. It operates based solely on its current instruction and any input provided in the *current* turn (useful for stateless tasks or enforcing specific contexts).
+* **`include_contents`（選填，預設值：`'default'`）：** 決定是否將 `contents`（歷史紀錄）傳送給大型語言模型（LLM）。
+    * `'default'`：agent 會接收相關的對話歷史紀錄。
+    * `'none'`：agent 不會接收任何先前的 `contents`。它僅根據目前的指令以及本次回合所提供的輸入來運作（適用於無狀態任務或需強制指定特定上下文時）。
 
 === "Python"
 
@@ -340,15 +311,15 @@ Control whether the agent receives the prior conversation history.
             .build();
     ```
 
-### Planner
+### 規劃器（Planner）
 
-![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="This feature is currently available for Python. Java support is planned/ coming soon."}
+![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python，Java 支援預計推出/即將登場。"}
 
-**`planner` (Optional):** Assign a `BasePlanner` instance to enable multi-step reasoning and planning before execution. There are two main planners:
+**`planner`（選用）：** 指定`BasePlanner`實例，可在執行前啟用多步推理與規劃。目前有兩種主要的規劃器：
 
-* **`BuiltInPlanner`:** Leverages the model's built-in planning capabilities (e.g., Gemini's thinking feature). See [Gemini Thinking](https://ai.google.dev/gemini-api/docs/thinking) for details and examples.
+* **`BuiltInPlanner`：** 利用模型的內建規劃能力（例如 Gemini 的思考功能）。詳情與範例請參考 [Gemini Thinking](https://ai.google.dev/gemini-api/docs/thinking)。
 
-    Here, the `thinking_budget` parameter guides the model on the number of thinking tokens to use when generating a response. The `include_thoughts` parameter controls whether the model should include its raw thoughts and internal reasoning process in the response.
+    在此，`thinking_budget`參數用於引導模型在產生回應時應使用多少思考 token。`include_thoughts`參數則控制模型是否應在回應中包含其原始思考內容與內部推理過程。
 
     ```python
     from google.adk import Agent
@@ -367,7 +338,7 @@ Control whether the agent receives the prior conversation history.
     )
     ```
     
-* **`PlanReActPlanner`:** This planner instructs the model to follow a specific structure in its output: first create a plan, then execute actions (like calling tools), and provide reasoning for its steps. *It's particularly useful for models that don't have a built-in "thinking" feature*.
+* **`PlanReActPlanner`：** 此規劃器會指示模型在輸出時遵循特定結構：先建立計畫，再執行動作（例如呼叫 tools），並針對每個步驟提供推理說明。*這對於沒有內建「思考」功能的模型特別有用*。
 
     ```python
     from google.adk import Agent
@@ -380,7 +351,7 @@ Control whether the agent receives the prior conversation history.
     )
     ```
 
-    The agent's response will follow a structured format:
+    代理（agent）的回應將遵循結構化格式：
 
     ```
     [user]: ai news
@@ -397,13 +368,13 @@ Control whether the agent receives the prior conversation history.
     ....
     ```
 
-### Code Execution
+### 程式碼執行
 
-![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="This feature is currently available for Python. Java support is planned/ coming soon."}
+![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python，Java 支援預計推出/即將上線。"}
 
-* **`code_executor` (Optional):** Provide a `BaseCodeExecutor` instance to allow the agent to execute code blocks found in the LLM's response. ([See Tools/Built-in tools](../tools/built-in-tools.md)).
+* **`code_executor`（選用）：** 提供`BaseCodeExecutor`實例，以允許代理（agent）執行大型語言模型 (LLM) 回應中的程式碼區塊。（[請參閱 內建工具](../tools/built-in-tools.md)）
 
-Example for using built-in-planner:
+使用 built-in-planner 的範例：
 ```python
 
 
@@ -526,10 +497,10 @@ call_agent("If it's raining in New York right now, what is the current temperatu
 
 ```
 
-## Putting It Together: Example
+## 綜合應用：範例
 
-??? "Code"
-    Here's the complete basic `capital_agent`:
+??? "程式碼"
+    以下是完整的基礎 `capital_agent`：
 
     === "Python"
     
@@ -543,11 +514,11 @@ call_agent("If it's raining in New York right now, what is the current temperatu
         --8<-- "examples/java/snippets/src/main/java/agents/LlmAgentExample.java:full_code"
         ```
 
-_(This example demonstrates the core concepts. More complex agents might incorporate schemas, context control, planning, etc.)_
+_（本範例展示了核心概念。更複雜的代理（agent）可能會結合 schema、情境控制、規劃等功能。）_
 
-## Related Concepts (Deferred Topics)
+## 相關概念（延伸主題）
 
-While this page covers the core configuration of `LlmAgent`, several related concepts provide more advanced control and are detailed elsewhere:
+本頁說明了`LlmAgent`的核心設定，還有其他相關概念可提供更進階的控制，詳情請參閱其他章節：
 
-* **Callbacks:** Intercepting execution points (before/after model calls, before/after tool calls) using `before_model_callback`, `after_model_callback`, etc. See [Callbacks](../callbacks/types-of-callbacks.md).
-* **Multi-Agent Control:** Advanced strategies for agent interaction, including planning (`planner`), controlling agent transfer (`disallow_transfer_to_parent`, `disallow_transfer_to_peers`), and system-wide instructions (`global_instruction`). See [Multi-Agents](multi-agents.md).
+* **Callbacks（回呼）:** 使用`before_model_callback`、`after_model_callback`等攔截執行點（模型呼叫前/後、工具呼叫前/後）。請參閱 [Callbacks](../callbacks/types-of-callbacks.md)。
+* **多代理控制（Multi-Agent Control）:** 進階的代理（agent）互動策略，包括規劃（`planner`）、代理轉移控制（`disallow_transfer_to_parent`、`disallow_transfer_to_peers`），以及系統層級指令（`global_instruction`）。請參閱 [Multi-Agents](multi-agents.md)。

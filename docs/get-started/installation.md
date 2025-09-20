@@ -1,4 +1,4 @@
-# Installing ADK
+# 安裝 Agent Development Kit (ADK)
 
 === "Python"
 
@@ -36,6 +36,9 @@
     ```bash
     pip show google-adk
     ```
+
+=== "Java"
+
 
 === "Java"
 
@@ -93,6 +96,6 @@
     You should also configure Gradle to pass `-parameters` to `javac`. (Alternatively, use `@Schema(name = "...")`).
 
 
-## Next steps
+## 下一步
 
-* Try creating your first agent with the [**Quickstart**](quickstart.md)
+* 嘗試使用 [**快速開始**](quickstart.md) 建立你的第一個 agent

@@ -1,23 +1,22 @@
-# Streaming Tools
+# 串流工具
 
 !!! info
 
     This is only supported in streaming(live) agents/api.
 
-Streaming tools allows tools(functions) to stream intermediate results back to agents and agents can respond to those intermediate results. 
-For example, we can use streaming tools to monitor the changes of the stock price and have the agent react to it. Another example is we can have the agent monitor the video stream, and when there is changes in video stream, the agent can report the changes.
+串流工具（Streaming tools）允許工具（函式）將中間結果即時串流回 Agent，並且 Agent 可以對這些中間結果做出回應。
+例如，我們可以使用串流工具來監控股票價格的變化，並讓 Agent 根據變化做出反應。另一個例子是，讓 Agent 監控視訊串流，當視訊串流發生變化時，Agent 可以回報這些變化。
 
-To define a streaming tool, you must adhere to the following:
+要定義一個串流工具，必須遵循以下規範：
 
-1.  **Asynchronous Function:** The tool must be an `async` Python function.
-2.  **AsyncGenerator Return Type:** The function must be typed to return an `AsyncGenerator`. The first type parameter to `AsyncGenerator` is the type of the data you `yield` (e.g., `str` for text messages, or a custom object for structured data). The second type parameter is typically `None` if the generator doesn't receive values via `send()`.
+1.  **非同步函式（Asynchronous Function）：** 工具必須是一個 `async` Python 函式。
+2.  **AsyncGenerator 回傳型別：** 此函式必須標註為回傳 `AsyncGenerator`。`AsyncGenerator` 的第一個型別參數是你要`yield`的資料型別（例如：`str` 代表文字訊息，或自訂物件代表結構化資料）。第二個型別參數通常是 `None`，如果該 generator 沒有透過 `send()` 接收值。
 
+我們支援兩種類型的串流工具：
+- 簡單型（Simple type）：這種類型的串流工具僅接受非視訊/音訊串流（即你傳遞給 ADK Web 或 ADK Runner 的串流）作為輸入。
+- 視訊串流工具（Video streaming tools）：這僅適用於視訊串流，並且會將視訊串流（即你傳遞給 ADK Web 或 ADK Runner 的串流）傳入此函式。
 
-We support two types of streaming tools:
-- Simple type. This is a one type of streaming tools that only take non video/audio streams(the streams that you feed to adk web or adk runner) as input.
-- Video streaming tools. This only works in video streaming and the video stream(the streams that you feed to adk web or adk runner) will be passed into this function.
-
-Now let's define an agent that can monitor stock price changes and monitor the video stream changes. 
+現在，讓我們定義一個可以同時監控股票價格變化與視訊串流變化的 Agent。 
 
 ```python
 import asyncio
@@ -148,6 +147,6 @@ root_agent = Agent(
 )
 ```
 
-Here are some sample queries to test:
-- Help me monitor the stock price for $XYZ stock.
-- Help me monitor how many people are there in the video stream.
+以下是一些可用來測試的範例查詢：
+- 幫我監控 $XYZ 股票的股價。
+- 幫我監控影片串流中有多少人。

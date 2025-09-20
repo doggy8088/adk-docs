@@ -1,45 +1,26 @@
-# Increase tool performance with parallel execution
+# 透過平行執行提升工具效能
 
-Starting with Agent Development Kit (ADK) version 1.10.0, the framework
-attempts to run any agent-requested 
-[function tools](/adk-docs/tools/function-tools/) 
-in parallel. This behavior can significantly improve the performance and
-responsiveness of your agents, particularly for agents that rely on multiple
-external APIs or long-running tasks. For example, if you have 3 tools that each
-take 2 seconds, by running them in parallel, the total execution time will be
-closer to 2 seconds, instead of 6 seconds. The ability to run tool functions
-parallel can improve the performance of your agents, particularly in the
-following scenarios:
+自 Agent Development Kit (ADK) 1.10.0 版本起，框架會嘗試將所有由 agent 請求的
+[function tools](/adk-docs/tools/function-tools/)
+以平行方式執行。這項行為能顯著提升 agent 的效能與回應速度，特別是對於依賴多個外部 API 或長時間執行任務的 agent。例如，若你有 3 個各需耗時 2 秒的工具，透過平行執行，總執行時間將接近 2 秒，而非 6 秒。能夠平行執行工具函式，能在以下情境下大幅提升 agent 的效能：
 
--   **Research tasks:** Where the agent collects information from multiple
-    sources before proceeding to the next stage of the workflow.
--   **API calls:** Where the agent accesses several APIs independently, such
-    as searching for available flights using APIs from multiple airlines.
--   **Publishing and communication tasks:** When the agent needs to publish
-    or communicate through multiple, independent channels or multiple recipients.
+-   **研究任務：** 當 agent 需要從多個來源收集資訊，才能進行下一階段的工作流程。
+-   **API 呼叫：** 當 agent 需要獨立存取多個 API，例如透過多家航空公司的 API 搜尋可用航班。
+-   **發布與通訊任務：** 當 agent 需要透過多個獨立的管道或多個收件人進行發布或通訊時。
 
-However, your custom tools must be built with asynchronous execution support to
-enable this performance improvement. This guide explains how parallel tool
-execution works in the ADK and how to build your tools to take full advantage of
-this processing feature.
+然而，你自訂的工具必須具備非同步執行的支援，才能啟用這項效能提升。本指南將說明 ADK 中平行工具執行的運作方式，以及如何建構你的工具以充分利用這項處理功能。
 
 !!! warning
-    Any ADK Tools that use synchronous processing in a set of tool function
-    calls will block other tools from executing in parallel, even if the other
-    tools allow for parallel execution.
+    任何在一組工具函式呼叫中使用同步處理的 ADK 工具，都會阻塞其他工具的平行執行，即使其他工具本身支援平行執行也一樣。
 
-## Build parallel-ready tools
+## 建立支援平行的工具
 
-Enable parallel execution of your tool functions by defining them as
-asynchronous functions. In Python code, this means using `async def` and `await`
-syntax which allows the ADK to run them concurrently in an `asyncio` event loop.
-The following sections show examples of agent tools built for parallel
-processing and asynchronous operations.
+你可以將工具函式定義為非同步函式，以啟用平行執行。在 Python 程式碼中，這表示要使用 `async def` 與 `await`
+語法，讓 ADK 能在 `asyncio` 事件迴圈中同時執行它們。以下章節將展示為平行處理與非同步操作設計的 agent 工具範例。
 
-### Example of http web call
+### HTTP 網路呼叫範例
 
-The following code example show how to modify the `get_weather()` function to
-operate asynchronously and allow for parallel execution:
+以下程式碼範例說明如何修改 `get_weather()` 函式，使其能以非同步方式運作並支援平行執行：
 
 ```python
  async def get_weather(city: str) -> dict:
@@ -48,10 +29,9 @@ operate asynchronously and allow for parallel execution:
               return await response.json()
 ```
 
-### Example of database call
+### 資料庫呼叫範例
 
-The following code example show how to write a database calling function to
-operate asynchronously:
+以下程式碼範例說明如何撰寫一個資料庫呼叫函式，以非同步方式運作：
 
 ```python
 async def query_database(query: str) -> list:
@@ -59,11 +39,9 @@ async def query_database(query: str) -> list:
           return await conn.fetch(query)
 ```
 
-### Example of yielding behavior for long loops
+### 長迴圈讓渡（yielding）行為的範例
 
-In cases where a tool is processing multiple requests or numerous long running
-requests, consider adding yielding code to allow other tools to execute, as
-shown in the following code sample:
+當工具正在處理多個請求或大量長時間執行的請求時，建議加入讓渡（yielding）程式碼，以允許其他工具執行，如下方程式碼範例所示：
 
 ```python
 async def process_data(data: list) -> dict:
@@ -78,15 +56,12 @@ async def process_data(data: list) -> dict:
       return {"results": results}
 ```
 
-!!! tip "Important"
-    Use the `asyncio.sleep()` function for pauses to avoid blocking
-    execution of other functions.
+!!! tip "重要"
+    使用 `asyncio.sleep()` 函式來進行暫停，以避免阻塞其他函式的執行。
 
-### Example of thread pools for intensive operations
+### 處理密集運算時的執行緒池範例
 
-When performing processing-intensive functions, consider creating thread pools
-for better management of available computing resources, as shown in the
-following example:
+當執行需要大量運算資源的函式時，建議建立執行緒池（thread pool），以更有效地管理可用的運算資源，如下例所示：
 
 ```python
 async def cpu_intensive_tool(data: list) -> dict:
@@ -102,12 +77,9 @@ async def cpu_intensive_tool(data: list) -> dict:
       return {"result": result}
 ```
 
-### Example of process chunking
+### 處理分塊（process chunking）範例
 
-When performing processes on long lists or large amounts of data, consider
-combining a thread pool technique with dividing up processing into chunks of
-data, and yielding processing time between the chunks, as shown in the following
-example:
+當需要對長串清單或大量資料進行處理時，建議結合執行緒池（thread pool）技術，並將處理工作分割為多個資料區塊（chunks），同時在各區塊之間釋放處理時間，如下例所示：
 
 ```python
  async def process_large_dataset(dataset: list) -> dict:
@@ -132,11 +104,9 @@ example:
       return {"total_processed": len(results), "results": results}
 ```
 
-## Write parallel-ready prompts and tool descriptions
+## 撰寫可支援平行處理的提示詞與工具描述
 
-When building prompts for AI models, consider explicitly specifying or hinting
-that function calls be made in parallel. The following example of an AI prompt
-directs the model to use tools in parallel:
+在為 AI 模型設計提示詞（prompt）時，請考慮明確指定或提示模型以平行（parallel）方式執行函式呼叫。以下是一個 AI 提示詞的範例，指示模型平行使用工具：
 
 ```none
 When users ask for multiple pieces of information, always call functions in
@@ -152,8 +122,7 @@ parallel.
   Always prefer multiple specific function calls over single complex calls.
 ```
 
-The following example shows a tool function description that hints at more
-efficient use through parallel execution:
+以下範例顯示了一個工具函式的描述，並暗示可透過平行執行來更有效率地使用：
 
 ```python
  async def get_weather(city: str) -> dict:
@@ -171,11 +140,9 @@ efficient use through parallel execution:
       return {"city": city, "temp": 72, "condition": "sunny"}
 ```
 
-## Next steps
+## 下一步
 
-For more information on building Tools for agents and function calling, see
-[Function Tools](https://google.github.io/adk-docs/tools/function-tools/). For
-more detailed examples of tools that take advantage of parallel processing, see
-the samples in the
+如需更多關於為 agents 和 function calling 建立 Tools 的資訊，請參閱 [Function Tools](https://google.github.io/adk-docs/tools/function-tools/)。  
+若想了解更多利用平行處理的工具詳細範例，請參考  
 [adk-python](https://github.com/google/adk-python/tree/main/contributing/samples/parallel_functions)
-repository.
+repository 中的範例。

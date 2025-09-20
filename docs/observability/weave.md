@@ -1,31 +1,31 @@
-# Agent Observability with Weave by WandB
+# 使用 Weave by WandB 進行 Agent 可觀測性
 
-[Weave by Weights & Biases (WandB)](https://weave-docs.wandb.ai/) provides a powerful platform for logging and visualizing model calls. By integrating Google ADK with Weave, you can track and analyze your agent's performance and behavior using OpenTelemetry (OTEL) traces.
+[Weave by Weights & Biases (WandB)](https://weave-docs.wandb.ai/) 提供了一個強大的平台，用於記錄和視覺化模型呼叫。透過將 Google Agent Development Kit (ADK) 與 Weave 整合，您可以利用 OpenTelemetry (OTEL) 追蹤來追蹤並分析您的 agent 執行效能與行為。
 
-## Prerequisites
+## 先決條件
 
-1. Sign up for an account at [WandB](https://wandb.ai).
+1. 請至 [WandB](https://wandb.ai) 註冊帳號。
 
-2. Obtain your API key from [WandB Authorize](https://wandb.ai/authorize).
+2. 從 [WandB Authorize](https://wandb.ai/authorize) 取得您的 API KEY。
 
-3. Configure your environment with the required API keys:
+3. 使用所需的 API KEY 設定您的環境：
 
    ```bash
    export WANDB_API_KEY=<your-wandb-api-key>
    export GOOGLE_API_KEY=<your-google-api-key>
    ```
 
-## Install Dependencies
+## 安裝相依套件
 
-Ensure you have the necessary packages installed:
+請確保您已安裝必要的套件：
 
 ```bash
 pip install google-adk opentelemetry-sdk opentelemetry-exporter-otlp-proto-http
 ```
 
-## Sending Traces to Weave
+## 傳送追蹤資料到 Weave
 
-This example demonstrates how to configure OpenTelemetry to send Google ADK traces to Weave.
+本範例說明如何設定 OpenTelemetry，將 Google Agent Development Kit (ADK)（ADK）的追蹤資料傳送至 Weave。
 
 ```python
 # math_agent/agent.py
@@ -98,30 +98,30 @@ root_agent = LlmAgent(
 )
 ```
 
-## View Traces in Weave dashboard
+## 在 Weave 儀表板中檢視追蹤紀錄
 
-Once the agent runs, all its traces are logged to the corresponding project on [the Weave dashboard](https://wandb.ai/home).
+當 agent 執行後，所有的追蹤紀錄都會被記錄到對應專案的 [Weave 儀表板](https://wandb.ai/home)。
 
 ![Traces in Weave](https://wandb.github.io/weave-public-assets/google-adk/traces-overview.png)
 
-You can view a timeline of calls that your ADK agent made during execution -
+你可以在這裡查看你的 Agent Development Kit (ADK) agent 執行期間所發出的呼叫時間軸——
 
 ![Timeline view](https://wandb.github.io/weave-public-assets/google-adk/adk-weave-timeline.gif)
 
 
-## Notes
+## 注意事項
 
-- **Environment Variables**: Ensure your environment variables are correctly set for both WandB and Google API keys.
-- **Project Configuration**: Replace `<your-entity>/<your-project>` with your actual WandB entity and project name.
-- **Entity Name**: You can find your entity name by visiting your [WandB dashboard](https://wandb.ai/home) and checking the **Teams** field in the left sidebar.
-- **Tracer Provider**: It's critical to set the global tracer provider before using any ADK components to ensure proper tracing.
+- **環境變數**：請確保你的 WandB 與 Google API 金鑰的環境變數都已正確設定。
+- **專案設定**：請將 `<your-entity>/<your-project>` 替換為你實際的 WandB entity 與專案名稱。
+- **Entity 名稱**：你可以在 [WandB 儀表板](https://wandb.ai/home) 左側邊欄的 **Teams** 欄位找到你的 entity 名稱。
+- **Tracer Provider**：在使用任何 ADK 元件之前，務必先設定全域 tracer provider，以確保追蹤功能正常。
 
-By following these steps, you can effectively integrate Google ADK with Weave, enabling comprehensive logging and visualization of your AI agents' model calls, tool invocations, and reasoning processes.
+依照上述步驟，你可以有效地將 Google Agent Development Kit (ADK) 與 Weave 整合，實現 AI agent 的模型呼叫、工具調用與推理過程的完整日誌記錄與視覺化。
 
-## Resources
+## 相關資源
 
-- **[Send OpenTelemetry Traces to Weave](https://weave-docs.wandb.ai/guides/tracking/otel)** - Comprehensive guide on configuring OTEL with Weave, including authentication and advanced configuration options.
+- **[將 OpenTelemetry 追蹤資料發送至 Weave](https://weave-docs.wandb.ai/guides/tracking/otel)** - 詳細說明如何將 OTEL 與 Weave 配置，包括驗證與進階設定選項。
 
-- **[Navigate the Trace View](https://weave-docs.wandb.ai/guides/tracking/trace-tree)** - Learn how to effectively analyze and debug your traces in the Weave UI, including understanding trace hierarchies and span details.
+- **[瀏覽追蹤檢視畫面](https://weave-docs.wandb.ai/guides/tracking/trace-tree)** - 學習如何在 Weave UI 中有效分析與除錯你的追蹤紀錄，包括理解追蹤階層與 span 細節。
 
-- **[Weave Integrations](https://weave-docs.wandb.ai/guides/integrations/)** - Explore other framework integrations and see how Weave can work with your entire AI stack.
+- **[Weave 整合](https://weave-docs.wandb.ai/guides/integrations/)** - 探索其他框架整合方式，了解 Weave 如何與你的整個 AI 技術堆疊協同運作。

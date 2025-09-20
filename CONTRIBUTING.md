@@ -1,83 +1,72 @@
-# How to contribute
+# 如何貢獻
 
-Thank you for your interest in contributing! We appreciate your willingness to
-share your patches and improvements with the project.
+感謝您有意願參與貢獻！我們非常感謝您願意分享您的修補程式與改進，讓這個專案更加完善。
 
-## Getting Started
+## 開始之前
 
-Before you contribute, please take a moment to review the following:
+在您開始貢獻之前，請花點時間閱讀以下內容：
 
-### 1. Sign our Contributor License Agreement
+### 1. 簽署我們的貢獻者授權協議
 
-Contributions to this project must be accompanied by a
-[Contributor License Agreement](https://cla.developers.google.com/about) (CLA).
-You (or your employer) retain the copyright to your contribution; this simply
-gives us permission to use and redistribute your contributions as part of the
-project.
+對本專案的貢獻必須附帶[貢獻者授權協議](https://cla.developers.google.com/about)（Contributor License Agreement, CLA）。
+您（或您的雇主）將保留對您貢獻內容的著作權；這僅僅是授權我們可以將您的貢獻用於本專案並進行再發佈。
 
-If you or your current employer have already signed the Google CLA (even if it
-was for a different project), you probably don't need to do it again.
+如果您或您目前的雇主已經簽署過 Google 的 CLA（即使是針對其他專案），通常無需再次簽署。
 
-Visit <https://cla.developers.google.com/> to see your current agreements or to
-sign a new one.
+請造訪<https://cla.developers.google.com/>以查詢您目前的協議狀態或簽署新的協議。
 
-### 2. Review Community Guidelines
+### 2. 閱讀社群指引
 
-We adhere to [Google's Open Source Community Guidelines](https://opensource.google/conduct/).
-Please familiarize yourself with these guidelines to ensure a positive and
-collaborative environment for everyone.
+我們遵循 [Google 的開源社群指引](https://opensource.google/conduct/)。
+請熟悉這些指引，以確保為所有人營造一個正向且協作的環境。
 
-## Contribution Workflow
+## 貢獻流程
 
-### Finding Something to Work On
+### 尋找可參與的項目
 
-Check the [GitHub Issues](https://github.com/google/adk-docs/issues) for bug
-reports or feature requests. Feel free to pick up an existing issue or open
-a new one if you have an idea or find a bug.
+請參閱 [GitHub Issues](https://github.com/google/adk-docs/issues)，查看錯誤回報或功能需求。您可以自由選擇現有議題進行處理，或是如果有新想法或發現錯誤，也歡迎提出新的議題。
 
-### Development Setup
+### 開發環境設置
 
-1.  **Clone the repository:**
+1.  **複製（clone）此儲存庫：**
 
     ```shell
     git clone git@github.com:google/adk-docs.git
     cd adk-docs
     ```
 
-2.  **Create and activate a virtual environment:**
+2.  **建立並啟用虛擬環境：**
 
     ```shell
     python -m venv venv
     source venv/bin/activate
     ```
 
-3.  **Install dependencies:**
+3.  **安裝相依套件：**
 
     ```shell
     pip install -r requirements.txt
     ```
 
-4.  **Run the local development server:**
+4.  **啟動本機開發伺服器：**
 
     ```shell
     mkdocs serve
     ```
 
-    This command starts a local server, typically at `http://127.0.0.1:8000/`.
+    此指令會啟動一個本地伺服器，通常位於 `http://127.0.0.1:8000/`。
 
-    The site will automatically reload when you save changes to the documentation files.
-    For more details on the site configuration, see the mkdocs.yml file.
+    當你儲存文件變更時，網站會自動重新載入。
+    關於網站設定的更多細節，請參閱 mkdocs.yml 檔案。
 
-### Code Reviews
+### 程式碼審查（Code Reviews）
 
-All contributions, including those from project members, undergo a review process.
+所有貢獻，包括專案成員的貢獻，都需經過審查流程。
 
-1.  **Create a Pull Request:** We use GitHub Pull Requests (PRs) for code review.
-    Please refer to GitHub Help if you're unfamiliar with PRs.
-2.  **Review Process:** Project maintainers will review your PR, providing feedback
-    or requesting changes if necessary.
-3.  **Merging:** Once the PR is approved and passes any required checks, it will be
-    merged into the main branch.
+1.  **建立 Pull Request：** 我們使用 GitHub Pull Request（PR）進行程式碼審查。
+    如果你不熟悉 PR，請參考 GitHub Help。
+2.  **審查流程：** 專案維護者會審查你的 PR，並在需要時提供回饋或要求修改。
+3.  **合併：** 一旦 PR 通過審查並通過所有必要檢查，將會被合併到主分支。
 
-Consult [GitHub Help](https://help.github.com/articles/about-pull-requests/) for
-more information on using pull requests. We look forward to your contributions!
+如需有關 Pull Request 的更多資訊，請參閱 [GitHub Help](https://help.github.com/articles/about-pull-requests/)。
+期待你的貢獻！

@@ -1,22 +1,21 @@
-# Context
+# Context（情境）
 
-## What are Context
+## 什麼是 Context（情境）
 
-In the Agent Development Kit (ADK), "context" refers to the crucial bundle of information available to your agent and its tools during specific operations. Think of it as the necessary background knowledge and resources needed to handle a current task or conversation turn effectively.
+在 Agent Development Kit (ADK)（ADK）中，「context（情境）」是指在特定操作期間，您的 agent 及其 tools 可取得的重要資訊組合。您可以將其視為 agent 處理當前任務或對話輪次時，所需的背景知識與資源。
 
-Agents often need more than just the latest user message to perform well. Context is essential because it enables:
+agent 通常需要的不僅僅是最新的使用者訊息才能有良好表現。情境資訊至關重要，因為它能夠：
 
-1. **Maintaining State:** Remembering details across multiple steps in a conversation (e.g., user preferences, previous calculations, items in a shopping cart). This is primarily managed through **session state**.
-2. **Passing Data:** Sharing information discovered or generated in one step (like an LLM call or a tool execution) with subsequent steps. Session state is key here too.
-3. **Accessing Services:** Interacting with framework capabilities like:
-    * **Artifact Storage:** Saving or loading files or data blobs (like PDFs, images, configuration files) associated with the session.
-    * **Memory:** Searching for relevant information from past interactions or external knowledge sources connected to the user.
-    * **Authentication:** Requesting and retrieving credentials needed by tools to access external APIs securely.
-4. **Identity and Tracking:** Knowing which agent is currently running (`agent.name`) and uniquely identifying the current request-response cycle (`invocation_id`) for logging and debugging.
-5. **Tool-Specific Actions:** Enabling specialized operations within tools, such as requesting authentication or searching memory, which require access to the current interaction's details.
+1. **維持狀態（Maintaining State）：** 在多步對話中記住細節（例如：使用者偏好、先前的計算結果、購物車內的商品）。這主要透過 **session state（會話狀態）** 來管理。
+2. **資料傳遞（Passing Data）：** 將某一步驟（如大型語言模型 (LLM) 呼叫或工具執行）中發現或產生的資訊，傳遞給後續步驟。這裡 session state 也扮演關鍵角色。
+3. **存取服務（Accessing Services）：** 與框架功能互動，例如：
+    * **Artifact Storage（成品儲存）：** 儲存或載入與 session 相關的檔案或資料（如 PDF、圖片、設定檔）。
+    * **Memory（記憶體）：** 從過去互動紀錄或連結至使用者的外部知識來源中搜尋相關資訊。
+    * **Authentication（驗證）：** 請求並取得 tools 存取外部 API 所需的憑證，以確保安全。
+4. **身份與追蹤（Identity and Tracking）：** 知道目前執行的是哪個 agent（`agent.name`），並能唯一識別當前的請求-回應循環（`invocation_id`），以便日誌記錄與除錯。
+5. **工具專屬操作（Tool-Specific Actions）：** 讓工具內部能執行特殊操作，例如請求驗證或搜尋記憶體，這些都需要取得當前互動的詳細資訊。
 
-
-The central piece holding all this information together for a single, complete user-request-to-final-response cycle (an **invocation**) is the `InvocationContext`. However, you typically won't create or manage this object directly. The ADK framework creates it when an invocation starts (e.g., via `runner.run_async`) and passes the relevant contextual information implicitly to your agent code, callbacks, and tools.
+將這些資訊在單一、完整的使用者請求到最終回應循環（即一次 **invocation（呼叫）**）中整合在一起的核心物件是 `InvocationContext`。不過，您通常不需要直接建立或管理這個物件。Agent Development Kit (ADK) 框架會在一次 invocation 開始時（例如透過 `runner.run_async`）自動建立它，並將相關的情境資訊隱式傳遞給您的 agent 程式碼、回呼函式與 tools。
 
 === "Python"
 
@@ -73,15 +72,15 @@ The central piece holding all this information together for a single, complete u
     }
     ```
 
-## The Different types of Context
+## 不同類型的 Context
 
-While `InvocationContext` acts as the comprehensive internal container, ADK provides specialized context objects tailored to specific situations. This ensures you have the right tools and permissions for the task at hand without needing to handle the full complexity of the internal context everywhere. Here are the different "flavors" you'll encounter:
+雖然 `InvocationContext` 作為全面的內部容器，Agent Development Kit (ADK) 也提供了針對特定情境設計的專用 context 物件。這確保你在處理各種任務時，能擁有合適的工具與權限，而無需在每個地方都操作完整的內部 context 複雜度。以下是你會遇到的各種「風格」：
 
 1.  **`InvocationContext`**
-    *   **Where Used:** Received as the `ctx` argument directly within an agent's core implementation methods (`_run_async_impl`, `_run_live_impl`).
-    *   **Purpose:** Provides access to the *entire* state of the current invocation. This is the most comprehensive context object.
-    *   **Key Contents:** Direct access to `session` (including `state` and `events`), the current `agent` instance, `invocation_id`, initial `user_content`, references to configured services (`artifact_service`, `memory_service`, `session_service`), and fields related to live/streaming modes.
-    *   **Use Case:** Primarily used when the agent's core logic needs direct access to the overall session or services, though often state and artifact interactions are delegated to callbacks/tools which use their own contexts. Also used to control the invocation itself (e.g., setting `ctx.end_invocation = True`).
+    *   **使用場景：** 以 `ctx` 參數的形式，直接傳遞給 agent 核心實作方法（`_run_async_impl`、`_run_live_impl`）。
+    *   **目的：** 提供對當前呼叫「完整」狀態的存取。這是最全面的 context 物件。
+    *   **主要內容：** 可直接存取 `session`（包含 `state` 和 `events`）、當前 `agent` 實例、`invocation_id`、初始 `user_content`、已設定服務的參考（`artifact_service`、`memory_service`、`session_service`），以及與即時/串流模式相關的欄位。
+    *   **使用情境：** 主要用於 agent 核心邏輯需要直接存取整體 session 或服務時，雖然大多數狀態與 artifact 的互動會委派給使用自身 context 的 callback 或工具。此外，也可用來控制此次呼叫本身（例如設定 `ctx.end_invocation = True`）。
 
     === "Python"
     
@@ -102,6 +101,7 @@ While `InvocationContext` acts as the comprehensive internal container, ADK prov
                 yield # ... event ...
         ```
     
+請提供原文、初始譯文、品質分析與改進建議，我才能根據品質分析意見改進翻譯。    
     === "Java"
     
         ```java
@@ -162,9 +162,9 @@ While `InvocationContext` acts as the comprehensive internal container, ADK prov
         ```
 
 2.  **`ReadonlyContext`**
-    *   **Where Used:** Provided in scenarios where only read access to basic information is needed and mutation is disallowed (e.g., `InstructionProvider` functions). It's also the base class for other contexts.
-    *   **Purpose:** Offers a safe, read-only view of fundamental contextual details.
-    *   **Key Contents:** `invocation_id`, `agent_name`, and a read-only *view* of the current `state`.
+    *   **使用情境：** 適用於僅需讀取基本資訊且不允許變更的情境（例如：`InstructionProvider` 函式）。同時也是其他情境類別的基礎類別。
+    *   **目的：** 提供一個安全、唯讀的基本情境細節檢視。
+    *   **主要內容：** `invocation_id`、`agent_name`，以及目前 `state` 的唯讀 *view*。
 
     === "Python"
     
@@ -179,6 +179,7 @@ While `InvocationContext` acts as the comprehensive internal container, ADK prov
             return f"Process the request for a {user_tier} user."
         ```
     
+請提供原文、初始譯文、品質分析與改進建議內容，這樣我才能根據品質分析意見改進翻譯。    
     === "Java"
     
         ```java
@@ -194,12 +195,12 @@ While `InvocationContext` acts as the comprehensive internal container, ADK prov
         ```
     
 3.  **`CallbackContext`**
-    *   **Where Used:** Passed as `callback_context` to agent lifecycle callbacks (`before_agent_callback`, `after_agent_callback`) and model interaction callbacks (`before_model_callback`, `after_model_callback`).
-    *   **Purpose:** Facilitates inspecting and modifying state, interacting with artifacts, and accessing invocation details *specifically within callbacks*.
-    *   **Key Capabilities (Adds to `ReadonlyContext`):**
-        *   **Mutable `state` Property:** Allows reading *and writing* to session state. Changes made here (`callback_context.state['key'] = value`) are tracked and associated with the event generated by the framework after the callback.
-        *   **Artifact Methods:** `load_artifact(filename)` and `save_artifact(filename, part)` methods for interacting with the configured `artifact_service`.
-        *   Direct `user_content` access.
+    *   **使用場景：**作為 `callback_context` 傳遞給 agent 生命週期回呼（`before_agent_callback`、`after_agent_callback`）以及模型互動回呼（`before_model_callback`、`after_model_callback`）。
+    *   **目的：**便於在*回呼函式內*檢查與修改狀態、與 artifact 互動，以及存取呼叫細節。
+    *   **主要功能（相較於 `ReadonlyContext` 的擴充）：**
+        *   **可變動的 `state` 屬性：**允許讀取*與寫入* session 狀態。在此進行的變更（`callback_context.state['key'] = value`）會被追蹤，並在回呼後與由框架產生的事件關聯。
+        *   **Artifact 方法：**提供 `load_artifact(filename)` 與 `save_artifact(filename, part)` 方法，以便與已設定的 `artifact_service` 互動。
+        *   可直接存取 `user_content`。
 
     === "Python"
     
@@ -221,6 +222,7 @@ While `InvocationContext` acts as the comprehensive internal container, ADK prov
             return None # Allow model call to proceed
         ```
     
+請提供原文、初始譯文、品質分析和改進建議，我才能協助改進翻譯。    
     === "Java"
     
         ```java
@@ -243,14 +245,14 @@ While `InvocationContext` acts as the comprehensive internal container, ADK prov
         ```
 
 4.  **`ToolContext`**
-    *   **Where Used:** Passed as `tool_context` to the functions backing `FunctionTool`s and to tool execution callbacks (`before_tool_callback`, `after_tool_callback`).
-    *   **Purpose:** Provides everything `CallbackContext` does, plus specialized methods essential for tool execution, like handling authentication, searching memory, and listing artifacts.
-    *   **Key Capabilities (Adds to `CallbackContext`):**
-        *   **Authentication Methods:** `request_credential(auth_config)` to trigger an auth flow, and `get_auth_response(auth_config)` to retrieve credentials provided by the user/system.
-        *   **Artifact Listing:** `list_artifacts()` to discover available artifacts in the session.
-        *   **Memory Search:** `search_memory(query)` to query the configured `memory_service`.
-        *   **`function_call_id` Property:** Identifies the specific function call from the LLM that triggered this tool execution, crucial for linking authentication requests or responses back correctly.
-        *   **`actions` Property:** Direct access to the `EventActions` object for this step, allowing the tool to signal state changes, auth requests, etc.
+    *   **使用場景：**作為 `tool_context` 傳遞給支援 `FunctionTool` 的函式，以及工具執行回呼（`before_tool_callback`、`after_tool_callback`）。
+    *   **目的：**提供與 `CallbackContext` 相同的功能，並額外包含工具執行所需的專用方法，例如處理驗證、記憶體搜尋以及清單化 artifacts（成果物）。
+    *   **主要能力（相較於 `CallbackContext` 的新增功能）：**
+        *   **驗證方法：**`request_credential(auth_config)` 用於觸發驗證流程，以及 `get_auth_response(auth_config)` 用於取得使用者／系統所提供的認證資訊。
+        *   **Artifact 清單：**`list_artifacts()` 用於發現目前 session 可用的 artifacts。
+        *   **記憶體搜尋：**`search_memory(query)` 用於查詢已設定的 `memory_service`。
+        *   **`function_call_id` 屬性：**標識觸發本次工具執行的大型語言模型 (LLM) 的特定 function call，對於正確關聯驗證請求或回應至關重要。
+        *   **`actions` 屬性：**可直接存取本步驟的 `EventActions` 物件，使工具能夠發出狀態變更、驗證請求等訊號。
 
     === "Python"
     
@@ -280,6 +282,7 @@ While `InvocationContext` acts as the comprehensive internal container, ADK prov
             return {"result": f"Data for {query} fetched."}
         ```
     
+請提供原文、初始譯文、品質分析與改進建議內容，這樣我才能根據品質分析意見改進翻譯。    
     === "Java"
     
         ```java
@@ -309,18 +312,18 @@ While `InvocationContext` acts as the comprehensive internal container, ADK prov
         }
         ```
 
-Understanding these different context objects and when to use them is key to effectively managing state, accessing services, and controlling the flow of your ADK application. The next section will detail common tasks you can perform using these contexts.
+理解這些不同的 context 物件以及何時使用它們，是有效管理狀態、存取服務，以及控制 Agent Development Kit (ADK) 應用程式流程的關鍵。下一節將詳細說明你可以利用這些 context 執行的常見任務。
 
 
-## Common Tasks Using Context
+## 使用 Context 的常見任務
 
-Now that you understand the different context objects, let's focus on how to use them for common tasks when building your agents and tools.
+現在你已經了解不同的 context 物件，接下來我們將聚焦於如何在建立你的代理（agent）與工具（tools）時，運用這些 context 來完成常見任務。
 
-### Accessing Information
+### 存取資訊
 
-You'll frequently need to read information stored within the context.
+你經常需要讀取儲存在 context 內的資訊。
 
-*   **Reading Session State:** Access data saved in previous steps or user/app-level settings. Use dictionary-like access on the `state` property.
+*   **讀取 Session 狀態：** 存取在先前步驟或使用者／應用層級設定中儲存的資料。可透過對 `state` 屬性進行類似字典的存取方式來取得。
 
     === "Python"
     
@@ -378,7 +381,7 @@ You'll frequently need to read information stored within the context.
             // ... callback logic ...
         ```
 
-*   **Getting Current Identifiers:** Useful for logging or custom logic based on the current operation.
+*   **取得當前識別碼：** 適用於根據目前操作進行日誌記錄或自訂邏輯。
 
     === "Python"
     
@@ -408,7 +411,7 @@ You'll frequently need to read information stored within the context.
                 }
         ```
 
-*   **Accessing the Initial User Input:** Refer back to the message that started the current invocation.
+*   **存取初始使用者輸入：** 回溯至啟動本次呼叫的訊息。
 
     === "Python"
     
@@ -447,13 +450,13 @@ You'll frequently need to read information stored within the context.
         }
         ```
     
-### Managing State
+### 狀態管理
 
-State is crucial for memory and data flow. When you modify state using `CallbackContext` or `ToolContext`, the changes are automatically tracked and persisted by the framework.
+狀態對於記憶與資料流動至關重要。當你使用 `CallbackContext` 或 `ToolContext` 修改狀態時，這些變更會自動由框架追蹤並持久化。
 
-*   **How it Works:** Writing to `callback_context.state['my_key'] = my_value` or `tool_context.state['my_key'] = my_value` adds this change to the `EventActions.state_delta` associated with the current step's event. The `SessionService` then applies these deltas when persisting the event.
+*   **運作方式：** 將資料寫入 `callback_context.state['my_key'] = my_value` 或 `tool_context.state['my_key'] = my_value` 時，會將這個變更加入與當前步驟事件關聯的 `EventActions.state_delta`。`SessionService` 在持久化事件時，會套用這些差異（delta）。
 
-*  **Passing Data Between Tools**
+*  **在工具間傳遞資料**
 
     === "Python"
 
@@ -505,7 +508,7 @@ State is crucial for memory and data flow. When you modify state using `Callback
         }
         ```
 
-*   **Updating User Preferences:**
+*   **更新使用者偏好設定：**
 
     === "Python"
     
@@ -536,15 +539,15 @@ State is crucial for memory and data flow. When you modify state using `Callback
         }
         ```
 
-*   **State Prefixes:** While basic state is session-specific, prefixes like `app:` and `user:` can be used with persistent `SessionService` implementations (like `DatabaseSessionService` or `VertexAiSessionService`) to indicate broader scope (app-wide or user-wide across sessions). `temp:` can denote data only relevant within the current invocation.
+*   **狀態前綴（State Prefixes）：** 雖然基本狀態是以工作階段（session）為單位，但像是 `app:` 和 `user:` 這類前綴可搭配具備持久性（persistent）的 `SessionService` 實作（例如 `DatabaseSessionService` 或 `VertexAiSessionService`）來表示更廣泛的範圍（如應用程式層級或使用者跨工作階段的範圍）。`temp:` 則可用來標示僅在本次呼叫（invocation）內相關的資料。
 
-### Working with Artifacts
+### 使用 Artifact（產物）
 
-Use artifacts to handle files or large data blobs associated with the session. Common use case: processing uploaded documents.
+使用 artifact 來處理與工作階段相關的檔案或大型資料區塊。常見用途：處理上傳的文件。
 
-*   **Document Summarizer Example Flow:**
+*   **文件摘要器（Document Summarizer）範例流程：**
 
-    1.  **Ingest Reference (e.g., in a Setup Tool or Callback):** Save the *path or URI* of the document, not the entire content, as an artifact.
+    1.  **擷取參考資料（例如在 Setup Tool 或 Callback 中）：** 將文件的 *路徑或 URI* 作為 artifact 儲存，而非將整個內容存入。
 
         === "Python"
     
@@ -598,7 +601,7 @@ Use artifacts to handle files or large data blobs associated with the session. C
                // saveDocumentReference(context, "gs://my-bucket/docs/report.pdf")
                ```
 
-    2.  **Summarizer Tool:** Load the artifact to get the path/URI, read the actual document content using appropriate libraries, summarize, and return the result.
+    2.  **摘要工具（Summarizer Tool）：** 載入 artifact 以取得路徑/URI，使用適當的函式庫讀取實際文件內容，進行摘要，並回傳結果。
 
         === "Python"
 
@@ -709,7 +712,7 @@ Use artifacts to handle files or large data blobs associated with the session. C
             }
             ```
     
-*   **Listing Artifacts:** Discover what files are available.
+*   **列出產物（Artifacts）：** 探索有哪些檔案可用。
     
     === "Python"
         
@@ -743,11 +746,11 @@ Use artifacts to handle files or large data blobs associated with the session. C
         }
         ```
 
-### Handling Tool Authentication 
+### 處理工具驗證
 
-![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="This feature is currently available for Python. Java support is planned/ coming soon."}
+![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python。Java 支援預計推出/即將推出。"}
 
-Securely manage API keys or other credentials needed by tools.
+安全地管理工具所需的 API 金鑰或其他憑證。
 
 ```python
 # Pseudocode: Tool requiring auth
@@ -798,13 +801,13 @@ def call_secure_api(tool_context: ToolContext, request_data: str) -> dict:
         return {"error": "Failed to use credential"}
 
 ```
-*Remember: `request_credential` pauses the tool and signals the need for authentication. The user/system provides credentials, and on a subsequent call, `get_auth_response` (or checking state again) allows the tool to proceed.* The `tool_context.function_call_id` is used implicitly by the framework to link the request and response.
+*請記住：`request_credential` 會暫停工具並提示需要進行驗證。使用者或系統需提供認證資訊，隨後再次呼叫時，`get_auth_response`（或再次檢查狀態）即可讓工具繼續執行。* `tool_context.function_call_id` 由框架隱式使用，用於連結請求與回應。
 
-### Leveraging Memory 
+### 善用記憶體（Memory）
 
-![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="This feature is currently available for Python. Java support is planned/ coming soon."}
+![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python，Java 支援預計推出／即將上線。"}
 
-Access relevant information from the past or external sources.
+從過去或外部來源存取相關資訊。
 
 ```python
 # Pseudocode: Tool using memory search
@@ -826,11 +829,11 @@ def find_related_info(tool_context: ToolContext, topic: str) -> dict:
         return {"error": f"Unexpected error searching memory: {e}"}
 ```
 
-### Advanced: Direct `InvocationContext` Usage 
+### 進階：直接使用 `InvocationContext`
 
-![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="This feature is currently available for Python. Java support is planned/ coming soon."}
+![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python，Java 支援預計推出/即將上線。"}
 
-While most interactions happen via `CallbackContext` or `ToolContext`, sometimes the agent's core logic (`_run_async_impl`/`_run_live_impl`) needs direct access.
+雖然大多數互動是透過 `CallbackContext` 或 `ToolContext` 進行，但有時 agent 的核心邏輯（`_run_async_impl`/`_run_live_impl`）需要直接存取。
 
 ```python
 # Pseudocode: Inside agent's _run_async_impl
@@ -857,14 +860,14 @@ class MyControllingAgent(BaseAgent):
         yield # ... event ...
 ```
 
-Setting `ctx.end_invocation = True` is a way to gracefully stop the entire request-response cycle from within the agent or its callbacks/tools (via their respective context objects which also have access to modify the underlying `InvocationContext`'s flag).
+設定 `ctx.end_invocation = True` 是一種讓 agent 或其 callback／工具（透過各自的 context 物件，也能存取並修改底層 `InvocationContext` 的旗標）從內部優雅地終止整個請求－回應流程的方法。
 
-## Key Takeaways & Best Practices
+## 重要重點與最佳實踐
 
-*   **Use the Right Context:** Always use the most specific context object provided (`ToolContext` in tools/tool-callbacks, `CallbackContext` in agent/model-callbacks, `ReadonlyContext` where applicable). Use the full `InvocationContext` (`ctx`) directly in `_run_async_impl` / `_run_live_impl` only when necessary.
-*   **State for Data Flow:** `context.state` is the primary way to share data, remember preferences, and manage conversational memory *within* an invocation. Use prefixes (`app:`, `user:`, `temp:`) thoughtfully when using persistent storage.
-*   **Artifacts for Files:** Use `context.save_artifact` and `context.load_artifact` for managing file references (like paths or URIs) or larger data blobs. Store references, load content on demand.
-*   **Tracked Changes:** Modifications to state or artifacts made via context methods are automatically linked to the current step's `EventActions` and handled by the `SessionService`.
-*   **Start Simple:** Focus on `state` and basic artifact usage first. Explore authentication, memory, and advanced `InvocationContext` fields (like those for live streaming) as your needs become more complex.
+*   **選用正確的 Context：** 請務必使用所提供的最具體 context 物件（在 tools／tool-callbacks 中使用 `ToolContext`，在 agent／model-callbacks 中使用 `CallbackContext`，在適用時使用 `ReadonlyContext`）。僅在必要時，於 `_run_async_impl`／`_run_live_impl` 中直接使用完整的 `InvocationContext`（`ctx`）。
+*   **State 用於資料流通：** `context.state` 是在一次呼叫中分享資料、記憶偏好設定，以及管理對話記憶的主要方式。當使用持久性儲存時，請善用前綴（`app:`、`user:`、`temp:`）。
+*   **Artifacts 用於檔案管理：** 使用 `context.save_artifact` 與 `context.load_artifact` 來管理檔案參考（如路徑或 URI）或較大的資料區塊。僅儲存參考，按需載入內容。
+*   **變更追蹤：** 透過 context 方法對 state 或 artifacts 的修改，會自動與目前步驟的 `EventActions` 連結，並由 `SessionService` 處理。
+*   **從簡單開始：** 請先專注於 `state` 及基本 artifact 的使用。當需求變複雜時，再深入探索驗證、記憶體，以及進階 `InvocationContext` 欄位（如即時串流相關欄位）。
 
-By understanding and effectively using these context objects, you can build more sophisticated, stateful, and capable agents with ADK.
+透過理解並有效運用這些 context 物件，您可以利用 Agent Development Kit (ADK)（ADK）建立更進階、有狀態且更強大的 agent。

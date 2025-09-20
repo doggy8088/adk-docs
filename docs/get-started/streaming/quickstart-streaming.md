@@ -1,19 +1,19 @@
-# Quickstart (Streaming / Python) {#adk-streaming-quickstart}
+# 快速開始（串流 / Python） {#adk-streaming-quickstart}
 
-With this quickstart, you'll learn to create a simple agent and use ADK Streaming to enable voice and video communication with it that is low-latency and bidirectional. We will install ADK, set up a basic "Google Search" agent, try running the agent with Streaming with `adk web` tool, and then explain how to build a simple asynchronous web app by yourself using ADK Streaming and [FastAPI](https://fastapi.tiangolo.com/).
+透過本快速開始指南，你將學會如何建立一個簡單的 agent，並使用 ADK Streaming 實現低延遲、雙向的語音與視訊通訊。我們將安裝 Agent Development Kit (ADK)，設置一個基本的「Google Search」agent，嘗試使用 `adk web` 工具以串流方式執行 agent，接著說明如何利用 ADK Streaming 與 [FastAPI](https://fastapi.tiangolo.com/) 自行建立一個簡單的非同步網頁應用程式。
 
-**Note:** This guide assumes you have experience using a terminal in Windows, Mac, and Linux environments.
+**注意：**本指南假設你已具備在 Windows、Mac 與 Linux 環境下使用終端機的經驗。
 
-## Supported models for voice/video streaming {#supported-models}
+## 支援語音／視訊串流的模型 {#supported-models}
 
-In order to use voice/video streaming in ADK, you will need to use Gemini models that support the Live API. You can find the **model ID(s)** that supports the Gemini Live API in the documentation:
+要在 ADK 中使用語音／視訊串流功能，你需要使用支援 Gemini Live API 的 Gemini 模型。你可以在下列文件中找到支援 Gemini Live API 的**模型 ID**：
 
 - [Google AI Studio: Gemini Live API](https://ai.google.dev/gemini-api/docs/models#live-api)
 - [Vertex AI: Gemini Live API](https://cloud.google.com/vertex-ai/generative-ai/docs/live-api)
 
-## 1. Setup Environment & Install ADK { #setup-environment-install-adk }
+## 1. 建立環境並安裝 ADK { #setup-environment-install-adk }
 
-Create & Activate Virtual Environment (Recommended):
+建立並啟用虛擬環境（建議）：
 
 ```bash
 # Create
@@ -24,15 +24,15 @@ python -m venv .venv
 # Windows PowerShell: .venv\Scripts\Activate.ps1
 ```
 
-Install ADK:
+安裝 ADK：
 
 ```bash
 pip install google-adk
 ```
 
-## 2. Project Structure { #project-structure }
+## 2. 專案結構 { #project-structure }
 
-Create the following folder structure with empty files:
+請依下列資料夾結構建立空的檔案與資料夾：
 
 ```console
 adk-streaming/  # Project folder
@@ -45,9 +45,9 @@ adk-streaming/  # Project folder
 
 ### agent.py
 
-Copy-paste the following code block into the `agent.py` file.
+請將下方的程式碼區塊複製貼上到 `agent.py` 檔案中。
 
-For `model`, please double check the model ID as described earlier in the [Models section](#supported-models).
+至於 `model`，請依照前述於 [Models section](#supported-models) 所說明的方式，再次確認 model ID 是否正確。
 
 ```py
 from google.adk.agents import Agent
@@ -69,46 +69,45 @@ root_agent = Agent(
 )
 ```
 
-`agent.py` is where all your agent(s)' logic will be stored, and you must have a `root_agent` defined.
+`agent.py` 是儲存所有 agent 邏輯的地方，且你必須定義 `root_agent`。
 
-Notice how easily you integrated [grounding with Google Search](https://ai.google.dev/gemini-api/docs/grounding?lang=python#configure-search) capabilities.  The `Agent` class and the `google_search` tool handle the complex interactions with the LLM and grounding with the search API, allowing you to focus on the agent's *purpose* and *behavior*.
+請注意，你已經非常輕鬆地整合了 [結合 Google Search 的 grounding](https://ai.google.dev/gemini-api/docs/grounding?lang=python#configure-search) 功能。`Agent` 類別與 `google_search` 工具負責處理與大型語言模型 (LLM) 及搜尋 API 的複雜互動，讓你能專注於 agent 的*目的*與*行為*。
 
 ![intro_components.png](../../assets/quickstart-streaming-tool.png)
 
-Copy-paste the following code block to `__init__.py` file.
+請將下方程式碼區塊複製貼上到 `__init__.py` 檔案中。
 
 ```py title="__init__.py"
 from . import agent
 ```
 
-## 3\. Set up the platform { #set-up-the-platform }
+## 3\. 設定平台 { #set-up-the-platform }
 
-To run the agent, choose a platform from either Google AI Studio or Google Cloud Vertex AI:
+要執行 agent，請從 Google AI Studio 或 Google Cloud Vertex AI 中選擇一個平台：
 
 === "Gemini - Google AI Studio"
-    1. Get an API key from [Google AI Studio](https://aistudio.google.com/apikey).
-    2. Open the **`.env`** file located inside (`app/`) and copy-paste the following code.
+    1. 從 [Google AI Studio](https://aistudio.google.com/apikey) 取得 API KEY。
+    2. 開啟位於 (`app/`) 內的 **`.env`** 檔案，並將以下程式碼複製貼上。
 
         ```env title=".env"
         GOOGLE_GENAI_USE_VERTEXAI=FALSE
         GOOGLE_API_KEY=PASTE_YOUR_ACTUAL_API_KEY_HERE
         ```
 
-    3. Replace `PASTE_YOUR_ACTUAL_API_KEY_HERE` with your actual `API KEY`.
+    3. 將 `PASTE_YOUR_ACTUAL_API_KEY_HERE` 替換為你實際的 `API KEY`。
 
 === "Gemini - Google Cloud Vertex AI"
-    1. You need an existing
-       [Google Cloud](https://cloud.google.com/?e=48754805&hl=en) account and a
-       project.
-        * Set up a
-          [Google Cloud project](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-gcp)
-        * Set up the
-          [gcloud CLI](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-local)
-        * Authenticate to Google Cloud, from the terminal by running
-          `gcloud auth login`.
-        * [Enable the Vertex AI API](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com).
-    2. Open the **`.env`** file located inside (`app/`). Copy-paste
-       the following code and update the project ID and location.
+    1. 你需要一個現有的
+       [Google Cloud](https://cloud.google.com/?e=48754805&hl=en) 帳戶以及一個
+       專案。
+        * 設定
+          [Google Cloud 專案](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-gcp)
+        * 設定
+          [gcloud 命令列介面 (CLI)](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-local)
+        * 在終端機中執行
+          `gcloud auth login`，以驗證 Google Cloud 身分。
+        * [啟用 Vertex AI API](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com)。
+    2. 開啟位於 (`app/`) 內的 **`.env`** 檔案。複製並貼上下列程式碼，並更新專案 ID 與位置 (Location)。
 
         ```env title=".env"
         GOOGLE_GENAI_USE_VERTEXAI=TRUE
@@ -116,15 +115,15 @@ To run the agent, choose a platform from either Google AI Studio or Google Cloud
         GOOGLE_CLOUD_LOCATION=us-central1
         ```
 
-## 4. Try the agent with `adk web` { #try-the-agent-with-adk-web }
+## 4. 使用 `adk web` 試用 agent { #try-the-agent-with-adk-web }
 
-Now it's ready to try the agent. Run the following command to launch the **dev UI**. First, make sure to set the current directory to `app`:
+現在已經可以試用 agent 了。請執行以下指令來啟動 **dev UI**。首先，請確保目前目錄已切換至 `app`：
 
 ```shell
 cd app
 ```
 
-Also, set `SSL_CERT_FILE` variable with the following command. This is required for the voice and video tests later.
+另外，請使用以下指令設定 `SSL_CERT_FILE` 環境變數。這在後續進行語音與視訊測試時是必要的。
 
 === "OS X &amp; Linux"
     ```bash
@@ -138,50 +137,48 @@ Also, set `SSL_CERT_FILE` variable with the following command. This is required 
 
 
 
-Then, run the dev UI:
+然後，啟動開發 UI：
 
 ```shell
 adk web
 ```
 
-!!!info "Note for Windows users"
+!!!info "給 Windows 使用者的注意事項"
 
     When hitting the `_make_subprocess_transport NotImplementedError`, consider using `adk web --no-reload` instead.
 
 
-Open the URL provided (usually `http://localhost:8000` or
-`http://127.0.0.1:8000`) **directly in your browser**. This connection stays
-entirely on your local machine. Select `google_search_agent`.
+請直接在瀏覽器中開啟所提供的 URL（通常為 `http://localhost:8000` 或 `http://127.0.0.1:8000`）。此連線完全在您的本機上運作。請選擇 `google_search_agent`。
 
-### Try with text
+### 嘗試文字輸入
 
-Try the following prompts by typing them in the UI.
+請在網頁 UI 中輸入以下提示，進行測試。
 
-* What is the weather in New York?
-* What is the time in New York?
-* What is the weather in Paris?
-* What is the time in Paris?
+* 紐約的天氣如何？
+* 紐約現在幾點？
+* 巴黎的天氣如何？
+* 巴黎現在幾點？
 
-The agent will use the google_search tool to get the latest information to answer those questions.
+agent 會使用 google_search 工具來取得最新資訊並回答這些問題。
 
-### Try with voice and video
+### 嘗試語音與視訊
 
-To try with voice, reload the web browser, click the microphone button to enable the voice input, and ask the same question in voice. You will hear the answer in voice in real-time.
+若要嘗試語音功能，請重新載入瀏覽器，點擊麥克風按鈕以啟用語音輸入，然後用語音詢問相同的問題。您將會即時聽到語音回覆。
 
-To try with video, reload the web browser, click the camera button to enable the video input, and ask questions like "What do you see?". The agent will answer what they see in the video input.
+若要嘗試視訊功能，請重新載入瀏覽器，點擊相機按鈕以啟用視訊輸入，然後詢問像是「你看到了什麼？」這類問題。agent 會根據視訊輸入內容回答所見。
 
-(Just clicking the microphone or camera button once is enough. Your voice or video will be streamed to models and the model response will be streamed back continuously. Clicking on the microphone or camera button multiple times is not supported.)
+（只需點擊一次麥克風或相機按鈕即可。您的語音或視訊將會串流傳送至模型，並持續串流回傳模型回應。不支援多次點擊麥克風或相機按鈕。）
 
-### Stop the tool
+### 停止工具
 
-Stop `adk web` by pressing `Ctrl-C` on the console.
+在主控台中按下 `Ctrl-C` 以停止 `adk web`。
 
-### Note on ADK Streaming
+### 關於 ADK Streaming 的注意事項
 
-The following features will be supported in the future versions of the ADK Streaming: Callback, LongRunningTool, ExampleTool, and Shell agent (e.g. SequentialAgent).
+以下功能將於未來版本的 ADK Streaming 支援：Callback、LongRunningTool、ExampleTool，以及 Shell agent（例如 SequentialAgent）。
 
-Congratulations\! You've successfully created and interacted with your first Streaming agent using ADK\!
+恭喜您！您已成功使用 Agent Development Kit (ADK) 建立並互動您的第一個 Streaming agent！
 
-## Next steps: build custom streaming app
+## 下一步：打造自訂串流應用程式
 
-In [Custom Audio Streaming app](../../streaming/custom-streaming.md) tutorial, it overviews the server and client code for a custom asynchronous web app built with ADK Streaming and [FastAPI](https://fastapi.tiangolo.com/), enabling real-time, bidirectional audio and text communication.
+在 [Custom Audio Streaming app](../../streaming/custom-streaming.md) 教學中，將概述如何使用 ADK Streaming 與 [FastAPI](https://fastapi.tiangolo.com/) 建立自訂非同步網頁應用程式的伺服器與用戶端程式碼，實現即時、雙向的語音與文字通訊。

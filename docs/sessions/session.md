@@ -1,34 +1,20 @@
-# Session: Tracking Individual Conversations
+# Session：追蹤個別對話
 
-Following our Introduction, let's dive into the `Session`. Think back to the
-idea of a "conversation thread." Just like you wouldn't start every text message
-from scratch, agents need context regarding the ongoing interaction.
-**`Session`** is the ADK object designed specifically to track and manage these
-individual conversation threads.
+在閱讀完前言後，讓我們深入了解`Session`。回想一下「對話串」這個概念。就像你不會每次傳送簡訊都從頭開始一樣，agent 也需要了解目前互動的上下文。**`Session`** 是專為追蹤與管理這些個別對話串而設計的 Agent Development Kit (ADK) 物件。
 
-## The `Session` Object
+## `Session` 物件
 
-When a user starts interacting with your agent, the `SessionService` creates a
-`Session` object (`google.adk.sessions.Session`). This object acts as the
-container holding everything related to that *one specific chat thread*. Here
-are its key properties:
+當使用者開始與你的 agent 互動時，`SessionService` 會建立一個 `Session` 物件（`google.adk.sessions.Session`）。這個物件就像是一個容器，專門用來存放與*那一個特定聊天串*相關的所有內容。其主要屬性如下：
 
-*   **Identification (`id`, `appName`, `userId`):** Unique labels for the
-    conversation.
-    * `id`: A unique identifier for *this specific* conversation thread, essential for retrieving it later. A SessionService object can handle multiple `Session`(s). This field identifies which particular session object are we referring to. For example, "test_id_modification".
-    * `app_name`: Identifies which agent application this conversation belongs to. For example, "id_modifier_workflow". 
-    *   `userId`: Links the conversation to a particular user.
-*   **History (`events`):** A chronological sequence of all interactions
-    (`Event` objects – user messages, agent responses, tool actions) that have
-    occurred within this specific thread.
-*   **Session State (`state`):** A place to store temporary data relevant *only*
-    to this specific, ongoing conversation. This acts as a scratchpad for the
-    agent during the interaction. We will cover how to use and manage `state` in
-    detail in the next section.
-*   **Activity Tracking (`lastUpdateTime`):** A timestamp indicating the last
-    time an event occurred in this conversation thread.
+*   **識別資訊（`id`、`appName`、`userId`）：** 對話的唯一標籤。
+    * `id`：此*特定*對話串的唯一識別碼，對於後續擷取非常重要。一個 SessionService 物件可以處理多個 `Session`。這個欄位用來標示我們指的是哪一個 session 物件。例如："test_id_modification"。
+    * `app_name`：標示此對話屬於哪一個 agent 應用程式。例如："id_modifier_workflow"。
+    * `userId`：將對話串連結到特定使用者。
+*   **歷史紀錄（`events`）：** 以時間順序記錄所有互動（`Event` 物件——使用者訊息、agent 回應、工具動作）在此特定對話串中發生的內容。
+*   **Session 狀態（`state`）：** 用來儲存*僅與這個進行中的對話相關*的暫存資料。這就像 agent 在互動過程中的備忘錄。我們會在下一節詳細介紹如何使用與管理 `state`。
+*   **活動追蹤（`lastUpdateTime`）：** 記錄此對話串最後一次事件發生時間的時間戳記。
 
-### Example: Examining Session Properties
+### 範例：檢視 Session 屬性
 
 
 === "Python"
@@ -90,43 +76,30 @@ are its key properties:
         var unused = exampleSessionService.deleteSession(appName, userId, sessionId);
        ```
 
-*(**Note:** The state shown above is only the initial state. State updates
-happen via events, as discussed in the State section.)*
+*(**注意：** 上述顯示的 state 僅為初始狀態。狀態的更新會透過事件發生，詳情請參考「State」章節。)*
 
-## Managing Sessions with a `SessionService`
+## 使用 `SessionService` 管理 Session
 
-As seen above, you don't typically create or manage `Session` objects directly.
-Instead, you use a **`SessionService`**. This service acts as the central
-manager responsible for the entire lifecycle of your conversation sessions.
+如上所述，你通常不會直接建立或管理 `Session` 物件。相反地，你會使用 **`SessionService`**。這個服務扮演整個對話 session 生命週期的核心管理者角色。
 
-Its core responsibilities include:
+其主要職責包括：
 
-*   **Starting New Conversations:** Creating fresh `Session` objects when a user
-    begins an interaction.
-*   **Resuming Existing Conversations:** Retrieving a specific `Session` (using
-    its ID) so the agent can continue where it left off.
-*   **Saving Progress:** Appending new interactions (`Event` objects) to a
-    session's history. This is also the mechanism through which session `state`
-    gets updated (more in the `State` section).
-*   **Listing Conversations:** Finding the active session threads for a
-    particular user and application.
-*   **Cleaning Up:** Deleting `Session` objects and their associated data when
-    conversations are finished or no longer needed.
+*   **啟動新對話：** 當使用者開始互動時，建立新的 `Session` 物件。
+*   **恢復現有對話：** 根據 ID 取得特定的 `Session`，讓 agent 能從中斷處繼續。
+*   **儲存進度：** 將新的互動（`Event` 物件）追加到 session 的歷史紀錄中。這同時也是 session `state` 更新的機制（詳見 `State` 章節）。
+*   **列出對話：** 查找特定使用者與應用程式的活躍 session 執行緒。
+*   **清理：** 當對話結束或不再需要時，刪除 `Session` 物件及其相關資料。
 
-## `SessionService` Implementations
+## `SessionService` 的實作
 
-ADK provides different `SessionService` implementations, allowing you to choose
-the storage backend that best suits your needs:
+Agent Development Kit (ADK) 提供多種 `SessionService` 實作，讓你可以選擇最適合需求的儲存後端：
 
 1.  **`InMemorySessionService`**
 
-    *   **How it works:** Stores all session data directly in the application's
-        memory.
-    *   **Persistence:** None. **All conversation data is lost if the
-        application restarts.**
-    *   **Requires:** Nothing extra.
-    *   **Best for:** Quick development, local testing, examples, and scenarios
-        where long-term persistence isn't required.
+    *   **運作方式：** 將所有 session 資料直接儲存在應用程式記憶體中。
+    *   **持久性：** 無。**如果應用程式重新啟動，所有對話資料都會遺失。**
+    *   **需求：** 無需額外設定。
+    *   **適用於：** 快速開發、本機測試、範例，以及不需要長期保存資料的情境。
 
     === "Python"
     
@@ -143,19 +116,14 @@ the storage backend that best suits your needs:
 
 2.  **`VertexAiSessionService`**
 
-    *   **How it works:** Uses Google Cloud Vertex AI infrastructure via API
-        calls for session management.
-    *   **Persistence:** Yes. Data is managed reliably and scalably via
-        [Vertex AI Agent Engine](https://google.github.io/adk-docs/deploy/agent-engine/).
-    *   **Requires:**
-        *   A Google Cloud project (`pip install vertexai`)
-        *   A Google Cloud storage bucket that can be configured by this
-            [step](https://cloud.google.com/vertex-ai/docs/pipelines/configure-project#storage).
-        *   A Reasoning Engine resource name/ID that can setup following this
-            [tutorial](https://google.github.io/adk-docs/deploy/agent-engine/).
-        *   If you do not have a Google Cloud project and you want to try the VertexAiSessionService for free, see how to [try Session and Memory for free.](express-mode.md)
-    *   **Best for:** Scalable production applications deployed on Google Cloud,
-        especially when integrating with other Vertex AI features.
+    *   **運作方式：** 透過 API 呼叫，使用 Google Cloud Vertex AI 基礎設施進行工作階段管理。
+    *   **持久性：** 有。資料會透過 [Vertex AI Agent Engine](https://google.github.io/adk-docs/deploy/agent-engine/) 以可靠且可擴展的方式進行管理。
+    *   **需求：**
+        *   一個 Google Cloud 專案（`pip install vertexai`）
+        *   一個 Google Cloud 儲存 bucket，可依照此 [步驟](https://cloud.google.com/vertex-ai/docs/pipelines/configure-project#storage) 進行設定。
+        *   一個 Reasoning Engine 資源名稱/ID，可依照此 [教學](https://google.github.io/adk-docs/deploy/agent-engine/) 進行設定。
+        *   如果你尚未擁有 Google Cloud 專案，且想要免費試用 VertexAiSessionService，請參考如何 [免費試用 Session 和 Memory。](express-mode.md)
+    *   **最適用於：** 部署於 Google Cloud 上、需要可擴展性的生產環境應用，特別是當需整合其他 Vertex AI 功能時。
 
     === "Python"
     
@@ -174,6 +142,7 @@ the storage backend that best suits your needs:
            # session_service = await session_service.create_session(app_name=REASONING_ENGINE_APP_NAME, ...)
            ```
        
+（原文內容為空，無需翻譯。如需翻譯，請提供原文內容。）       
     === "Java"
     
            ```java
@@ -200,14 +169,12 @@ the storage backend that best suits your needs:
 
 3.  **`DatabaseSessionService`**
 
-    ![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="This feature is currently available for Python. Java support is planned/ coming soon."}
+    ![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python。Java 支援已規劃／即將推出。"}
 
-    *   **How it works:** Connects to a relational database (e.g., PostgreSQL,
-        MySQL, SQLite) to store session data persistently in tables.
-    *   **Persistence:** Yes. Data survives application restarts.
-    *   **Requires:** A configured database.
-    *   **Best for:** Applications needing reliable, persistent storage that you
-        manage yourself.
+    *   **運作方式：** 連接到關聯式資料庫（例如 PostgreSQL、MySQL、SQLite），將 session 資料持久化儲存於資料表中。
+    *   **持久性：** 有。資料在應用程式重啟後仍會保留。
+    *   **需求：** 需設定好的資料庫。
+    *   **最適用於：** 需要自行管理且可靠、持久儲存的應用程式。
 
     ```py
     from google.adk.sessions import DatabaseSessionService
@@ -216,39 +183,32 @@ the storage backend that best suits your needs:
     session_service = DatabaseSessionService(db_url=db_url)
     ```
 
-Choosing the right `SessionService` is key to defining how your agent's
-conversation history and temporary data are stored and persist.
+選擇合適的 `SessionService` 是決定您的 agent 對話歷史與暫存資料如何儲存與持久化的關鍵。
 
-## The Session Lifecycle
+## 工作階段（Session）生命週期
 
 <img src="../../assets/session_lifecycle.png" alt="Session lifecycle">
 
-Here’s a simplified flow of how `Session` and `SessionService` work together
-during a conversation turn:
+以下是 `Session` 與 `SessionService` 在一次對話輪次中如何協同運作的簡化流程：
 
-1.  **Start or Resume:** Your application needs to use the `SessionService` to
-    either `create_session` (for a new chat) or use an existing session id.
-2.  **Context Provided:** The `Runner` gets the appropriate `Session` object
-    from the appropriate service method, providing the agent with access to the
-    corresponding Session's `state` and `events`.
-3.  **Agent Processing:** The user prompts the agent with a query. The agent
-    analyzes the query and potentially the session `state` and `events` history
-    to determine the response.
-4.  **Response & State Update:** The agent generates a response (and potentially
-    flags data to be updated in the `state`). The `Runner` packages this as an
-    `Event`.
-5.  **Save Interaction:** The `Runner` calls
-    `sessionService.append_event(session, event)` with the `session` and the new
-    `event` as the arguments. The service adds the `Event` to the history and
-    updates the session's `state` in storage based on information within the
-    event. The session's `last_update_time` also get updated.
-6.  **Ready for Next:** The agent's response goes to the user. The updated
-    `Session` is now stored by the `SessionService`, ready for the next turn
-    (which restarts the cycle at step 1, usually with the continuation of the
-    conversation in the current session).
-7.  **End Conversation:** When the conversation is over, your application calls
-    `sessionService.delete_session(...)` to clean up the stored session data if
-    it is no longer required.
+1.  **開始或繼續：** 您的應用程式需要使用 `SessionService` 來
+    `create_session`（針對新聊天）或使用現有的 session id。
+2.  **提供上下文：** `Runner` 會從對應的服務方法取得適當的 `Session` 物件，
+    讓 agent 能夠存取對應 Session 的 `state` 和 `events`。
+3.  **Agent 處理：** 使用者向 agent 發出查詢。agent 會分析該查詢，
+    並可能參考 session 的 `state` 與 `events` 歷史來決定回應內容。
+4.  **回應與狀態更新：** agent 產生回應（並可能標記需在 `state` 中更新的資料）。
+    `Runner` 會將這些內容包裝為 `Event`。
+5.  **儲存互動紀錄：** `Runner` 會呼叫
+    `sessionService.append_event(session, event)`，並以 `session` 和新的
+    `event` 作為參數。服務會將 `Event` 新增至歷史紀錄，
+    並根據事件中的資訊，更新儲存中的 session `state`。
+    session 的 `last_update_time` 也會一併更新。
+6.  **準備下一輪：** agent 的回應會傳送給使用者。更新後的
+    `Session` 現已由 `SessionService` 儲存，準備好進行下一輪
+    （通常會在目前 session 中繼續對話，並從步驟 1 重新開始循環）。
+7.  **結束對話：** 當對話結束時，若已不再需要，您的應用程式可呼叫
+    `sessionService.delete_session(...)` 來清除已儲存的 session 資料。
 
-This cycle highlights how the `SessionService` ensures conversational continuity
-by managing the history and state associated with each `Session` object.
+此循環說明了 `SessionService` 如何透過管理每個 `Session` 物件相關的歷史紀錄與狀態，
+確保對話的連貫性。

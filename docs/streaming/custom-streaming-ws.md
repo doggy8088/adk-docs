@@ -1,21 +1,21 @@
-# Custom Audio Streaming app (WebSocket) {#custom-streaming-websocket}
+# 自訂音訊串流應用程式（WebSocket） {#custom-streaming-websocket}
 
-This article overviews the server and client code for a custom asynchronous web app built with ADK Streaming and [FastAPI](https://fastapi.tiangolo.com/), enabling real-time, bidirectional audio and text communication with WebSockets.
+本文將概述使用 Agent Development Kit (ADK) 串流功能與 [FastAPI](https://fastapi.tiangolo.com/) 所建構的自訂非同步網頁應用程式的伺服器與用戶端程式碼，實現透過 WebSocket 進行即時、雙向的音訊與文字通訊。
 
-**Note:** This guide assumes you have experience of JavaScript and Python `asyncio` programming.
+**注意：**本指南假設您具備 JavaScript 與 Python `asyncio` 程式設計經驗。
 
-## Supported models for voice/video streaming {#supported-models}
+## 支援語音／視訊串流的模型 {#supported-models}
 
-In order to use voice/video streaming in ADK, you will need to use Gemini models that support the Live API. You can find the **model ID(s)** that supports the Gemini Live API in the documentation:
+若要在 ADK 中使用語音／視訊串流功能，您需要選用支援 Live API 的 Gemini 模型。您可以在下列文件中找到支援 Gemini Live API 的**模型 ID**：
 
 - [Google AI Studio: Gemini Live API](https://ai.google.dev/gemini-api/docs/models#live-api)
 - [Vertex AI: Gemini Live API](https://cloud.google.com/vertex-ai/generative-ai/docs/live-api)
 
-There is also a [SSE](custom-streaming.md) version of the sample is available.
+同時也有 [SSE](custom-streaming.md) 版本的範例可供參考。
 
-## 1. Install ADK {#1.-setup-installation}
+## 1. 安裝 ADK {#1.-setup-installation}
 
-Create & Activate Virtual Environment (Recommended):
+建立並啟用虛擬環境（建議）：
 
 ```bash
 # Create
@@ -26,19 +26,19 @@ python -m venv .venv
 # Windows PowerShell: .venv\Scripts\Activate.ps1
 ```
 
-Install ADK:
+安裝 Agent Development Kit (ADK)：
 
 ```bash
 pip install --upgrade google-adk==1.10.0
 ```
 
-Set `SSL_CERT_FILE` variable with the following command.
+使用以下指令設定 `SSL_CERT_FILE` 變數。
 
 ```shell
 export SSL_CERT_FILE=$(python -m certifi)
 ```
 
-Download the sample code:
+下載範例程式碼：
 
 ```bash
 git clone --no-checkout https://github.com/google/adk-docs.git
@@ -49,7 +49,7 @@ git checkout main
 cd examples/python/snippets/streaming/adk-streaming-ws/app
 ```
 
-This sample code has the following files and folders:
+此範例程式碼包含以下檔案與資料夾：
 
 ```console
 adk-streaming-ws/
@@ -64,34 +64,33 @@ adk-streaming-ws/
         └── agent.py # Agent definition
 ```
 
-## 2\. Set up the platform {#2.-set-up-the-platform}
+## 2\. 設定平台 {#2.-set-up-the-platform}
 
-To run the sample app, choose a platform from either Google AI Studio or Google Cloud Vertex AI:
+要執行範例應用程式，請從 Google AI Studio 或 Google Cloud Vertex AI 中選擇一個平台：
 
 === "Gemini - Google AI Studio"
-    1. Get an API key from [Google AI Studio](https://aistudio.google.com/apikey).
-    2. Open the **`.env`** file located inside (`app/`) and copy-paste the following code.
+    1. 從 [Google AI Studio](https://aistudio.google.com/apikey) 取得 API 金鑰。
+    2. 開啟 (`app/`) 目錄下的 **`.env`** 檔案，並將以下程式碼複製貼上。
 
         ```env title=".env"
         GOOGLE_GENAI_USE_VERTEXAI=FALSE
         GOOGLE_API_KEY=PASTE_YOUR_ACTUAL_API_KEY_HERE
         ```
 
-    3. Replace `PASTE_YOUR_ACTUAL_API_KEY_HERE` with your actual `API KEY`.
+    3. 將 `PASTE_YOUR_ACTUAL_API_KEY_HERE` 替換為您實際的 `API KEY`。
 
 === "Gemini - Google Cloud Vertex AI"
-    1. You need an existing
-       [Google Cloud](https://cloud.google.com/?e=48754805&hl=en) account and a
-       project.
-        * Set up a
-          [Google Cloud project](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-gcp)
-        * Set up the
-          [gcloud CLI](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-local)
-        * Authenticate to Google Cloud, from the terminal by running
-          `gcloud auth login`.
-        * [Enable the Vertex AI API](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com).
-    2. Open the **`.env`** file located inside (`app/`). Copy-paste
-       the following code and update the project ID and location.
+    1. 您需要一個現有的
+       [Google Cloud](https://cloud.google.com/?e=48754805&hl=en) 帳戶以及一個
+       專案。
+        * 設定一個
+          [Google Cloud 專案](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-gcp)
+        * 設定
+          [gcloud 命令列介面 (CLI)](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#setup-local)
+        * 在終端機中執行
+          `gcloud auth login`，以驗證 Google Cloud 身分。
+        * [啟用 Vertex AI API](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com)。
+    2. 開啟位於 (`app/`) 內的 **`.env`** 檔案。複製並貼上以下程式碼，並更新專案 ID 與位置。
 
         ```env title=".env"
         GOOGLE_GENAI_USE_VERTEXAI=TRUE
@@ -102,7 +101,7 @@ To run the sample app, choose a platform from either Google AI Studio or Google 
 
 ### agent.py
 
-The agent definition code `agent.py` in the `google_search_agent` folder is where the agent's logic is written:
+`google_search_agent` 資料夾中的代理（agent）定義程式碼 `agent.py` 是用來撰寫代理邏輯的地方：
 
 
 ```py
@@ -119,47 +118,47 @@ root_agent = Agent(
 )
 ```
 
-**Note:**  To enable both text and audio/video input, the model must support the generateContent (for text) and bidiGenerateContent methods. Verify these capabilities by referring to the [List Models Documentation](https://ai.google.dev/api/models#method:-models.list). This quickstart utilizes the gemini-2.0-flash-exp model for demonstration purposes.
+**注意：** 若要同時啟用文字與音訊／視訊輸入，模型必須支援 generateContent（用於文字）以及 bidiGenerateContent 方法。請參閱 [List Models Documentation](https://ai.google.dev/api/models#method:-models.list) 以確認這些功能。本快速入門以 gemini-2.0-flash-exp 模型作為示範。
 
-Notice how easily you integrated [grounding with Google Search](https://ai.google.dev/gemini-api/docs/grounding?lang=python#configure-search) capabilities.  The `Agent` class and the `google_search` tool handle the complex interactions with the LLM and grounding with the search API, allowing you to focus on the agent's *purpose* and *behavior*.
+請注意，您可以輕鬆整合 [結合 Google Search 的基礎查詢](https://ai.google.dev/gemini-api/docs/grounding?lang=python#configure-search) 功能。`Agent` 類別與 `google_search` 工具負責處理與大型語言模型 (LLM) 及搜尋 API 結合的複雜互動，讓您能專注於代理的*目標*與*行為*。
 
 ![intro_components.png](../assets/quickstart-streaming-tool.png)
 
-## 3\. Interact with Your Streaming app {#3.-interact-with-your-streaming-app}
+## 3\. 與您的串流應用互動 {#3.-interact-with-your-streaming-app}
 
-1\. **Navigate to the Correct Directory:**
+1\. **切換至正確目錄：**
 
-   To run your agent effectively, make sure you are in the **app folder (`adk-streaming-ws/app`)**
+   為了有效執行您的代理，請確保您位於**app 資料夾（`adk-streaming-ws/app`）**。
 
-2\. **Start the Fast API**: Run the following command to start CLI interface with
+2\. **啟動 Fast API：** 執行以下指令以啟動命令列介面 (CLI)：
 
 ```console
 uvicorn main:app --reload
 ```
 
-3\. **Access the app with the text mode:** Once the app starts, the terminal will display a local URL (e.g., [http://localhost:8000](http://localhost:8000)). Click this link to open the UI in your browser.
+3\. **以文字模式存取應用程式：** 當應用程式啟動後，終端機會顯示一個本機 URL（例如：[http://localhost:8000](http://localhost:8000)）。請點擊此連結，在瀏覽器中開啟網頁 UI。
 
-Now you should see the UI like this:
+現在你應該會看到如下的 UI 畫面：
 
 ![ADK Streaming app](../assets/adk-streaming-text.png)
 
-Try asking a question `What time is it now?`. The agent will use Google Search to respond to your queries. You would notice that the UI shows the agent's response as streaming text. You can also send messages to the agent at any time, even while the agent is still responding. This demonstrates the bidirectional communication capability of ADK Streaming.
+試著詢問一個問題 `What time is it now?`。代理（agent）會使用 Google Search 來回應你的查詢。你會注意到 UI 會以串流文字的方式顯示代理的回應。即使代理還在回應時，你也可以隨時傳送訊息給代理。這展現了 Agent Development Kit (ADK) Streaming 的雙向通訊能力。
 
-4\. **Access the app with the audio mode:** Now click the `Start Audio` button. The app reconnects with the server in an audio mode, and the UI will show the following dialog for the first time:
+4\. **以語音模式存取應用程式：** 現在請點擊 `Start Audio` 按鈕。應用程式會以語音模式重新連線到伺服器，並且 UI 首次會顯示以下對話框：
 
 ![ADK Streaming app](../assets/adk-streaming-audio-dialog.png)
 
-Click `Allow while visiting the site`, then you will see the microphone icon will be shown at the top of the browser:
+點擊 `Allow while visiting the site`，你會看到瀏覽器頂端會出現麥克風圖示：
 
 ![ADK Streaming app](../assets/adk-streaming-mic.png)
 
-Now you can talk to the agent with voice. Ask questions like `What time is it now?` with voice and you will hear the agent responding in voice too. As Streaming for ADK supports [multiple languages](https://ai.google.dev/gemini-api/docs/live#supported-languages), it can also respond to question in the supported languages.
+現在你可以透過語音與代理對話。用語音詢問像是 `What time is it now?` 這樣的問題，你也會聽到代理以語音回應。由於 Agent Development Kit (ADK) Streaming 支援[多種語言](https://ai.google.dev/gemini-api/docs/live#supported-languages)，因此也能以支援的語言回應問題。
 
-5\. **Check console logs**
+5\. **檢查主控台日誌**
 
-If you are using the Chrome browser, use the right click and select `Inspect` to open the DevTools. On the `Console`, you can see the incoming and outgoing audio data such as `[CLIENT TO AGENT]` and `[AGENT TO CLIENT]`, representing the audio data streaming in and out between the browser and the server.
+如果你使用的是 Chrome 瀏覽器，請使用滑鼠右鍵並選擇 `Inspect` 來開啟 DevTools。在 `Console` 上，你可以看到如 `[CLIENT TO AGENT]` 和 `[AGENT TO CLIENT]` 這樣的進出音訊資料，這代表瀏覽器與伺服器之間的音訊資料串流。
 
-At the same time, in the app server console, you should see something like this:
+同時，在應用程式伺服器的主控台中，你應該會看到類似以下的內容：
 
 ```
 INFO:     ('127.0.0.1', 50068) - "WebSocket /ws/70070018?is_audio=true" [accepted]
@@ -173,24 +172,24 @@ INFO:     127.0.0.1:50082 - "GET /favicon.ico HTTP/1.1" 404 Not Found
 [AGENT TO CLIENT]: audio/pcm: 11520 bytes.
 ```
 
-These console logs are important in case you develop your own streaming application. In many cases, the communication failure between the browser and server becomes a major cause for the streaming application bugs.
+這些主控台日誌對於開發自訂串流應用程式時非常重要。在許多情況下，瀏覽器與伺服器之間的通訊失敗，往往是串流應用程式出現錯誤的主要原因。
 
-6\. **Troubleshooting tips**
+6\. **疑難排解提示**
 
-- **When `ws://` doesn't work:** If you see any errors on the Chrome DevTools with regard to `ws://` connection, try replacing `ws://` with `wss://` on `app/static/js/app.js` at line 28. This may happen when you are running the sample on a cloud environment and using a proxy connection to connect from your browser.
-- **When `gemini-2.0-flash-exp` model doesn't work:** If you see any errors on the app server console with regard to `gemini-2.0-flash-exp` model availability, try replacing it with `gemini-2.0-flash-live-001` on `app/google_search_agent/agent.py` at line 6.
+- **當 `ws://` 無法運作時：** 如果你在 Chrome DevTools 上看到與 `ws://` 連線相關的錯誤，請嘗試將 `ws://` 替換為 `wss://`，位置在 `app/static/js/app.js` 的第 28 行。這種情況通常發生在你於雲端環境執行範例，並且使用代理連線從瀏覽器連接時。
+- **當 `gemini-2.0-flash-exp` 模型無法運作時：** 如果你在應用程式伺服器主控台上看到與 `gemini-2.0-flash-exp` 模型可用性相關的錯誤，請嘗試將其替換為 `gemini-2.0-flash-live-001`，位置在 `app/google_search_agent/agent.py` 的第 6 行。
 
-## 4. Server code overview {#4.-server-side-code-overview}
+## 4. 伺服器端程式碼概覽 {#4.-server-side-code-overview}
 
-This server app enables real-time, streaming interaction with ADK agent via WebSockets. Clients send text/audio to the ADK agent and receive streamed text/audio responses.
+此伺服器應用程式透過 WebSockets 實現與 Agent Development Kit (ADK) 代理的即時串流互動。用戶端可傳送文字或語音給 ADK 代理，並接收串流的文字或語音回應。
 
-Core functions:
-1.  Initialize/manage ADK agent sessions.
-2.  Handle client WebSocket connections.
-3.  Relay client messages to the ADK agent.
-4.  Stream ADK agent responses (text/audio) to clients.
+核心功能：
+1.  初始化與管理 ADK 代理工作階段。
+2.  處理用戶端 WebSocket 連線。
+3.  將用戶端訊息轉發給 ADK 代理。
+4.  將 ADK 代理的回應（文字/語音）以串流方式傳送給用戶端。
 
-### ADK Streaming Setup
+### ADK 串流設定
 
 ```py
 import os
@@ -219,10 +218,10 @@ from fastapi.responses import FileResponse
 from google_search_agent.agent import root_agent
 ```
 
-*   **Imports:** Includes standard Python libraries, `dotenv` for environment variables, Google ADK, and FastAPI.
-*   **`load_dotenv()`:** Loads environment variables.
-*   **`APP_NAME`**: Application identifier for ADK.
-*   **`session_service = InMemorySessionService()`**: Initializes an in-memory ADK session service, suitable for single-instance or development use. Production might use a persistent store.
+*   **Imports：** 包含標準 Python 函式庫、`dotenv`（用於環境變數）、Agent Development Kit (ADK) 以及 FastAPI。
+*   **`load_dotenv()`：** 載入環境變數。
+*   **`APP_NAME`：** ADK 的應用程式識別碼。
+*   **`session_service = InMemorySessionService()`：** 初始化記憶體內的 ADK 工作階段服務，適用於單一實例或開發用途。若為正式環境，建議使用持久化儲存。
 
 ### `start_agent_session(session_id, is_audio=False)`
 
@@ -264,38 +263,38 @@ async def start_agent_session(user_id, is_audio=False):
     return live_events, live_request_queue
 ```
 
-This function initializes an ADK agent live session.
+此函式會初始化一個 Agent Development Kit (ADK) agent 即時會話。
 
-| Parameter    | Type    | Description                                             |
+| 參數         | 類型    | 說明                                                    |
 |--------------|---------|---------------------------------------------------------|
-| `user_id` | `str`   | Unique client identifier.                       |
-| `is_audio`   | `bool`  | `True` for audio responses, `False` for text (default). |
+| `user_id` | `str`   | 唯一的 client 識別碼。                       |
+| `is_audio`   | `bool`  | 音訊回應請使用 `True`，文字回應請使用 `False`（預設）。 |
 
-**Key Steps:**
-1\.  **Create Runner:** Instantiates the ADK runner for the `root_agent`.
-2\.  **Create Session:** Establishes an ADK session.
-3\.  **Set Response Modality:** Configures agent response as "AUDIO" or "TEXT".
-4\.  **Create LiveRequestQueue:** Creates a queue for client inputs to the agent.
-5\.  **Start Agent Session:** `runner.run_live(...)` starts the agent, returning:
-    *   `live_events`: Asynchronous iterable for agent events (text, audio, completion).
-    *   `live_request_queue`: Queue to send data to the agent.
+**主要步驟：**
+1\.  **建立 Runner：** 為 `root_agent` 實例化 ADK runner。
+2\.  **建立 Session：** 建立一個 ADK 會話。
+3\.  **設定回應模式：** 設定 agent 回應為 "AUDIO" 或 "TEXT"。
+4\.  **建立 LiveRequestQueue：** 建立一個用於 client 輸入至 agent 的佇列。
+5\.  **啟動 Agent Session：** `runner.run_live(...)` 啟動 agent，並回傳：
+    *   `live_events`：agent 事件（文字、音訊、完成）的非同步可迭代物件。
+    *   `live_request_queue`：傳送資料給 agent 的佇列。
 
-**Returns:** `(live_events, live_request_queue)`.
+**回傳值：** `(live_events, live_request_queue)`。
 
-### Session Resumption Configuration
+### 會話恢復設定
 
-ADK supports live session resumption to improve reliability during streaming conversations. This feature enables automatic reconnection when live connections are interrupted due to network issues.
+ADK 支援即時會話恢復功能，以提升串流對話期間的可靠性。當即時連線因網路問題中斷時，此功能可自動重新連線。
 
-#### Enabling Session Resumption
+#### 啟用會話恢復
 
-To enable session resumption, you need to:
+若要啟用會話恢復，您需要：
 
-1. **Import the required types**:
+1. **匯入所需型別：**
 ```py
 from google.genai import types
 ```
 
-2. **Configure session resumption in RunConfig**:
+2. **在 RunConfig 中設定工作階段恢復功能**：
 ```py
 run_config = RunConfig(
     response_modalities=[modality],
@@ -303,27 +302,27 @@ run_config = RunConfig(
 )
 ```
 
-#### Session Resumption Features
+#### 工作階段恢復功能
 
-- **Automatic Handle Caching** - The system automatically caches session resumption handles during live conversations
-- **Transparent Reconnection** - When connections are interrupted, the system attempts to resume using cached handles
-- **Context Preservation** - Conversation context and state are maintained across reconnections
-- **Network Resilience** - Provides better user experience during unstable network conditions
+- **自動 Handle 快取** - 系統會在即時對話期間自動快取工作階段恢復 handle
+- **透明式重新連線** - 當連線中斷時，系統會嘗試使用已快取的 handle 進行恢復
+- **情境保留** - 對話的情境與狀態可在重新連線後持續維持
+- **網路韌性** - 在網路不穩定的情況下，能提供更佳的使用者體驗
 
-#### Implementation Notes
+#### 實作說明
 
-- Session resumption handles are managed internally by the ADK framework
-- No additional client-side code changes are required
-- The feature is particularly beneficial for long-running streaming conversations
-- Connection interruptions become less disruptive to the user experience
+- 工作階段恢復 handle 由 Agent Development Kit (ADK) 框架於內部管理
+- 不需要額外修改客戶端程式碼
+- 此功能對於長時間執行的串流對話特別有幫助
+- 連線中斷對使用者體驗的影響將大幅降低
 
-#### Troubleshooting
+#### 疑難排解
 
-If you encounter errors with session resumption:
+如果您在使用工作階段恢復時遇到錯誤：
 
-1. **Check model compatibility** - Ensure you're using a model that supports session resumption
-2. **API limitations** - Some session resumption features may not be available in all API versions
-3. **Remove session resumption** - If issues persist, you can disable session resumption by removing the `session_resumption` parameter from `RunConfig`
+1. **檢查模型相容性** - 請確保您使用的模型支援工作階段恢復
+2. **API 限制** - 部分工作階段恢復功能可能並非所有 API 版本皆支援
+3. **移除工作階段恢復** - 若問題持續發生，您可以將 `session_resumption` 參數從 `RunConfig` 移除以停用工作階段恢復
 
 ### `agent_to_client_messaging(websocket, live_events)`
 
@@ -374,16 +373,16 @@ async def agent_to_client_messaging(websocket, live_events):
                 print(f"[AGENT TO CLIENT]: text/plain: {message}")
 ```
 
-This asynchronous function streams ADK agent events to the WebSocket client.
+此非同步函式會將 Agent Development Kit (ADK) agent 的事件串流至 WebSocket 用戶端。
 
-**Logic:**
-1.  Iterates through `live_events` from the agent.
-2.  **Turn Completion/Interruption:** Sends status flags to the client.
-3.  **Content Processing:**
-    *   Extracts the first `Part` from event content.
-    *   **Audio Data:** If audio (PCM), Base64 encodes and sends it as JSON: `{ "mime_type": "audio/pcm", "data": "<base64_audio>" }`.
-    *   **Text Data:** If partial text, sends it as JSON: `{ "mime_type": "text/plain", "data": "<partial_text>" }`.
-4.  Logs messages.
+**邏輯說明：**
+1.  迭代來自 `live_events` 的事件。
+2.  **回合完成／中斷：** 將狀態旗標傳送給用戶端。
+3.  **內容處理：**
+    *   從事件內容中擷取第一個 `Part`。
+    *   **音訊資料：** 若為音訊（PCM），則進行 Base64 編碼並以 JSON 格式傳送：`{ "mime_type": "audio/pcm", "data": "<base64_audio>" }`。
+    *   **文字資料：** 若為部分文字，則以 JSON 格式傳送：`{ "mime_type": "text/plain", "data": "<partial_text>" }`。
+4.  記錄訊息。
 
 ### `client_to_agent_messaging(websocket, live_request_queue)`
 
@@ -412,16 +411,16 @@ async def client_to_agent_messaging(websocket, live_request_queue):
             raise ValueError(f"Mime type not supported: {mime_type}")
 ```
 
-This asynchronous function relays messages from the WebSocket client to the ADK agent.
+這個非同步函式會將來自 WebSocket 用戶端的訊息轉發給 Agent Development Kit (ADK) agent。
 
-**Logic:**
-1.  Receives and parses JSON messages from the WebSocket, expecting: `{ "mime_type": "text/plain" | "audio/pcm", "data": "<data>" }`.
-2.  **Text Input:** For "text/plain", sends `Content` to agent via `live_request_queue.send_content()`.
-3.  **Audio Input:** For "audio/pcm", decodes Base64 data, wraps in `Blob`, and sends via `live_request_queue.send_realtime()`.
-4.  Raises `ValueError` for unsupported MIME types.
-5.  Logs messages.
+**邏輯說明：**
+1.  從 WebSocket 接收並解析 JSON 訊息，預期格式為：`{ "mime_type": "text/plain" | "audio/pcm", "data": "<data>" }`。
+2.  **文字輸入：** 當 MIME 類型為 "text/plain" 時，透過 `live_request_queue.send_content()` 將 `Content` 傳送給 agent。
+3.  **語音輸入：** 當 MIME 類型為 "audio/pcm" 時，會將 Base64 資料解碼，包裝於 `Blob`，並透過 `live_request_queue.send_realtime()` 傳送。
+4.  若遇到不支援的 MIME 類型，則拋出 `ValueError`。
+5.  記錄訊息日誌。
 
-### FastAPI Web Application
+### FastAPI Web 應用程式
 
 ```py
 
@@ -469,45 +468,45 @@ async def websocket_endpoint(websocket: WebSocket, user_id: int, is_audio: str):
 
 ```
 
-*   **`app = FastAPI()`**: Initializes the application.
-*   **Static Files:** Serves files from the `static` directory under `/static`.
-*   **`@app.get("/")` (Root Endpoint):** Serves `index.html`.
-*   **`@app.websocket("/ws/{user_id}")` (WebSocket Endpoint):**
-    *   **Path Parameters:** `user_id` (int) and `is_audio` (str: "true"/"false").
-    *   **Connection Handling:**
-        1.  Accepts WebSocket connection.
-        2.  Calls `start_agent_session()` using `user_id` and `is_audio`.
-        3.  **Concurrent Messaging Tasks:** Creates and runs `agent_to_client_messaging` and `client_to_agent_messaging` concurrently using `asyncio.gather`. These tasks handle bidirectional message flow.
-        4.  Logs client connection and disconnection.
+*   **`app = FastAPI()`**：初始化應用程式。
+*   **靜態檔案：** 於`/static`下提供`static`目錄中的檔案。
+*   **`@app.get("/")`（根端點）：** 提供`index.html`。
+*   **`@app.websocket("/ws/{user_id}")`（WebSocket 端點）：**
+    *   **路徑參數：** `user_id`（int）與`is_audio`（str："true"/"false"）。
+    *   **連線處理：**
+        1.  接受 WebSocket 連線。
+        2.  使用`user_id`與`is_audio`呼叫`start_agent_session()`。
+        3.  **並行訊息任務：** 使用`asyncio.gather`同時建立並執行`agent_to_client_messaging`與`client_to_agent_messaging`。這些任務負責雙向訊息流。
+        4.  記錄用戶端連線與斷線狀態。
 
-### How It Works (Overall Flow)
+### 運作方式（整體流程）
 
-1.  Client connects to `ws://<server>/ws/<user_id>?is_audio=<true_or_false>`.
-2.  Server's `websocket_endpoint` accepts, starts ADK session (`start_agent_session`).
-3.  Two `asyncio` tasks manage communication:
-    *   `client_to_agent_messaging`: Client WebSocket messages -> ADK `live_request_queue`.
-    *   `agent_to_client_messaging`: ADK `live_events` -> Client WebSocket.
-4.  Bidirectional streaming continues until disconnection or error.
+1.  用戶端連線至`ws://<server>/ws/<user_id>?is_audio=<true_or_false>`。
+2.  伺服器的`websocket_endpoint`接受連線，啟動 ADK 工作階段（`start_agent_session`）。
+3.  兩個`asyncio`任務負責通訊管理：
+    *   `client_to_agent_messaging`：用戶端 WebSocket 訊息 → ADK `live_request_queue`。
+    *   `agent_to_client_messaging`：ADK `live_events` → 用戶端 WebSocket。
+4.  雙向串流持續進行，直到斷線或發生錯誤。
 
-## 5. Client code overview {#5.-client-side-code-overview}
+## 5. 用戶端程式碼概覽 {#5.-client-side-code-overview}
 
-The JavaScript `app.js` (in `app/static/js`) manages client-side interaction with the ADK Streaming WebSocket backend. It handles sending text/audio and receiving/displaying streamed responses.
+JavaScript `app.js`（位於`app/static/js`）負責管理用戶端與 ADK 串流 WebSocket 後端的互動。它負責傳送文字／音訊，以及接收與顯示串流回應。
 
-Key functionalities:
-1.  Manage WebSocket connection.
-2.  Handle text input.
-3.  Capture microphone audio (Web Audio API, AudioWorklets).
-4.  Send text/audio to backend.
-5.  Receive and render text/audio agent responses.
-6.  Manage UI.
+主要功能：
+1.  管理 WebSocket 連線。
+2.  處理文字輸入。
+3.  擷取麥克風音訊（Web Audio API、AudioWorklets）。
+4.  傳送文字／音訊至後端。
+5.  接收並渲染代理回應的文字／音訊。
+6.  管理 UI。
 
-### Prerequisites
+### 先決條件
 
-*   **HTML Structure:** Requires specific element IDs (e.g., `messageForm`, `message`, `messages`, `sendButton`, `startAudioButton`).
-*   **Backend Server:** The Python FastAPI server must be running.
-*   **Audio Worklet Files:** `audio-player.js` and `audio-recorder.js` for audio processing.
+*   **HTML 結構：** 需具備特定元素 ID（例如：`messageForm`、`message`、`messages`、`sendButton`、`startAudioButton`）。
+*   **後端伺服器：** 必須啟動 Python FastAPI 伺服器。
+*   **音訊 Worklet 檔案：** `audio-player.js` 與 `audio-recorder.js` 用於音訊處理。
 
-### WebSocket Handling
+### WebSocket 處理
 
 ```JavaScript
 
@@ -638,23 +637,23 @@ function base64ToArray(base64) {
 }
 ```
 
-*   **Connection Setup:** Generates `sessionId`, constructs `ws_url`. `is_audio` flag (initially `false`) appends `?is_audio=true` to URL when active. `connectWebsocket()` initializes the connection.
-*   **`websocket.onopen`**: Enables send button, updates UI, calls `addSubmitHandler()`.
-*   **`websocket.onmessage`**: Parses incoming JSON from server.
-    *   **Turn Completion:** Resets `currentMessageId` if agent turn is complete.
-    *   **Audio Data (`audio/pcm`):** Decodes Base64 audio (`base64ToArray()`) and sends to `audioPlayerNode` for playback.
-    *   **Text Data (`text/plain`):** If new turn (`currentMessageId` is null), creates new `<p>`. Appends received text to the current message paragraph for streaming effect. Scrolls `messagesDiv`.
-*   **`websocket.onclose`**: Disables send button, updates UI, attempts auto-reconnection after 5s.
-*   **`websocket.onerror`**: Logs errors.
-*   **Initial Connection:** `connectWebsocket()` is called on script load.
+*   **連線建立：** 產生`sessionId`，組建`ws_url`。`is_audio`旗標（初始為`false`）啟用時會將`?is_audio=true`附加到URL。`connectWebsocket()`負責初始化連線。
+*   **`websocket.onopen`**：啟用傳送按鈕、更新UI，並呼叫`addSubmitHandler()`。
+*   **`websocket.onmessage`**：解析來自伺服器的JSON資料。
+    *   **回合結束：** 若代理回合完成，則重設`currentMessageId`。
+    *   **音訊資料（`audio/pcm`）：** 將Base64音訊（`base64ToArray()`）解碼後傳送至`audioPlayerNode`進行播放。
+    *   **文字資料（`text/plain`）：** 若為新回合（`currentMessageId`為null），則建立新的`<p>`。將接收到的文字附加到目前訊息段落，以呈現串流效果。捲動`messagesDiv`。
+*   **`websocket.onclose`**：停用傳送按鈕、更新UI，並於5秒後嘗試自動重新連線。
+*   **`websocket.onerror`**：記錄錯誤。
+*   **初始連線：** 載入腳本時會呼叫`connectWebsocket()`。
 
-#### DOM Interaction & Message Submission
+#### DOM 互動與訊息送出
 
-*   **Element Retrieval:** Fetches required DOM elements.
-*   **`addSubmitHandler()`**: Attached to `messageForm`'s submit. Prevents default submission, gets text from `messageInput`, displays user message, clears input, and calls `sendMessage()` with `{ mime_type: "text/plain", data: messageText }`.
-*   **`sendMessage(messagePayload)`**: Sends JSON stringified `messagePayload` if WebSocket is open.
+*   **元素取得：** 取得所需的DOM元素。
+*   **`addSubmitHandler()`**：綁定於`messageForm`的submit事件。防止預設送出，從`messageInput`取得文字，顯示使用者訊息，清除輸入欄位，並以`{ mime_type: "text/plain", data: messageText }`呼叫`sendMessage()`。
+*   **`sendMessage(messagePayload)`**：若WebSocket已開啟，則傳送JSON字串化的`messagePayload`。
 
-### Audio Handling
+### 音訊處理
 
 ```JavaScript
 
@@ -717,39 +716,38 @@ function arrayBufferToBase64(buffer) {
 }
 ```
 
-*   **Audio Worklets:** Uses `AudioWorkletNode` via `audio-player.js` (for playback) and `audio-recorder.js` (for capture).
-*   **State Variables:** Store AudioContexts and WorkletNodes (e.g., `audioPlayerNode`).
-*   **`startAudio()`**: Initializes player and recorder worklets. Passes `audioRecorderHandler` as callback to recorder.
-*   **"Start Audio" Button (`startAudioButton`):**
-    *   Requires user gesture for Web Audio API.
-    *   On click: disables button, calls `startAudio()`, sets `is_audio = true`, then calls `connectWebsocket()` to reconnect in audio mode (URL includes `?is_audio=true`).
-*   **`audioRecorderHandler(pcmData)`**: Callback from recorder worklet with PCM audio chunks. Encodes `pcmData` to Base64 (`arrayBufferToBase64()`) and sends to server via `sendMessage()` with `mime_type: "audio/pcm"`.
-*   **Helper Functions:** `base64ToArray()` (server audio -> client player) and `arrayBufferToBase64()` (client mic audio -> server).
+*   **Audio Worklets：** 透過`audio-player.js`（用於播放）和`audio-recorder.js`（用於錄音）使用`AudioWorkletNode`。
+*   **狀態變數：** 儲存 AudioContexts 和 WorkletNodes（例如：`audioPlayerNode`）。
+*   **`startAudio()`：** 初始化播放器與錄音器 worklet。將`audioRecorderHandler`作為 callback 傳遞給錄音器。
+*   **「啟動音訊」按鈕（`startAudioButton`）：**
+    *   Web Audio API 需要使用者手勢觸發。
+    *   點擊時：停用按鈕，呼叫`startAudio()`，設定`is_audio = true`，然後呼叫`connectWebsocket()`以音訊模式重新連線（URL 包含`?is_audio=true`）。
+*   **`audioRecorderHandler(pcmData)`：** 從錄音器 worklet 回呼，取得 PCM 音訊區塊。將`pcmData`編碼為 Base64（`arrayBufferToBase64()`），並透過`sendMessage()`與`mime_type: "audio/pcm"`傳送至伺服器。
+*   **輔助函式：** `base64ToArray()`（伺服器音訊 → 用戶端播放器）及`arrayBufferToBase64()`（用戶端麥克風音訊 → 伺服器）。
 
-### How It Works (Client-Side Flow)
+### 運作方式（用戶端流程）
 
-1.  **Page Load:** Establishes WebSocket in text mode.
-2.  **Text Interaction:** User types/submits text; sent to server. Server text responses displayed, streamed.
-3.  **Switching to Audio Mode:** "Start Audio" button click initializes audio worklets, sets `is_audio=true`, and reconnects WebSocket in audio mode.
-4.  **Audio Interaction:** Recorder sends mic audio (Base64 PCM) to server. Server audio/text responses handled by `websocket.onmessage` for playback/display.
-5.  **Connection Management:** Auto-reconnect on WebSocket close.
+1.  **頁面載入：** 以文字模式建立 WebSocket 連線。
+2.  **文字互動：** 使用者輸入／送出文字，傳送至伺服器。伺服器回傳的文字回應會顯示並串流呈現。
+3.  **切換至音訊模式：** 點擊「啟動音訊」按鈕，初始化 audio worklet，設定`is_audio=true`，並以音訊模式重新建立 WebSocket 連線。
+4.  **音訊互動：** 錄音器將麥克風音訊（Base64 PCM）傳送至伺服器。伺服器的音訊／文字回應由`websocket.onmessage`負責播放／顯示。
+5.  **連線管理：** WebSocket 關閉時自動重新連線。
 
+## 摘要
 
-## Summary
+本文概述了使用 Agent Development Kit (ADK) Streaming 與 FastAPI 所打造的自訂非同步網頁應用程式之伺服器與用戶端程式碼，實現即時雙向語音與文字通訊。
 
-This article overviews the server and client code for a custom asynchronous web app built with ADK Streaming and FastAPI, enabling real-time, bidirectional voice and text communication.
+Python FastAPI 伺服器端程式碼會初始化 ADK agent 工作階段，可設定為文字或音訊回應。它使用 WebSocket 端點來處理用戶端連線。非同步任務負責雙向訊息傳遞：將用戶端的文字或 Base64 編碼 PCM 音訊轉發給 ADK agent，並將 agent 回傳的文字或 Base64 編碼 PCM 音訊串流回用戶端。
 
-The Python FastAPI server code initializes ADK agent sessions, configured for text or audio responses. It uses a WebSocket endpoint to handle client connections. Asynchronous tasks manage bidirectional messaging: forwarding client text or Base64-encoded PCM audio to the ADK agent, and streaming text or Base64-encoded PCM audio responses from the agent back to the client.
+用戶端 JavaScript 程式碼管理 WebSocket 連線，可重新建立以切換文字與音訊模式。它會將使用者輸入（文字或透過 Web Audio API 與 AudioWorklet 擷取的麥克風音訊）傳送至伺服器。伺服器回傳的訊息會被處理：文字會即時顯示，Base64 編碼的 PCM 音訊則經解碼後，透過 AudioWorklet 播放。
 
-The client-side JavaScript code manages a WebSocket connection, which can be re-established to switch between text and audio modes. It sends user input (text or microphone audio captured via Web Audio API and AudioWorklets) to the server. Incoming messages from the server are processed: text is displayed (streamed), and Base64-encoded PCM audio is decoded and played using an AudioWorklet.
+### 上線部署時的進階建議
 
-### Next steps for production
+當你在正式應用程式中使用 ADK Streaming 時，建議考慮以下幾點：
 
-When you will use the Streaming for ADK in production apps, you may want to consinder the following points:
-
-*   **Deploy Multiple Instances:** Run several instances of your FastAPI application instead of a single one.
-*   **Implement Load Balancing:** Place a load balancer in front of your application instances to distribute incoming WebSocket connections.
-    *   **Configure for WebSockets:** Ensure the load balancer supports long-lived WebSocket connections and consider "sticky sessions" (session affinity) to route a client to the same backend instance, *or* design for stateless instances (see next point).
-*   **Externalize Session State:** Replace the `InMemorySessionService` for ADK with a distributed, persistent session store. This allows any server instance to handle any user's session, enabling true statelessness at the application server level and improving fault tolerance.
-*   **Implement Health Checks:** Set up robust health checks for your WebSocket server instances so the load balancer can automatically remove unhealthy instances from rotation.
-*   **Utilize Orchestration:** Consider using an orchestration platform like Kubernetes for automated deployment, scaling, self-healing, and management of your WebSocket server instances.
+*   **部署多個實例：** 執行多個 FastAPI 應用程式實例，而非僅用單一實例。
+*   **實作負載平衡：** 在應用程式實例前方部署負載平衡器，以分散進來的 WebSocket 連線。
+    *   **針對 WebSocket 設定：** 確認負載平衡器支援長連線的 WebSocket，並考慮啟用「黏性工作階段」（session affinity）讓同一用戶端路由至同一後端實例，*或* 設計為無狀態實例（詳見下點）。
+*   **外部化工作階段狀態：** 將 ADK 的`InMemorySessionService`替換為分散式且持久化的 session store。如此一來，任何伺服器實例都能處理任何用戶的 session，讓應用伺服器層真正無狀態，並提升容錯能力。
+*   **實作健康檢查：** 為 WebSocket 伺服器實例設置健全性檢查，讓負載平衡器能自動移除異常實例。
+*   **利用自動化協調：** 建議使用如 Kubernetes 的協調平台，實現 WebSocket 伺服器實例的自動部署、擴展、自我修復與管理。

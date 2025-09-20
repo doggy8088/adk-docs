@@ -1,22 +1,22 @@
-# Logging in the Agent Development Kit (ADK)
+# Agent Development Kit (ADK) 的日誌紀錄
 
-The Agent Development Kit (ADK) uses Python's standard `logging` module to provide flexible and powerful logging capabilities. Understanding how to configure and interpret these logs is crucial for monitoring agent behavior and debugging issues effectively.
+Agent Development Kit (ADK)（ADK）使用 Python 標準的 `logging` 模組，提供靈活且強大的日誌紀錄功能。了解如何設定與解讀這些日誌，對於監控 agent 行為與有效除錯至關重要。
 
-## Logging Philosophy
+## 日誌紀錄理念
 
-ADK's approach to logging is to provide detailed diagnostic information without being overly verbose by default. It is designed to be configured by the application developer, allowing you to tailor the log output to your specific needs, whether in a development or production environment.
+ADK 的日誌紀錄設計理念，是在預設不過度冗長的前提下，提供詳細的診斷資訊。其設計讓應用程式開發者可以自行設定，根據開發或生產環境的需求，調整日誌輸出內容。
 
-- **Standard Library:** It uses the standard `logging` library, so any configuration or handler that works with it will work with ADK.
-- **Hierarchical Loggers:** Loggers are named hierarchically based on the module path (e.g., `google_adk.google.adk.agents.llm_agent`), allowing for fine-grained control over which parts of the framework produce logs.
-- **User-Configured:** The framework does not configure logging itself. It is the responsibility of the developer using the framework to set up the desired logging configuration in their application's entry point.
+- **標準函式庫：** 採用標準的 `logging` 函式庫，因此任何適用於該函式庫的設定或 handler，也都適用於 ADK。
+- **階層式 Logger：** Logger 會依照模組路徑（例如 `google_adk.google.adk.agents.llm_agent`）以階層式命名，讓你能夠細緻控制框架中哪些部分產生日誌。
+- **使用者自訂設定：** 框架本身不會自動設定日誌紀錄。開發者需在應用程式的進入點自行設定所需的日誌紀錄設定。
 
-## How to Configure Logging
+## 如何設定日誌紀錄
 
-You can configure logging in your main application script (e.g., `main.py`) before you initialize and run your agent. The simplest way is to use `logging.basicConfig`.
+你可以在主應用程式腳本（例如 `main.py`）中，在初始化與執行 agent 之前設定日誌紀錄。最簡單的方式是使用 `logging.basicConfig`。
 
-### Example Configuration
+### 設定範例
 
-To enable detailed logging, including `DEBUG` level messages, add the following to the top of your script:
+若要啟用詳細日誌紀錄（包含 `DEBUG` 等級的訊息），請在腳本最上方加入以下內容：
 
 ```python
 import logging
@@ -31,75 +31,75 @@ logging.basicConfig(
 # ...
 ```
 
-### Configuring Logging with the ADK CLI
+### 使用 ADK 命令列介面 (CLI) 設定日誌
 
-When running agents using the ADK's built-in web or API servers, you can easily control the log verbosity directly from the command line. The `adk web`, `adk api_server`, and `adk deploy cloud_run` commands all accept a `--log_level` option.
+當你使用 Agent Development Kit (ADK)（ADK）內建的網頁或 API 伺服器來執行代理（agent）時，可以直接透過命令列輕鬆控制日誌詳細程度。`adk web`、`adk api_server` 和 `adk deploy cloud_run` 指令皆支援 `--log_level` 選項。
 
-This provides a convenient way to set the logging level without modifying your agent's source code.
+這提供了一種方便的方法，讓你無需修改代理（agent）原始碼即可設定日誌等級。
 
-> **Note:** The command-line setting always takes precedence over the programmatic configuration (like `logging.basicConfig`) for ADK's loggers. It's recommended to use `INFO` or `WARNING` in production and enable `DEBUG` only when troubleshooting.
+> **注意：** 對於 ADK 的日誌記錄器，命令列設定永遠優先於程式化設定（例如 `logging.basicConfig`）。建議在正式環境中使用 `INFO` 或 `WARNING`，僅在除錯時啟用 `DEBUG`。
 
-**Example using `adk web`:**
+**使用 `adk web` 的範例：**
 
-To start the web server with `DEBUG` level logging, run:
+若要以 `DEBUG` 等級的日誌啟動網頁伺服器，請執行：
 
 ```bash
 adk web --log_level DEBUG path/to/your/agents_dir
 ```
 
-The available log levels for the `--log_level` option are:
+`--log_level` 選項可用的日誌等級有：
 
 - `DEBUG`
-- `INFO` (default)
+- `INFO`（預設值）
 - `WARNING`
 - `ERROR`
 - `CRITICAL`
 
-> You can also use `-v` or `--verbose` as a a shortcut for `--log_level DEBUG`.
+> 你也可以使用 `-v` 或 `--verbose` 作為 `--log_level DEBUG` 的快捷方式。
 >
 > ```bash
 > adk web -v path/to/your/agents_dir
 > ```
 
-### Log Levels
+### 日誌等級
 
-ADK uses standard log levels to categorize messages. The configured level determines what information gets logged.
+Agent Development Kit (ADK) 採用標準日誌等級來分類訊息。所設定的等級會決定哪些資訊會被記錄。
 
-| Level | Description | Type of Information Logged  |
+| 等級 | 說明 | 記錄的資訊類型  |
 | :--- | :--- | :--- |
-| **`DEBUG`** | **Crucial for debugging.** The most verbose level for fine-grained diagnostic information. | <ul><li>**Full LLM Prompts:** The complete request sent to the language model, including system instructions, history, and tools.</li><li>Detailed API responses from services.</li><li>Internal state transitions and variable values.</li></ul> |
-| **`INFO`** | General information about the agent's lifecycle. | <ul><li>Agent initialization and startup.</li><li>Session creation and deletion events.</li><li>Execution of a tool, including its name and arguments.</li></ul> |
-| **`WARNING`** | Indicates a potential issue or deprecated feature use. The agent continues to function, but attention may be required. | <ul><li>Use of deprecated methods or parameters.</li><li>Non-critical errors that the system recovered from.</li></ul> |
-| **`ERROR`** | A serious error that prevented an operation from completing. | <ul><li>Failed API calls to external services (e.g., LLM, Session Service).</li><li>Unhandled exceptions during agent execution.</li><li>Configuration errors.</li></ul> |
+| **`DEBUG`** | **除錯時至關重要。** 最詳細的等級，用於細緻的診斷資訊。 | <ul><li>**完整大型語言模型 (LLM) 提示：** 發送給大型語言模型 (LLM) 的完整請求，包括系統指令、歷史紀錄與工具。</li><li>來自服務的詳細 API 回應。</li><li>內部狀態轉換與變數值。</li></ul> |
+| **`INFO`** | 關於 agent 生命週期的一般資訊。 | <ul><li>agent 初始化與啟動。</li><li>工作階段（session）建立與刪除事件。</li><li>工具執行，包括其名稱與參數。</li></ul> |
+| **`WARNING`** | 表示潛在問題或已棄用功能的使用。agent 仍可繼續運作，但可能需要注意。 | <ul><li>已棄用方法或參數的使用。</li><li>系統已復原的非關鍵性錯誤。</li></ul> |
+| **`ERROR`** | 嚴重錯誤，導致操作無法完成。 | <ul><li>對外部服務（如 LLM、Session Service）的 API 呼叫失敗。</li><li>agent 執行期間未處理的例外。</li><li>組態錯誤。</li></ul> |
 
-> **Note:** It is recommended to use `INFO` or `WARNING` in production environments. Only enable `DEBUG` when actively troubleshooting an issue, as `DEBUG` logs can be very verbose and may contain sensitive information.
+> **注意：** 建議在生產環境中使用 `INFO` 或 `WARNING`。僅在積極排查問題時啟用 `DEBUG`，因為 `DEBUG` 日誌可能非常冗長，且可能包含敏感資訊。
 
-## Reading and Understanding the Logs
+## 讀取與理解日誌
 
-The `format` string in the `basicConfig` example determines the structure of each log message.  
+`basicConfig` 範例中的 `format` 字串決定了每則日誌訊息的結構。
 
-Here’s a sample log entry:
+以下是一則日誌範例：
 
 ```text
 2025-07-08 11:22:33,456 - DEBUG - google_adk.google.adk.models.google_llm - LLM Request: contents { ... }
 ```
 
-| Log Segment                     | Format Specifier | Meaning                                        |
-| ------------------------------- | ---------------- | ---------------------------------------------- |
-| `2025-07-08 11:22:33,456`       | `%(asctime)s`    | Timestamp                                      |
-| `DEBUG`                         | `%(levelname)s`  | Severity level                                 |
-| `google_adk.models.google_llm`  | `%(name)s`       | Logger name (the module that produced the log) |
-| `LLM Request: contents { ... }` | `%(message)s`    | The actual log message                         |
+| 日誌區段                        | 格式指定符      | 意義                                             |
+| ------------------------------- | --------------- | ------------------------------------------------ |
+| `2025-07-08 11:22:33,456`       | `%(asctime)s`    | 時間戳記                                         |
+| `DEBUG`                         | `%(levelname)s`  | 嚴重性等級                                       |
+| `google_adk.models.google_llm`  | `%(name)s`       | Logger 名稱（產生日誌的模組）                     |
+| `LLM Request: contents { ... }` | `%(message)s`    | 實際日誌訊息                                     |
 
-By reading the logger name, you can immediately pinpoint the source of the log and understand its context within the agent's architecture.
+透過查看 Logger 名稱，你可以立即定位日誌的來源，並了解其在 agent 架構中的上下文。
 
-## Debugging with Logs: A Practical Example
+## 使用日誌進行除錯：實務範例
 
-**Scenario:** Your agent is not producing the expected output, and you suspect the prompt being sent to the LLM is incorrect or missing information.
+**情境：** 你的 agent 沒有產生預期的輸出，你懷疑傳送給大型語言模型 (LLM) 的提示（prompt）有誤或缺少資訊。
 
-**Steps:**
+**步驟：**
 
-1.  **Enable DEBUG Logging:** In your `main.py`, set the logging level to `DEBUG` as shown in the configuration example.
+1.  **啟用 DEBUG 日誌紀錄：** 在你的 `main.py` 中，將日誌等級設定為 `DEBUG`，如設定範例所示。
 
     ```python
     logging.basicConfig(
@@ -108,9 +108,9 @@ By reading the logger name, you can immediately pinpoint the source of the log a
     )
     ```
 
-2.  **Run Your Agent:** Execute your agent's task as you normally would.
+2.  **執行您的 agent：** 如同平常一樣執行您的 agent 任務。
 
-3.  **Inspect the Logs:** Look through the console output for a message from the `google.adk.models.google_llm` logger that starts with `LLM Request:`.
+3.  **檢查日誌：** 在主控台輸出中尋找來自 `google.adk.models.google_llm` logger 且以 `LLM Request:` 開頭的訊息。
 
     ```log
     ...
@@ -160,12 +160,12 @@ By reading the logger name, you can immediately pinpoint the source of the log a
     ...
     ```
 
-4.  **Analyze the Prompt:** By examining the `System Instruction`, `contents`, `functions` sections of the logged request, you can verify:
-    -   Is the system instruction correct?
-    -   Is the conversation history (`user` and `model` turns) accurate?
-    -   Is the most recent user query included?
-    -   Are the correct tools being provided to the model?
-    -   Are the tools correctly called by the model?
-    -   How long it takes for the model to respond?
+4.  **分析提示（Prompt）：** 透過檢查已記錄請求中的 `System Instruction`、`contents`、`functions` 區段，你可以驗證：
+    -   系統指令是否正確？
+    -   對話歷史（`user` 和 `model` 輪次）是否準確？
+    -   是否包含最新的使用者查詢？
+    -   是否正確提供了 tools 給模型？
+    -   模型是否正確呼叫了 tools？
+    -   模型回應所需的時間為何？
 
-This detailed output allows you to diagnose a wide range of issues, from incorrect prompt engineering to problems with tool definitions, directly from the log files.
+這些詳細的輸出讓你能直接從日誌檔案中診斷各種問題，從提示工程（prompt engineering）錯誤到 tools 定義上的問題都能一目了然。

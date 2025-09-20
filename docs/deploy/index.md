@@ -1,50 +1,45 @@
-# Deploying Your Agent
+# 部署你的 agent
 
-Once you've built and tested your agent using ADK,
-the next step is to deploy it so it can be accessed, queried, and used in
-production or integrated with other applications. Deployment moves your agent
-from your local development machine to a scalable and reliable environment.
+當你使用 Agent Development Kit (ADK)（ADK）建置並測試好你的 agent 之後，
+下一步就是將它部署，讓它可以被存取、查詢，並在
+正式環境中使用，或整合到其他應用程式中。部署的過程會將你的 agent
+從本機開發機器移轉到一個可擴展且可靠的環境中。
 
 <img src="../assets/deploy-agent.png" alt="Deploying your agent">
 
-## Deployment Options
+## 部署選項
 
-Your ADK agent can be deployed to a range of different environments based
-on your needs for production readiness or custom flexibility:
+你的 ADK agent 可以根據你對正式環境準備度或自訂彈性的需求，
+部署到各種不同的環境：
 
-### Agent Engine in Vertex AI
+### Vertex AI Agent Engine
 
-[Agent Engine](agent-engine.md) is a fully managed auto-scaling service on Google Cloud
-specifically designed for deploying, managing, and scaling AI agents built with
-frameworks such as ADK.
+[Agent Engine](agent-engine.md) 是 Google Cloud 上一個全託管、可自動擴展的服務，
+專為部署、管理及擴展以 ADK 等框架建置的 AI agent 而設計。
 
-Learn more about [deploying your agent to Vertex AI Agent Engine](agent-engine.md).
+進一步了解[如何將你的 agent 部署到 Vertex AI Agent Engine](agent-engine.md)。
 
 ### Cloud Run
 
-[Cloud Run](https://cloud.google.com/run) is a managed auto-scaling compute platform on
-Google Cloud that enables you to run your agent as a container-based
-application.
+[Cloud Run](https://cloud.google.com/run) 是 Google Cloud 上一個託管的自動擴展運算平台，
+讓你可以將 agent 以容器化應用程式的方式執行。
 
-Learn more about [deploying your agent to Cloud Run](cloud-run.md).
+進一步了解[如何將你的 agent 部署到 Cloud Run](cloud-run.md)。
 
 ### Google Kubernetes Engine (GKE)
 
-[Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine) is a managed
-Kubernetes service of Google Cloud that allows you to run your agent in a containerized
-environment. GKE is a good option if you need more control over the deployment as well as
-for running Open Models.
+[Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine) 是 Google Cloud 的託管 Kubernetes 服務，
+可讓你在容器化環境中執行 agent。如果你需要對部署有更多控制權，
+或需要執行 Open Models，GKE 是不錯的選擇。
 
-Learn more about [deploying your agent to GKE](gke.md).
+進一步了解[如何將你的 agent 部署到 GKE](gke.md)。
 
-### Other Container-friendly Infrastructure
+### 其他支援容器的基礎設施
 
-You can manually package your Agent into a container image and then run it in
-any environment that supports container images.  For example you can run it
-locally in Docker or Podman. This is a good option if you prefer to run offline
-or disconnected, or otherwise in a system that has no connection to Google
-Cloud.
+你可以手動將你的 agent 打包成容器映像檔，然後在任何支援容器映像的環境中執行。
+例如，你可以在本機的 Docker 或 Podman 上執行。這是適合離線、
+斷線或無法連接 Google Cloud 等系統的選項。
 
-Follow the instructions for [deploying your agent to Cloud Run](cloud-run.md),
-specifically the case where you it describes how to use a custom Dockerfile.
+請參考[將 agent 部署到 Cloud Run](cloud-run.md)的說明，
+特別是其中關於如何使用自訂 Dockerfile 的部分。
 

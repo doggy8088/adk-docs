@@ -1,55 +1,55 @@
-# Agent Observability with AgentOps
+# 使用 AgentOps 進行代理（agent）可觀測性
 
-**With just two lines of code**, [AgentOps](https://www.agentops.ai) provides session replays, metrics, and monitoring for agents.
+**只需兩行程式碼**，[AgentOps](https://www.agentops.ai) 即可為代理（agent）提供工作階段重播、指標與監控功能。
 
-## Why AgentOps for ADK?
+## 為什麼在 ADK 要用 AgentOps？
 
-Observability is a key aspect of developing and deploying conversational AI agents. It allows developers to understand how their agents are performing, how their agents are interacting with users, and how their agents use external tools and APIs.
+可觀測性是開發與部署對話式 AI 代理（agent）的關鍵要素。它能讓開發者了解代理（agent）的運作效能、與使用者的互動方式，以及代理（agent）如何使用外部工具與 API。
 
-By integrating AgentOps, developers can gain deep insights into their ADK agent's behavior, LLM interactions, and tool usage.
+透過整合 AgentOps，開發者能深入洞察 ADK 代理（agent）的行為、大型語言模型 (LLM) 互動，以及工具的使用情形。
 
-Google ADK includes its own OpenTelemetry-based tracing system, primarily aimed at providing developers with a way to trace the basic flow of execution within their agents. AgentOps enhances this by offering a dedicated and more comprehensive observability platform with:
+Google ADK 內建基於 OpenTelemetry 的追蹤系統，主要用於協助開發者追蹤代理（agent）內部的基本執行流程。AgentOps 則進一步提供專屬且更全面的可觀測性平台，具備以下特色：
 
-*   **Unified Tracing and Replay Analytics:** Consolidate traces from ADK and other components of your AI stack.
-*   **Rich Visualization:** Intuitive dashboards to visualize agent execution flow, LLM calls, and tool performance.
-*   **Detailed Debugging:** Drill down into specific spans, view prompts, completions, token counts, and errors.
-*   **LLM Cost and Latency Tracking:** Track latencies, costs (via token usage), and identify bottlenecks.
-*   **Simplified Setup:** Get started with just a few lines of code.
+*   **統一追蹤與重播分析：** 整合來自 ADK 及 AI 技術堆疊其他元件的追蹤資料。
+*   **豐富視覺化：** 直覺式儀表板，能視覺化代理（agent）執行流程、LLM 呼叫與工具效能。
+*   **詳細除錯：** 可深入檢視特定 span，查看提示詞、回應、Token 數量及錯誤資訊。
+*   **LLM 成本與延遲追蹤：** 追蹤延遲、成本（依 Token 使用量計算），並找出瓶頸。
+*   **簡化設定：** 只需幾行程式碼即可快速開始。
 
 ![AgentOps Agent Observability Dashboard](https://raw.githubusercontent.com/AgentOps-AI/agentops/refs/heads/main/docs/images/external/app_screenshots/overview.png)
 
 ![AgentOps Dashboard showing an ADK trace with nested agent, LLM, and tool spans.](../assets/agentops-adk-trace-example.jpg)
 
-*AgentOps dashboard displaying a trace from a multi-step ADK application execution. You can see the hierarchical structure of spans, including the main agent workflow, individual sub-agents, LLM calls, and tool executions. Note the clear hierarchy: the main workflow agent span contains child spans for various sub-agent operations, LLM calls, and tool executions.*
+*AgentOps 儀表板顯示一個多步驟 ADK 應用程式執行的追蹤。你可以看到 span 的階層結構，包括主要代理（agent）工作流程、各個子代理（agent）、LLM 呼叫與工具執行。請注意清楚的階層關係：主要工作流程代理（agent）的 span 內含各種子代理（agent）操作、LLM 呼叫及工具執行的子 span。*
 
-## Getting Started with AgentOps and ADK
+## 開始在 ADK 中使用 AgentOps
 
-Integrating AgentOps into your ADK application is straightforward:
+將 AgentOps 整合進你的 ADK 應用程式非常簡單：
 
-1.  **Install AgentOps:**
+1.  **安裝 AgentOps：**
     ```bash
     pip install -U agentops
     ```
 
-2. **Create an API Key**
-    Create a user API key here: [Create API Key](https://app.agentops.ai/settings/projects) and configure your environment:
+2. **建立 API 金鑰**
+    請在此處建立使用者 API 金鑰：[Create API Key](https://app.agentops.ai/settings/projects)，並設定您的環境：
 
-    Add your API key to your environment variables:
+    將您的 API 金鑰加入至環境變數：
     ```
     AGENTOPS_API_KEY=<YOUR_AGENTOPS_API_KEY>
     ```
 
-3.  **Initialize AgentOps:**
-    Add the following lines at the beginning of your ADK application script (e.g., your main Python file running the ADK `Runner`):
+3.  **初始化 AgentOps：**
+    請在你的 Agent Development Kit (ADK) 應用程式腳本（例如，你執行 ADK 的主要 Python 檔案 `Runner`）開頭加入以下程式碼：
 
     ```python
     import agentops
     agentops.init()
     ```
 
-    This will initiate an AgentOps session as well as automatically track ADK agents.
+    這將啟動一個 AgentOps 工作階段，並自動追蹤 Agent Development Kit (ADK) 代理（agent）。
 
-    Detailed example:
+    詳細範例：
 
     ```python
     import agentops
@@ -67,69 +67,69 @@ Integrating AgentOps into your ADK application is straightforward:
     )
     ```
 
-    > 🚨 🔑 You can find your AgentOps API key on your [AgentOps Dashboard](https://app.agentops.ai/) after signing up. It's recommended to set it as an environment variable (`AGENTOPS_API_KEY`).
+    > 🚨 🔑 你可以在註冊後於你的 [AgentOps Dashboard](https://app.agentops.ai/) 找到你的 AgentOps API 金鑰。建議將其設為環境變數（`AGENTOPS_API_KEY`）。
 
-Once initialized, AgentOps will automatically begin instrumenting your ADK agent.
+初始化後，AgentOps 會自動開始對你的 Agent Development Kit (ADK)（ADK）agent 進行自動化監控儀表化（instrumentation）。
 
-**This is all you need to capture all telemetry data for your ADK agent**
+**這就是你需要做的全部步驟，即可完整擷取 ADK agent 的所有遙測資料**
 
-## How AgentOps Instruments ADK
+## AgentOps 如何對 ADK 進行儀表化
 
-AgentOps employs a sophisticated strategy to provide seamless observability without conflicting with ADK's native telemetry:
+AgentOps 採用先進策略，能無縫提供可觀測性，同時不會與 ADK 原生遙測功能衝突：
 
-1.  **Neutralizing ADK's Native Telemetry:**
-    AgentOps detects ADK and intelligently patches ADK's internal OpenTelemetry tracer (typically `trace.get_tracer('gcp.vertex.agent')`). It replaces it with a `NoOpTracer`, ensuring that ADK's own attempts to create telemetry spans are effectively silenced. This prevents duplicate traces and allows AgentOps to be the authoritative source for observability data.
+1.  **中和 ADK 原生遙測功能：**  
+    AgentOps 會偵測 ADK，並智慧地修補 ADK 內部的 OpenTelemetry tracer（通常為 `trace.get_tracer('gcp.vertex.agent')`）。它會將其替換為 `NoOpTracer`，確保 ADK 自身產生遙測 span 的行為被有效靜音。這可避免重複追蹤，並讓 AgentOps 成為唯一權威的可觀測資料來源。
 
-2.  **AgentOps-Controlled Span Creation:**
-    AgentOps takes control by wrapping key ADK methods to create a logical hierarchy of spans:
+2.  **AgentOps 控制的 Span 建立：**  
+    AgentOps 會包裝 ADK 的關鍵方法，建立邏輯階層的 span：
 
-    *   **Agent Execution Spans (e.g., `adk.agent.MySequentialAgent`):**
-        When an ADK agent (like `BaseAgent`, `SequentialAgent`, or `LlmAgent`) starts its `run_async` method, AgentOps initiates a parent span for that agent's execution.
+    *   **Agent 執行 Span（例如 `adk.agent.MySequentialAgent`）：**  
+        當 ADK agent（如 `BaseAgent`、`SequentialAgent` 或 `LlmAgent`）啟動其 `run_async` 方法時，AgentOps 會為該 agent 的執行建立一個父層 span。
 
-    *   **LLM Interaction Spans (e.g., `adk.llm.gemini-pro`):**
-        For calls made by an agent to an LLM (via ADK's `BaseLlmFlow._call_llm_async`), AgentOps creates a dedicated child span, typically named after the LLM model. This span captures request details (prompts, model parameters) and, upon completion (via ADK's `_finalize_model_response_event`), records response details like completions, token usage, and finish reasons.
+    *   **大型語言模型 (LLM) 互動 Span（例如 `adk.llm.gemini-pro`）：**  
+        當 agent 透過 ADK 的 `BaseLlmFlow._call_llm_async` 呼叫 LLM 時，AgentOps 會建立一個專屬的子 span，通常以 LLM 模型名稱命名。此 span 會擷取請求細節（提示詞、模型參數），並在完成時（透過 ADK 的 `_finalize_model_response_event`）記錄回應細節，如完成內容、token 使用量及結束原因。
 
-    *   **Tool Usage Spans (e.g., `adk.tool.MyCustomTool`):**
-        When an agent uses a tool (via ADK's `functions.__call_tool_async`), AgentOps creates a single, comprehensive child span named after the tool. This span includes the tool's input parameters and the result it returns.
+    *   **工具使用 Span（例如 `adk.tool.MyCustomTool`）：**  
+        當 agent 透過 ADK 的 `functions.__call_tool_async` 使用工具時，AgentOps 會建立一個以工具名稱命名的完整子 span。此 span 會包含工具的輸入參數及其回傳結果。
 
-3.  **Rich Attribute Collection:**
-    AgentOps reuses ADK's internal data extraction logic. It patches ADK's specific telemetry functions (e.g., `google.adk.telemetry.trace_tool_call`, `trace_call_llm`). The AgentOps wrappers for these functions take the detailed information ADK gathers and attach it as attributes to the *currently active AgentOps span*.
+3.  **豐富屬性收集：**  
+    AgentOps 會重用 ADK 內部的資料擷取邏輯，並修補 ADK 特定的遙測函式（如 `google.adk.telemetry.trace_tool_call`、`trace_call_llm`）。AgentOps 為這些函式設計的包裝器，會將 ADK 擷取的詳細資訊附加為*目前作用中的 AgentOps span* 的屬性。
 
-## Visualizing Your ADK Agent in AgentOps
+## 在 AgentOps 中視覺化你的 ADK agent
 
-When you instrument your ADK application with AgentOps, you gain a clear, hierarchical view of your agent's execution in the AgentOps dashboard.
+當你用 AgentOps 對 ADK 應用程式進行儀表化後，你可以在 AgentOps dashboard 上清楚看到 agent 執行的階層式視圖。
 
-1.  **Initialization:**
-    When `agentops.init()` is called (e.g., `agentops.init(trace_name="my_adk_application")`), an initial parent span is created if the init param `auto_start_session=True` (true by default). This span, often named similar to `my_adk_application.session`, will be the root for all operations within that trace.
+1.  **初始化階段：**  
+    當呼叫 `agentops.init()`（例如 `agentops.init(trace_name="my_adk_application")`）時，若初始化參數 `auto_start_session=True` 為 true（預設為 true），會建立一個初始父層 span。這個 span 通常會以類似 `my_adk_application.session` 的名稱出現，並作為該追蹤（trace）中所有操作的根節點。
 
-2.  **ADK Runner Execution:**
-    When an ADK `Runner` executes a top-level agent (e.g., a `SequentialAgent` orchestrating a workflow), AgentOps creates a corresponding agent span under the session trace. This span will reflect the name of your top-level ADK agent (e.g., `adk.agent.YourMainWorkflowAgent`).
+2.  **ADK Runner 執行：**  
+    當 ADK `Runner` 執行頂層 agent（例如協調工作流程的 `SequentialAgent`）時，AgentOps 會在 session trace 下建立對應的 agent span。此 span 會反映你的頂層 ADK agent 名稱（如 `adk.agent.YourMainWorkflowAgent`）。
 
-3.  **Sub-Agent and LLM/Tool Calls:**
-    As this main agent executes its logic, including calling sub-agents, LLMs, or tools:
-    *   Each **sub-agent execution** will appear as a nested child span under its parent agent.
-    *   Calls to **Large Language Models** will generate further nested child spans (e.g., `adk.llm.<model_name>`), capturing prompt details, responses, and token usage.
-    *   **Tool invocations** will also result in distinct child spans (e.g., `adk.tool.<your_tool_name>`), showing their parameters and results.
+3.  **子 agent 及 LLM／工具呼叫：**  
+    當主 agent 執行其邏輯，包括呼叫子 agent、LLM 或工具時：
+    *   每個**子 agent 執行**都會以巢狀子 span 形式出現在其父 agent 之下。
+    *   對**大型語言模型 (LLM)** 的呼叫，會產生更深一層的子 span（如 `adk.llm.<model_name>`），詳細記錄提示詞、回應及 token 使用情形。
+    *   **工具呼叫**也會產生獨立的子 span（如 `adk.tool.<your_tool_name>`），顯示其參數與結果。
 
-This creates a waterfall of spans, allowing you to see the sequence, duration, and details of each step in your ADK application. All relevant attributes, such as LLM prompts, completions, token counts, tool inputs/outputs, and agent names, are captured and displayed.
+這會形成一個瀑布式的 span 結構，讓你清楚掌握 ADK 應用程式每一步的順序、耗時及細節。所有相關屬性，如 LLM 提示詞、完成內容、token 數量、工具輸入／輸出及 agent 名稱，皆會被擷取並顯示。
 
-For a practical demonstration, you can explore a sample Jupyter Notebook that illustrates a human approval workflow using Google ADK and AgentOps:
-[Google ADK Human Approval Example on GitHub](https://github.com/AgentOps-AI/agentops/blob/main/examples/google_adk_example/adk_human_approval_example.ipynb).
+如需實際操作示範，你可以參考一個以 Jupyter Notebook 展示、結合 Google ADK 與 AgentOps 的人工審核工作流程範例：  
+[Google ADK Human Approval Example on GitHub](https://github.com/AgentOps-AI/agentops/blob/main/examples/google_adk_example/adk_human_approval_example.ipynb)。
 
-This example showcases how a multi-step agent process with tool usage is visualized in AgentOps.
+此範例展示了多步驟 agent 流程及工具使用，如何在 AgentOps 中被視覺化呈現。
 
-## Benefits
+## 優勢
 
-*   **Effortless Setup:** Minimal code changes for comprehensive ADK tracing.
-*   **Deep Visibility:** Understand the inner workings of complex ADK agent flows.
-*   **Faster Debugging:** Quickly pinpoint issues with detailed trace data.
-*   **Performance Optimization:** Analyze latencies and token usage.
+*   **輕鬆設定：** 只需極少程式碼變更，即可完整追蹤 ADK。
+*   **深度可視化：** 了解複雜 ADK agent 流程的內部運作。
+*   **加速除錯：** 透過詳細追蹤資料，快速定位問題。
+*   **效能最佳化：** 分析延遲與 token 使用情形。
 
-By integrating AgentOps, ADK developers can significantly enhance their ability to build, debug, and maintain robust AI agents. 
+整合 AgentOps 後，ADK 開發者能大幅提升建構、除錯與維護強健 AI agent 的能力。
 
-## Further Information
+## 進一步資訊
 
-To get started, [create an AgentOps account](http://app.agentops.ai). For feature requests or bug reports, please reach out to the AgentOps team on the [AgentOps Repo](https://github.com/AgentOps-AI/agentops).
+立即 [建立 AgentOps 帳號](http://app.agentops.ai) 開始使用。如有功能需求或錯誤回報，請聯絡 AgentOps 團隊，詳見 [AgentOps Repo](https://github.com/AgentOps-AI/agentops)。
 
-### Extra links
+### 其他連結
 🐦 [Twitter](http://x.com/agentopsai)   •   📢 [Discord](http://x.com/agentopsai)   •   🖇️ [AgentOps Dashboard](http://app.agentops.ai)   •   📙 [Documentation](http://docs.agentops.ai)

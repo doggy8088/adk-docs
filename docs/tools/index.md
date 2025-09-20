@@ -1,73 +1,66 @@
-# Tools
+# 工具
 
-## What is a Tool?
+## 什麼是工具？
 
-In the context of ADK, a Tool represents a specific
-capability provided to an AI agent, enabling it to perform actions and interact
-with the world beyond its core text generation and reasoning abilities. What
-distinguishes capable agents from basic language models is often their effective
-use of tools.
+在 Agent Development Kit (ADK) 的語境中，工具（Tool）代表賦予 AI agent 特定能力的元件，使其能夠執行動作並與外部世界互動，超越其核心的文字生成與推理能力。能夠有效運用工具，往往是區分高階 agent 與基礎語言模型的關鍵。
 
-Technically, a tool is typically a modular code component—**like a Python/ Java
-function**, a class method, or even another specialized agent—designed to
-execute a distinct, predefined task. These tasks often involve interacting with
-external systems or data.
+從技術角度來看，工具通常是一個模組化的程式碼元件——**例如 Python/Java 函式**、類別方法，甚至是另一個專門化的 agent——設計來執行明確且預先定義的任務。這些任務通常涉及與外部系統或資料的互動。
 
 <img src="../assets/agent-tool-call.png" alt="Agent tool call">
 
-### Key Characteristics
+### 主要特性
 
-**Action-Oriented:** Tools perform specific actions, such as:
+**以行動為導向：** 工具用於執行特定動作，例如：
 
-* Querying databases
-* Making API requests (e.g., fetching weather data, booking systems)
-* Searching the web
-* Executing code snippets
-* Retrieving information from documents (RAG)
-* Interacting with other software or services
+* 查詢資料庫
+* 發送 API 請求（如取得天氣資料、預訂系統）
+* 網頁搜尋
+* 執行程式碼片段
+* 從文件中檢索資訊（RAG）
+* 與其他軟體或服務互動
 
-**Extends Agent capabilities:** They empower agents to access real-time information, affect external systems, and overcome the knowledge limitations inherent in their training data.
+**擴展 agent 能力：** 工具讓 agent 能夠存取即時資訊、影響外部系統，並克服其訓練資料中固有的知識限制。
 
-**Execute predefined logic:** Crucially, tools execute specific, developer-defined logic. They do not possess their own independent reasoning capabilities like the agent's core Large Language Model (LLM). The LLM reasons about which tool to use, when, and with what inputs, but the tool itself just executes its designated function.
+**執行預先定義的邏輯：** 工具的關鍵在於執行特定、由開發者定義的邏輯。它們本身不具備像 agent 核心大型語言模型 (LLM) 那樣的獨立推理能力。LLM 負責判斷何時、如何、以何種輸入使用哪個工具，而工具本身僅執行其指定的功能。
 
-## How Agents Use Tools
+## Agent 如何使用工具
 
-Agents leverage tools dynamically through mechanisms often involving function calling. The process generally follows these steps:
+Agent 會透過動態方式運用工具，這通常涉及函式呼叫的機制。一般流程如下：
 
-1. **Reasoning:** The agent's LLM analyzes its system instruction, conversation history, and user request.
-2. **Selection:** Based on the analysis, the LLM decides on which tool, if any, to execute, based on the tools available to the agent and the docstrings that describes each tool.
-3. **Invocation:** The LLM generates the required arguments (inputs) for the selected tool and triggers its execution.
-4. **Observation:** The agent receives the output (result) returned by the tool.
-5. **Finalization:** The agent incorporates the tool's output into its ongoing reasoning process to formulate the next response, decide the subsequent step, or determine if the goal has been achieved.
+1. **推理：** agent 的 LLM 會分析系統指令、對話歷史與使用者請求。
+2. **選擇：** 根據分析結果，LLM 會根據 agent 可用的工具及每個工具的 docstring，決定是否執行某個工具，以及選擇哪個工具。
+3. **呼叫：** LLM 會為所選工具生成所需的參數（輸入），並觸發其執行。
+4. **觀察：** agent 會接收工具回傳的輸出（結果）。
+5. **完成：** agent 將工具的輸出納入其持續的推理過程，用以生成下一步回應、決定後續動作，或判斷目標是否已達成。
 
-Think of the tools as a specialized toolkit that the agent's intelligent core (the LLM) can access and utilize as needed to accomplish complex tasks.
+你可以將工具想像成 agent 智能核心（LLM）可隨時取用的專業工具箱，協助其完成複雜任務。
 
-## Tool Types in ADK
+## ADK 中的工具類型
 
-ADK offers flexibility by supporting several types of tools:
+Agent Development Kit (ADK) 提供多種工具型態，靈活支援各種需求：
 
-1. **[Function Tools](../tools/function-tools.md):** Tools created by you, tailored to your specific application's needs.
-    * **[Functions/Methods](../tools/function-tools.md#1-function-tool):** Define standard synchronous functions or methods in your code (e.g., Python def).
-    * **[Agents-as-Tools](../tools/function-tools.md#3-agent-as-a-tool):** Use another, potentially specialized, agent as a tool for a parent agent.
-    * **[Long Running Function Tools](../tools/function-tools.md#2-long-running-function-tool):** Support for tools that perform asynchronous operations or take significant time to complete.
-2. **[Built-in Tools](../tools/built-in-tools.md):** Ready-to-use tools provided by the framework for common tasks.
-        Examples: Google Search, Code Execution, Retrieval-Augmented Generation (RAG).
-3. **[Third-Party Tools](../tools/third-party-tools.md):** Integrate tools seamlessly from popular external libraries.
-        Examples: LangChain Tools, CrewAI Tools.
+1. **[Function Tools](../tools/function-tools.md)：** 由你自行建立、針對應用需求量身打造的工具。
+    * **[Functions/Methods](../tools/function-tools.md#1-function-tool)：** 在你的程式碼中定義標準同步函式或方法（如 Python 的 def）。
+    * **[Agents-as-Tools](../tools/function-tools.md#3-agent-as-a-tool)：** 將另一個（可能是專門化的）agent 作為父 agent 的工具來使用。
+    * **[Long Running Function Tools](../tools/function-tools.md#2-long-running-function-tool)：** 支援執行非同步操作或需較長時間完成的工具。
+2. **[Built-in Tools](../tools/built-in-tools.md)：** 框架內建、可直接使用的常用工具。
+        範例：Google Search、Code Execution、Retrieval-Augmented Generation (RAG)。
+3. **[Third-Party Tools](../tools/third-party-tools.md)：** 無縫整合來自熱門外部函式庫的工具。
+        範例：LangChain Tools、CrewAI Tools。
 
-Navigate to the respective documentation pages linked above for detailed information and examples for each tool type.
+請前往上方連結的各自文件頁面，取得每種工具類型的詳細說明與範例。
 
-## Referencing Tool in Agent’s Instructions
+## 在 agent 指令中引用工具
 
-Within an agent's instructions, you can directly reference a tool by using its **function name.** If the tool's **function name** and **docstring** are sufficiently descriptive, your instructions can primarily focus on **when the Large Language Model (LLM) should utilize the tool**. This promotes clarity and helps the model understand the intended use of each tool.
+在 agent 的指令（instructions）中，你可以直接透過**函式名稱**來引用工具。如果工具的**函式名稱**與**docstring**足夠具體明確，你的指令可以重點描述**何時應由大型語言模型 (LLM) 使用該工具**。這有助於提升指令的清晰度，並協助模型理解每個工具的預期用途。
 
-It is **crucial to clearly instruct the agent on how to handle different return values** that a tool might produce. For example, if a tool returns an error message, your instructions should specify whether the agent should retry the operation, give up on the task, or request additional information from the user.
+**明確指示 agent 如何處理工具可能產生的不同回傳值**也非常重要。例如，若某個工具回傳錯誤訊息，你的指令應明確說明 agent 應該重試操作、放棄任務，或是向使用者請求更多資訊。
 
-Furthermore, ADK supports the sequential use of tools, where the output of one tool can serve as the input for another. When implementing such workflows, it's important to **describe the intended sequence of tool usage** within the agent's instructions to guide the model through the necessary steps.
+此外，ADK 支援工具的連續使用（sequential use），即一個工具的輸出可作為另一個工具的輸入。在設計這類工作流程時，請務必**在 agent 指令中描述預期的工具使用順序**，以引導模型依序完成必要步驟。
 
-### Example
+### 範例
 
-The following example showcases how an agent can use tools by **referencing their function names in its instructions**. It also demonstrates how to guide the agent to **handle different return values from tools**, such as success or error messages, and how to orchestrate the **sequential use of multiple tools** to accomplish a task.
+以下範例展示 agent 如何**在指令中引用工具的函式名稱**來使用工具。同時也說明如何引導 agent **處理工具的不同回傳值**（如成功或錯誤訊息），以及如何協調**多個工具的連續使用**以完成任務。
 
 === "Python"
 
@@ -81,43 +74,43 @@ The following example showcases how an agent can use tools by **referencing thei
     --8<-- "examples/java/snippets/src/main/java/tools/WeatherSentimentAgentApp.java:full_code"
     ```
 
-## Tool Context
+## 工具上下文
 
-For more advanced scenarios, ADK allows you to access additional contextual information within your tool function by including the special parameter `tool_context: ToolContext`. By including this in the function signature, ADK will **automatically** provide an **instance of the ToolContext** class when your tool is called during agent execution.
+對於更進階的使用情境，Agent Development Kit (ADK) 允許你在工具函式中透過加入特殊參數 `tool_context: ToolContext` 來存取額外的上下文資訊。只要在函式簽名中包含此參數，當代理執行期間呼叫你的工具時，ADK 會**自動**提供一個 **ToolContext** 類別的實例。
 
-The **ToolContext** provides access to several key pieces of information and control levers:
+**ToolContext** 提供了多項關鍵資訊與控制項：
 
-* `state: State`: Read and modify the current session's state. Changes made here are tracked and persisted.
+* `state: State`：讀取與修改目前工作階段（session）的狀態。這裡的變更會被追蹤並持久化。
 
-* `actions: EventActions`: Influence the agent's subsequent actions after the tool runs (e.g., skip summarization, transfer to another agent).
+* `actions: EventActions`：影響工具執行後代理的後續行為（例如：跳過摘要、轉交給其他代理）。
 
-* `function_call_id: str`: The unique identifier assigned by the framework to this specific invocation of the tool. Useful for tracking and correlating with authentication responses. This can also be helpful when multiple tools are called within a single model response.
+* `function_call_id: str`：框架為這次工具呼叫分配的唯一識別碼。可用於追蹤及與驗證回應關聯。當單一模型回應中呼叫多個工具時也很有用。
 
-* `function_call_event_id: str`: This attribute provides the unique identifier of the **event** that triggered the current tool call. This can be useful for tracking and logging purposes.
+* `function_call_event_id: str`：此屬性提供觸發本次工具呼叫的**事件**唯一識別碼。適合用於追蹤與記錄。
 
-* `auth_response: Any`: Contains the authentication response/credentials if an authentication flow was completed before this tool call.
+* `auth_response: Any`：如果在本次工具呼叫前已完成驗證流程，此屬性會包含驗證回應或憑證。
 
-* Access to Services: Methods to interact with configured services like Artifacts and Memory.
+* 服務存取：可透過方法與已設定的服務（如 Artifacts 與 Memory）互動。
 
-Note that you shouldn't include the `tool_context` parameter in the tool function docstring. Since `ToolContext` is automatically injected by the ADK framework *after* the LLM decides to call the tool function, it is not relevant for the LLM's decision-making and including it can confuse the LLM.
+請注意，不應在工具函式的 docstring 中包含 `tool_context` 參數。由於 `ToolContext` 是在大型語言模型 (LLM) 決定呼叫工具函式**之後**，由 ADK 框架自動注入，因此這個參數與 LLM 的決策無關，若包含反而可能讓 LLM 感到困惑。
 
-### **State Management**
+### **狀態管理**
 
-The `tool_context.state` attribute provides direct read and write access to the state associated with the current session. It behaves like a dictionary but ensures that any modifications are tracked as deltas and persisted by the session service. This enables tools to maintain and share information across different interactions and agent steps.
+`tool_context.state` 屬性可讓你直接讀寫與目前 session 相關聯的狀態。它的行為類似字典（dictionary），但會確保所有修改都以差異（delta）方式被追蹤，並由 session 服務持久化。這讓工具能在不同互動與代理步驟間維持與共享資訊。
 
-* **Reading State**: Use standard dictionary access (`tool_context.state['my_key']`) or the `.get()` method (`tool_context.state.get('my_key', default_value)`).
+* **讀取狀態**：可使用標準字典存取方式（`tool_context.state['my_key']`）或 `.get()` 方法（`tool_context.state.get('my_key', default_value)`）。
 
-* **Writing State**: Assign values directly (`tool_context.state['new_key'] = 'new_value'`). These changes are recorded in the state_delta of the resulting event.
+* **寫入狀態**：可直接指定值（`tool_context.state['new_key'] = 'new_value'`）。這些變更會被記錄在結果事件的 state_delta 中。
 
-* **State Prefixes**: Remember the standard state prefixes:
+* **狀態前綴**：請記住以下標準狀態前綴：
 
-    * `app:*`: Shared across all users of the application.
+    * `app:*`：所有應用程式使用者共用。
 
-    * `user:*`: Specific to the current user across all their sessions.
+    * `user:*`：針對目前使用者在所有 session 間共用。
 
-    * (No prefix): Specific to the current session.
+    * （無前綴）：僅限於目前 session。
 
-    * `temp:*`: Temporary, not persisted across invocations (useful for passing data within a single run call but generally less useful inside a tool context which operates between LLM calls).
+    * `temp:*`：暫存，不會在多次呼叫間持久化（適合於單次 run 呼叫內傳遞資料，但一般在工具上下文中較少用，因其運作於多次 LLM 呼叫之間）。
 
 === "Python"
 
@@ -152,17 +145,17 @@ The `tool_context.state` attribute provides direct read and write access to the 
     }
     ```
 
-### **Controlling Agent Flow**
+### **控制 Agent 流程**
 
-The `tool_context.actions` attribute (`ToolContext.actions()` in Java) holds an **EventActions** object. Modifying attributes on this object allows your tool to influence what the agent or framework does after the tool finishes execution.
+`tool_context.actions` 屬性（在 Java 中為 `ToolContext.actions()`）儲存了一個 **EventActions** 物件。透過修改此物件的屬性，您的工具可以影響在工具執行完成後，Agent 或框架的後續行為。
 
-* **`skip_summarization: bool`**: (Default: False) If set to True, instructs the ADK to bypass the LLM call that typically summarizes the tool's output. This is useful if your tool's return value is already a user-ready message.
+* **`skip_summarization: bool`**：（預設值：False）若設為 True，將指示 Agent Development Kit (ADK) 略過通常會對工具輸出進行摘要的大型語言模型 (LLM) 呼叫。如果您的工具回傳值已經是可直接給使用者的訊息，這會非常有用。
 
-* **`transfer_to_agent: str`**: Set this to the name of another agent. The framework will halt the current agent's execution and **transfer control of the conversation to the specified agent**. This allows tools to dynamically hand off tasks to more specialized agents.
+* **`transfer_to_agent: str`**：將此屬性設為另一個 agent 的名稱。框架會停止目前 agent 的執行，並**將對話控制權轉交給指定的 agent**。這讓工具能夠動態地將任務交付給更專門的 agent 處理。
 
-* **`escalate: bool`**: (Default: False) Setting this to True signals that the current agent cannot handle the request and should pass control up to its parent agent (if in a hierarchy). In a LoopAgent, setting **escalate=True** in a sub-agent's tool will terminate the loop.
+* **`escalate: bool`**：（預設值：False）設為 True 時，表示目前的 agent 無法處理該請求，應將控制權傳遞給其父 agent（若有階層結構）。在 LoopAgent 中，若子 agent 的工具設定 **escalate=True**，將會終止該循環。
 
-#### Example
+#### 範例
 
 === "Python"
 
@@ -176,46 +169,46 @@ The `tool_context.actions` attribute (`ToolContext.actions()` in Java) holds an 
     --8<-- "examples/java/snippets/src/main/java/tools/CustomerSupportAgentApp.java:full_code"
     ```
 
-##### Explanation
+##### 說明
 
-* We define two agents: `main_agent` and `support_agent`. The `main_agent` is designed to be the initial point of contact.
-* The `check_and_transfer` tool, when called by `main_agent`, examines the user's query.
-* If the query contains the word "urgent", the tool accesses the `tool_context`, specifically **`tool_context.actions`**, and sets the transfer\_to\_agent attribute to `support_agent`.
-* This action signals to the framework to **transfer the control of the conversation to the agent named `support_agent`**.
-* When the `main_agent` processes the urgent query, the `check_and_transfer` tool triggers the transfer. The subsequent response would ideally come from the `support_agent`.
-* For a normal query without urgency, the tool simply processes it without triggering a transfer.
+* 我們定義了兩個代理（agent）：`main_agent` 和 `support_agent`。`main_agent` 被設計為最初的聯絡點。
+* 當 `main_agent` 呼叫 `check_and_transfer` 工具時，該工具會檢查使用者的查詢內容。
+* 如果查詢中包含「urgent」這個詞，該工具會存取 `tool_context`，特別是 **`tool_context.actions`**，並將 transfer\_to\_agent 屬性設為 `support_agent`。
+* 此動作會通知框架**將對話控制權轉交給名為 `support_agent` 的代理（agent）**。
+* 當 `main_agent` 處理緊急查詢時，`check_and_transfer` 工具會觸發轉交流程。接下來的回應理想上會來自 `support_agent`。
+* 對於沒有緊急性的普通查詢，工具則僅進行處理，不會觸發轉交。
 
-This example illustrates how a tool, through EventActions in its ToolContext, can dynamically influence the flow of the conversation by transferring control to another specialized agent.
+這個範例說明了一個工具如何透過其 ToolContext 中的 EventActions，動態地影響對話流程，將控制權轉交給其他專門的代理（agent）。
 
-### **Authentication**
+### **驗證（Authentication）**
 
-![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="This feature is currently available for Python. Java support is planned/ coming soon."}
+![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python。Java 支援預計推出/即將推出。"}
 
-ToolContext provides mechanisms for tools interacting with authenticated APIs. If your tool needs to handle authentication, you might use the following:
+ToolContext 提供了讓工具與需驗證的 API 互動的機制。如果您的工具需要處理驗證，可以使用以下方法：
 
-* **`auth_response`**: Contains credentials (e.g., a token) if authentication was already handled by the framework before your tool was called (common with RestApiTool and OpenAPI security schemes).
+* **`auth_response`**：如果驗證在您的工具被呼叫前已由框架處理（常見於 RestApiTool 和 OpenAPI 安全機制），則此處會包含憑證（例如 token）。
 
-* **`request_credential(auth_config: dict)`**: Call this method if your tool determines authentication is needed but credentials aren't available. This signals the framework to start an authentication flow based on the provided auth_config.
+* **`request_credential(auth_config: dict)`**：如果您的工具判斷需要驗證但尚未取得憑證，請呼叫此方法。這會通知框架根據提供的 auth_config 啟動驗證流程。
 
-* **`get_auth_response()`**: Call this in a subsequent invocation (after request_credential was successfully handled) to retrieve the credentials the user provided.
+* **`get_auth_response()`**：在後續呼叫（於 request_credential 成功處理後）可呼叫此方法，以取得使用者所提供的憑證。
 
-For detailed explanations of authentication flows, configuration, and examples, please refer to the dedicated Tool Authentication documentation page.
+有關驗證流程、設定及範例的詳細說明，請參閱專門的工具驗證（Tool Authentication）文件頁面。
 
-### **Context-Aware Data Access Methods**
+### **具情境感知的資料存取方法**
 
-These methods provide convenient ways for your tool to interact with persistent data associated with the session or user, managed by configured services.
+這些方法為您的工具提供便利的方式，與由已設定服務管理的 session 或 user 相關的持久性資料互動。
 
-* **`list_artifacts()`** (or **`listArtifacts()`** in Java): Returns a list of filenames (or keys) for all artifacts currently stored for the session via the artifact_service. Artifacts are typically files (images, documents, etc.) uploaded by the user or generated by tools/agents.
+* **`list_artifacts()`**（或 Java 中的 **`listArtifacts()`**）：透過 artifact_service 回傳目前 session 所儲存的所有 artifact 檔案名稱（或 key）清單。artifact 通常是使用者上傳或工具／代理所產生的檔案（如圖片、文件等）。
 
-* **`load_artifact(filename: str)`**: Retrieves a specific artifact by its filename from the **artifact_service**. You can optionally specify a version; if omitted, the latest version is returned. Returns a `google.genai.types.Part` object containing the artifact data and mime type, or None if not found.
+* **`load_artifact(filename: str)`**：從 **artifact_service** 依檔案名稱取得特定 artifact。您可選擇指定版本，若未指定則回傳最新版本。回傳一個包含 artifact 資料與 mime type 的 `google.genai.types.Part` 物件，若找不到則回傳 None。
 
-* **`save_artifact(filename: str, artifact: types.Part)`**: Saves a new version of an artifact to the artifact_service. Returns the new version number (starting from 0).
+* **`save_artifact(filename: str, artifact: types.Part)`**：將 artifact 的新版本儲存至 artifact_service。回傳新版本號（從 0 開始）。
 
-* **`search_memory(query: str)`** ![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="This feature is currently available for Python. Java support is planned/ coming soon."}
+* **`search_memory(query: str)`** ![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python。Java 支援預計推出/即將推出。"}
 
-       Queries the user's long-term memory using the configured `memory_service`. This is useful for retrieving relevant information from past interactions or stored knowledge. The structure of the **SearchMemoryResponse** depends on the specific memory service implementation but typically contains relevant text snippets or conversation excerpts.
+       使用已設定的 `memory_service` 查詢使用者的長期記憶（long-term memory）。這對於從過往互動或已儲存知識中檢索相關資訊非常有用。**SearchMemoryResponse** 的結構取決於具體的記憶服務實作，但通常會包含相關的文字片段或對話摘錄。
 
-#### Example
+#### 範例
 
 === "Python"
 
@@ -277,43 +270,43 @@ These methods provide convenient ways for your tool to interact with persistent 
     // LlmAgent agent = LlmAgent().builder().tools(processDocumentTool).build();
     ```
 
-By leveraging the **ToolContext**, developers can create more sophisticated and context-aware custom tools that seamlessly integrate with ADK's architecture and enhance the overall capabilities of their agents.
+透過運用 **ToolContext**，開發者可以建立更為進階且具備情境感知能力的自訂工具，這些工具能無縫整合至 Agent Development Kit (ADK) 的架構中，並增強其代理人的整體能力。
 
-## Defining Effective Tool Functions
+## 定義有效的工具函式
 
-When using a method or function as an ADK Tool, how you define it significantly impacts the agent's ability to use it correctly. The agent's Large Language Model (LLM) relies heavily on the function's **name**, **parameters (arguments)**, **type hints**, and **docstring** / **source code comments** to understand its purpose and generate the correct call.
+當你將某個方法或函式作為 ADK 工具時，其定義方式會大幅影響代理人正確使用該工具的能力。代理人所依賴的大型語言模型 (Large Language Model, LLM) 會高度依據函式的 **名稱**、**參數（引數）**、**型別提示**，以及 **docstring** / **原始碼註解** 來理解其用途並產生正確的呼叫。
 
-Here are key guidelines for defining effective tool functions:
+以下是定義有效工具函式的重點指引：
 
-* **Function Name:**
-    * Use descriptive, verb-noun based names that clearly indicate the action (e.g., `get_weather`, `searchDocuments`, `schedule_meeting`).
-    * Avoid generic names like `run`, `process`, `handle_data`, or overly ambiguous names like `doStuff`. Even with a good description, a name like `do_stuff` might confuse the model about when to use the tool versus, for example, `cancelFlight`.
-    * The LLM uses the function name as a primary identifier during tool selection.
+* **函式名稱：**
+    * 使用具描述性、動詞-名詞結構的名稱，明確指出動作（例如：`get_weather`、`searchDocuments`、`schedule_meeting`）。
+    * 避免使用像是 `run`、`process`、`handle_data` 這類過於通用的名稱，或像 `doStuff` 這樣過於模糊的名稱。即使有良好的描述，像 `do_stuff` 這樣的名稱也可能讓模型混淆該何時使用這個工具，例如與 `cancelFlight` 相比。
+    * LLM 在選擇工具時，會將函式名稱作為主要識別依據。
 
-* **Parameters (Arguments):**
-    * Your function can have any number of parameters.
-    * Use clear and descriptive names (e.g., `city` instead of `c`, `search_query` instead of `q`).
-    * **Provide type hints in Python**  for all parameters (e.g., `city: str`, `user_id: int`, `items: list[str]`). This is essential for ADK to generate the correct schema for the LLM.
-    * Ensure all parameter types are **JSON serializable**. All java primitives as well as standard Python types like `str`, `int`, `float`, `bool`, `list`, `dict`, and their combinations are generally safe. Avoid complex custom class instances as direct parameters unless they have a clear JSON representation.
-    * **Do not set default values** for parameters. E.g., `def my_func(param1: str = "default")`. Default values are not reliably supported or used by the underlying models during function call generation. All necessary information should be derived by the LLM from the context or explicitly requested if missing.
-    * **`self` / `cls` Handled Automatically:** Implicit parameters like `self` (for instance methods) or `cls` (for class methods) are automatically handled by ADK and excluded from the schema shown to the LLM. You only need to define type hints and descriptions for the logical parameters your tool requires the LLM to provide.
+* **參數（引數）：**
+    * 你的函式可以有任意數量的參數。
+    * 使用清楚且具描述性的名稱（例如：`city` 而非 `c`，`search_query` 而非 `q`）。
+    * **在 Python 中為所有參數提供型別提示**（例如：`city: str`、`user_id: int`、`items: list[str]`）。這對於 ADK 產生正確的 LLM 架構至關重要。
+    * 確保所有參數型別皆為 **JSON 可序列化**。所有 Java 原始型別，以及標準 Python 型別如 `str`、`int`、`float`、`bool`、`list`、`dict` 及其組合通常都很安全。除非自訂類別實例有明確的 JSON 表示，否則請避免直接作為參數傳遞複雜的自訂類別實例。
+    * **不要為參數設定預設值**。例如：`def my_func(param1: str = "default")`。底層模型在產生函式呼叫時，對預設值的支援並不可靠。所有必要資訊應由 LLM 從情境中推導，或在缺少時明確要求。
+    * **`self` / `cls` 自動處理：** 像 `self`（實例方法）或 `cls`（類別方法）這類隱含參數會由 ADK 自動處理，並從提供給 LLM 的架構中排除。你只需為工具實際需要 LLM 提供的邏輯參數定義型別提示與描述即可。
 
-* **Return Type:**
-    * The function's return value **must be a dictionary (`dict`)** in Python or a **Map** in Java.
-    * If your function returns a non-dictionary type (e.g., a string, number, list), the ADK framework will automatically wrap it into a dictionary/Map like `{'result': your_original_return_value}` before passing the result back to the model.
-    * Design the dictionary/Map keys and values to be **descriptive and easily understood *by the LLM***. Remember, the model reads this output to decide its next step.
-    * Include meaningful keys. For example, instead of returning just an error code like `500`, return `{'status': 'error', 'error_message': 'Database connection failed'}`.
-    * It's a **highly recommended practice** to include a `status` key (e.g., `'success'`, `'error'`, `'pending'`, `'ambiguous'`) to clearly indicate the outcome of the tool execution for the model.
+* **回傳型別：**
+    * 函式的回傳值在 Python 中**必須是字典（`dict`）**，在 Java 中則必須是 **Map**。
+    * 如果你的函式回傳的是非字典型別（如字串、數字、列表），ADK 框架會在將結果回傳給模型前，自動將其包裝成類似 `{'result': your_original_return_value}` 的字典/Map。
+    * 設計字典/Map 的鍵和值時，請確保**具描述性且易於 LLM 理解**。請記住，模型會讀取這個輸出來決定下一步行動。
+    * 包含有意義的鍵。例如，不要只回傳像 `500` 這樣的錯誤碼，而是回傳 `{'status': 'error', 'error_message': 'Database connection failed'}`。
+    * **強烈建議**包含一個 `status` 鍵（例如：`'success'`、`'error'`、`'pending'`、`'ambiguous'`），以明確向模型指出工具執行的結果。
 
-* **Docstring / Source Code Comments:**
-    * **This is critical.** The docstring is the primary source of descriptive information for the LLM.
-    * **Clearly state what the tool *does*.** Be specific about its purpose and limitations.
-    * **Explain *when* the tool should be used.** Provide context or example scenarios to guide the LLM's decision-making.
-    * **Describe *each parameter* clearly.** Explain what information the LLM needs to provide for that argument.
-    * Describe the **structure and meaning of the expected `dict` return value**, especially the different `status` values and associated data keys.
-    * **Do not describe the injected ToolContext parameter**. Avoid mentioning the optional `tool_context: ToolContext` parameter within the docstring description since it is not a parameter the LLM needs to know about. ToolContext is injected by ADK, *after* the LLM decides to call it. 
+* **Docstring / 原始碼註解：**
+    * **這點非常重要。** docstring 是 LLM 取得描述性資訊的主要來源。
+    * **明確說明工具的功能。** 具體描述其用途與限制。
+    * **說明何時應使用此工具。** 提供情境或範例情境，以引導 LLM 做出決策。
+    * **清楚描述每個參數。** 解釋 LLM 需為該引數提供哪些資訊。
+    * 描述**預期 `dict` 回傳值的結構與意義**，特別是不同 `status` 值及其關聯資料鍵。
+    * **不要描述被注入的 ToolContext 參數。** 請避免在 docstring 描述中提及可選的 `tool_context: ToolContext` 參數，因為這不是 LLM 需要知道的參數。ToolContext 會由 ADK 在 LLM 決定呼叫後自動注入。
 
-    **Example of a good definition:**
+    **良好定義的範例：**
 
 === "Python"
     
@@ -378,59 +371,59 @@ Here are key guidelines for defining effective tool functions:
     }
     ```
 
-* **Simplicity and Focus:**
-    * **Keep Tools Focused:** Each tool should ideally perform one well-defined task.
-    * **Fewer Parameters are Better:** Models generally handle tools with fewer, clearly defined parameters more reliably than those with many optional or complex ones.
-    * **Use Simple Data Types:** Prefer basic types (`str`, `int`, `bool`, `float`, `List[str]`, in **Python**, or `int`, `byte`, `short`, `long`, `float`, `double`, `boolean` and `char` in **Java**) over complex custom classes or deeply nested structures as parameters when possible.
-    * **Decompose Complex Tasks:** Break down functions that perform multiple distinct logical steps into smaller, more focused tools. For instance, instead of a single `update_user_profile(profile: ProfileObject)` tool, consider separate tools like `update_user_name(name: str)`, `update_user_address(address: str)`, `update_user_preferences(preferences: list[str])`, etc. This makes it easier for the LLM to select and use the correct capability.
+* **簡潔與聚焦：**
+    * **保持工具專一：** 每個工具理想上應只執行一個明確定義的任務。
+    * **參數越少越好：** 大型語言模型 (LLM) 一般能更可靠地處理參數較少且定義明確的工具，相較於參數繁多或複雜的工具。
+    * **使用簡單資料型別：** 優先選用基本型別（如 **Python** 的 `str`、`int`、`bool`、`float`、`List[str]`，或 **Java** 的 `int`、`byte`、`short`、`long`、`float`、`double`、`boolean`、`char`），盡量避免將複雜的自訂類別或深層巢狀結構作為參數。
+    * **拆解複雜任務：** 將執行多個不同邏輯步驟的函式拆分為更小、更專注的工具。例如，與其設計一個單一的 `update_user_profile(profile: ProfileObject)` 工具，不如考慮分別建立 `update_user_name(name: str)`、`update_user_address(address: str)`、`update_user_preferences(preferences: list[str])` 等工具。這樣能讓 LLM 更容易選擇並使用正確的功能。
 
-By adhering to these guidelines, you provide the LLM with the clarity and structure it needs to effectively utilize your custom function tools, leading to more capable and reliable agent behavior.
+遵循這些指引，可以為 LLM 提供清晰且有結構的自訂函式工具，進而提升代理行為的能力與可靠性。
 
-## Toolsets: Grouping and Dynamically Providing Tools ![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="This feature is currently available for Python. Java support is planned/coming soon."}
+## 工具集：分組與動態提供工具 ![python_only](https://img.shields.io/badge/Currently_supported_in-Python-blue){ title="此功能目前僅支援 Python。Java 支援預計推出。"}
 
-Beyond individual tools, ADK introduces the concept of a **Toolset** via the `BaseToolset` interface (defined in `google.adk.tools.base_toolset`). A toolset allows you to manage and provide a collection of `BaseTool` instances, often dynamically, to an agent.
+除了單一工具外，Agent Development Kit (ADK) 引入了 **工具集 (Toolset)** 的概念，透過 `BaseToolset` 介面（定義於 `google.adk.tools.base_toolset`）。工具集讓你能夠管理並動態提供一組 `BaseTool` 實例給代理 (agent)。
 
-This approach is beneficial for:
+這種做法的優點包括：
 
-*   **Organizing Related Tools:** Grouping tools that serve a common purpose (e.g., all tools for mathematical operations, or all tools interacting with a specific API).
-*   **Dynamic Tool Availability:** Enabling an agent to have different tools available based on the current context (e.g., user permissions, session state, or other runtime conditions). The `get_tools` method of a toolset can decide which tools to expose.
-*   **Integrating External Tool Providers:** Toolsets can act as adapters for tools coming from external systems, like an OpenAPI specification or an MCP server, converting them into ADK-compatible `BaseTool` objects.
+*   **組織相關工具：** 將具有共同用途的工具分組（例如：所有數學運算工具，或所有與特定 API 互動的工具）。
+*   **動態工具可用性：** 讓代理根據當前情境（如使用者權限、工作階段狀態或其他執行時條件）擁有不同的可用工具。工具集的 `get_tools` 方法可決定要暴露哪些工具。
+*   **整合外部工具提供者：** 工具集可作為外部系統（如 OpenAPI 規格或 MCP 伺服器）工具的轉接器，將其轉換為 ADK 相容的 `BaseTool` 物件。
 
-### The `BaseToolset` Interface
+### `BaseToolset` 介面
 
-Any class acting as a toolset in ADK should implement the `BaseToolset` abstract base class. This interface primarily defines two methods:
+任何作為 ADK 工具集的類別都應實作 `BaseToolset` 抽象基底類別。此介面主要定義了兩個方法：
 
 *   **`async def get_tools(...) -> list[BaseTool]:`**
-    This is the core method of a toolset. When an ADK agent needs to know its available tools, it will call `get_tools()` on each `BaseToolset` instance provided in its `tools` list.
-    *   It receives an optional `readonly_context` (an instance of `ReadonlyContext`). This context provides read-only access to information like the current session state (`readonly_context.state`), agent name, and invocation ID. The toolset can use this context to dynamically decide which tools to return.
-    *   It **must** return a `list` of `BaseTool` instances (e.g., `FunctionTool`, `RestApiTool`).
+    這是工具集的核心方法。當 ADK 代理需要知道其可用工具時，會對其 `tools` 清單中的每個 `BaseToolset` 實例呼叫 `get_tools()`。
+    *   它會接收一個可選的 `readonly_context`（`ReadonlyContext` 的實例）。此 context 提供唯讀資訊存取，例如目前的工作階段狀態（`readonly_context.state`）、代理名稱、呼叫 ID 等。工具集可利用這個 context 動態決定要回傳哪些工具。
+    *   此方法**必須**回傳一個 `list`，內容為多個 `BaseTool` 實例（例如 `FunctionTool`、`RestApiTool`）。
 
 *   **`async def close(self) -> None:`**
-    This asynchronous method is called by the ADK framework when the toolset is no longer needed, for example, when an agent server is shutting down or the `Runner` is being closed. Implement this method to perform any necessary cleanup, such as closing network connections, releasing file handles, or cleaning up other resources managed by the toolset.
+    這個非同步方法會在工具集不再需要時由 ADK 框架呼叫，例如代理伺服器關閉或 `Runner` 被關閉時。請在此方法中實作必要的清理作業，例如關閉網路連線、釋放檔案控制代碼，或清理工具集管理的其他資源。
 
-### Using Toolsets with Agents
+### 在代理中使用工具集
 
-You can include instances of your `BaseToolset` implementations directly in an `LlmAgent`'s `tools` list, alongside individual `BaseTool` instances.
+你可以將自訂的 `BaseToolset` 實作實例直接加入 `LlmAgent` 的 `tools` 清單中，與單獨的 `BaseTool` 實例並列。
 
-When the agent initializes or needs to determine its available capabilities, the ADK framework will iterate through the `tools` list:
+當代理初始化或需要判斷其可用功能時，ADK 框架會遍歷 `tools` 清單：
 
-*   If an item is a `BaseTool` instance, it's used directly.
-*   If an item is a `BaseToolset` instance, its `get_tools()` method is called (with the current `ReadonlyContext`), and the returned list of `BaseTool`s is added to the agent's available tools.
+*   若項目為 `BaseTool` 實例，則直接使用。
+*   若項目為 `BaseToolset` 實例，則會呼叫其 `get_tools()` 方法（帶入目前的 `ReadonlyContext`），並將回傳的 `BaseTool` 清單加入代理的可用工具中。
 
-### Example: A Simple Math Toolset
+### 範例：簡易數學工具集
 
-Let's create a basic example of a toolset that provides simple arithmetic operations.
+以下將建立一個提供基本算術運算的工具集範例。
 
 ```py
 --8<-- "examples/python/snippets/tools/overview/toolset_example.py:init"
 ```
 
-In this example:
+在此範例中：
 
-*   `SimpleMathToolset` implements `BaseToolset` and its `get_tools()` method returns `FunctionTool` instances for `add_numbers` and `subtract_numbers`. It also customizes their names using a prefix.
-*   The `calculator_agent` is configured with both an individual `greet_tool` and an instance of `SimpleMathToolset`.
-*   When `calculator_agent` is run, ADK will call `math_toolset_instance.get_tools()`. The agent's LLM will then have access to `greet_user`, `calculator_add_numbers`, and `calculator_subtract_numbers` to handle user requests.
-*   The `add_numbers` tool demonstrates writing to `tool_context.state`, and the agent's instruction mentions reading this state.
-*   The `close()` method is called to ensure any resources held by the toolset are released.
+*   `SimpleMathToolset` 實作了 `BaseToolset`，其 `get_tools()` 方法會針對 `add_numbers` 和 `subtract_numbers` 回傳 `FunctionTool` 實例，並使用前綴字自訂它們的名稱。
+*   `calculator_agent` 同時設定了個別的 `greet_tool` 以及一個 `SimpleMathToolset` 實例。
+*   當執行 `calculator_agent` 時，Agent Development Kit (ADK) 會呼叫 `math_toolset_instance.get_tools()`。該 agent 的大型語言模型 (LLM) 將能存取 `greet_user`、`calculator_add_numbers` 和 `calculator_subtract_numbers` 來處理使用者請求。
+*   `add_numbers` 工具展示了如何寫入 `tool_context.state`，而 agent 的指令則提及了讀取這個狀態。
+*   會呼叫 `close()` 方法，以確保釋放 toolset 所持有的任何資源。
 
-Toolsets offer a powerful way to organize, manage, and dynamically provide collections of tools to your ADK agents, leading to more modular, maintainable, and adaptable agentic applications.
+Toolset 提供了一種強大的方式，能夠組織、管理並動態地為你的 Agent Development Kit (ADK) agent 提供一系列工具，使 agent 應用程式更加模組化、易於維護且具備高度適應性。
