@@ -113,107 +113,107 @@ plugins:
 
 # Navigation
 nav:
-  - Home: index.md
-  - Get Started:
+  - 首頁: index.md
+  - 開始使用:
     - get-started/index.md
-    - Installation: get-started/installation.md
-    - Quickstart: get-started/quickstart.md
-    - Quickstart (Streaming):
+    - 安裝: get-started/installation.md
+    - 快速開始: get-started/quickstart.md
+    - 快速開始（串流）:
       - get-started/streaming/index.md
       - Python: get-started/streaming/quickstart-streaming.md
       - Java: get-started/streaming/quickstart-streaming-java.md
-    - Testing: get-started/testing.md
-    - Sample agents: https://github.com/google/adk-samples
-    - About ADK: get-started/about.md
-  - Tutorials:
+    - 測試: get-started/testing.md
+    - 範例代理: https://github.com/google/adk-samples
+    - 關於 ADK: get-started/about.md
+  - 教學課程:
     - tutorials/index.md
-    - Agent Team: tutorials/agent-team.md
-  - Agents:
+    - 代理團隊: tutorials/agent-team.md
+  - 代理:
     - agents/index.md
-    - LLM agents: agents/llm-agents.md
-    - Workflow agents:
+    - LLM 代理: agents/llm-agents.md
+    - 工作流程代理:
       - agents/workflow-agents/index.md
-      - Sequential agents: agents/workflow-agents/sequential-agents.md
-      - Loop agents: agents/workflow-agents/loop-agents.md
-      - Parallel agents: agents/workflow-agents/parallel-agents.md
-    - Custom agents: agents/custom-agents.md
-    - Multi-agent systems: agents/multi-agents.md
-    - Agent Config: agents/config.md
-    - Models & Authentication: agents/models.md
-  - Tools:
+      - 序列代理: agents/workflow-agents/sequential-agents.md
+      - 迴圈代理: agents/workflow-agents/loop-agents.md
+      - 平行代理: agents/workflow-agents/parallel-agents.md
+    - 自訂代理: agents/custom-agents.md
+    - 多代理系統: agents/multi-agents.md
+    - 代理設定: agents/config.md
+    - 模型與認證: agents/models.md
+  - 工具:
     - tools/index.md
-    - Function tools:
-      - Overview: tools/function-tools.md
-      - Tool performance: tools/performance.md
-      - Action confirmations: tools/confirmation.md
-    - Built-in tools: tools/built-in-tools.md
-    - Third party tools: tools/third-party-tools.md
-    - Google Cloud tools: tools/google-cloud-tools.md
-    - MCP tools: tools/mcp-tools.md
-    - OpenAPI tools: tools/openapi-tools.md
-    - Authentication: tools/authentication.md
-  - Running Agents:
-    - Agent Runtime: runtime/index.md
-    - Runtime Config: runtime/runconfig.md
-  - Deploy:
+    - 函式工具:
+      - 概觀: tools/function-tools.md
+      - 工具效能: tools/performance.md
+      - 動作確認: tools/confirmation.md
+    - 內建工具: tools/built-in-tools.md
+    - 第三方工具: tools/third-party-tools.md
+    - Google Cloud 工具: tools/google-cloud-tools.md
+    - MCP 工具: tools/mcp-tools.md
+    - OpenAPI 工具: tools/openapi-tools.md
+    - 認證: tools/authentication.md
+  - 執行代理:
+    - 代理執行環境: runtime/index.md
+    - 執行設定: runtime/runconfig.md
+  - 部署:
     - deploy/index.md
-    - Agent Engine: deploy/agent-engine.md
+    - 代理引擎: deploy/agent-engine.md
     - Cloud Run: deploy/cloud-run.md
     - GKE: deploy/gke.md
-  - Sessions & Memory:
+  - 會話與記憶體:
     - sessions/index.md
-    - Session: sessions/session.md
-    - State: sessions/state.md
-    - Memory: sessions/memory.md
-    - Vertex AI Express Mode: sessions/express-mode.md
-  - Callbacks:
+    - 會話: sessions/session.md
+    - 狀態: sessions/state.md
+    - 記憶體: sessions/memory.md
+    - Vertex AI 快速模式: sessions/express-mode.md
+  - 回調:
     - callbacks/index.md
-    - Types of callbacks: callbacks/types-of-callbacks.md
-    - Callback patterns: callbacks/design-patterns-and-best-practices.md
-  - Artifacts:
+    - 回調類型: callbacks/types-of-callbacks.md
+    - 回調模式: callbacks/design-patterns-and-best-practices.md
+  - 產出物:
     - artifacts/index.md
-  - Events:
+  - 事件:
     - events/index.md
-  - Context:
+  - 內容:
     - context/index.md
-  - Observability:
-    - Logging: observability/logging.md
+  - 可觀測性:
+    - 日誌記錄: observability/logging.md
     - Cloud Trace: observability/cloud-trace.md
     - AgentOps: observability/agentops.md
     - Arize AX: observability/arize-ax.md
     - Phoenix: observability/phoenix.md
     - W&B Weave: observability/weave.md
-  - Evaluate:
+  - 評估:
     - evaluate/index.md
   - MCP:
     - mcp/index.md
-  - Plugins:
+  - 外掛:
     - plugins/index.md
-  - Bidi-streaming (live):
+  - 雙向串流（即時）:
     - streaming/index.md
-    - Quickstart (Bidi-streaming/live): get-started/streaming/index.md
-    - Custom Audio Bidi-streaming app sample (SSE): streaming/custom-streaming.md
-    - Custom Audio Bidi-streaming app sample (WebSockets): streaming/custom-streaming-ws.md
-    - Bidi-streaming development guide series: streaming/dev-guide/part1.md
-    - Streaming Tools: streaming/streaming-tools.md
-    - Configurating Bidi-streaming behaviour: streaming/configuration.md
+    - 快速開始（雙向串流/即時）: get-started/streaming/index.md
+    - 自訂音訊雙向串流應用程式範例 (SSE): streaming/custom-streaming.md
+    - 自訂音訊雙向串流應用程式範例 (WebSockets): streaming/custom-streaming-ws.md
+    - 雙向串流開發指南系列: streaming/dev-guide/part1.md
+    - 串流工具: streaming/streaming-tools.md
+    - 設定雙向串流行為: streaming/configuration.md
     - Google ADK + Vertex AI Live API (blog post): https://medium.com/google-cloud/google-adk-vertex-ai-live-api-125238982d5e
-  - Grounding:
-    - Understanding Google Search Grounding: grounding/google_search_grounding.md
-    - Understanding Vertex AI Search Grounding: grounding/vertex_ai_search_grounding.md
-  - Safety and Security: safety/index.md
-  - A2A Protocol:
+  - 基礎資料:
+    - 了解 Google 搜尋基礎資料: grounding/google_search_grounding.md
+    - 了解 Vertex AI 搜尋基礎資料: grounding/vertex_ai_search_grounding.md
+  - 安全與防護: safety/index.md
+  - A2A 協定:
     - a2a/index.md
-    - Introduction to A2A: a2a/intro.md
-    - A2A Quickstart (Exposing): a2a/quickstart-exposing.md
-    - A2A Quickstart (Consuming): a2a/quickstart-consuming.md
-    - A2A Protocol Documentation: https://a2a-protocol.org
-  - Community Resources: community.md
-  - Contributing Guide: contributing-guide.md
-  - API Reference:
+    - A2A 簡介: a2a/intro.md
+    - A2A 快速開始（公開）: a2a/quickstart-exposing.md
+    - A2A 快速開始（使用）: a2a/quickstart-consuming.md
+    - A2A 協定文件: https://a2a-protocol.org
+  - 社群資源: community.md
+  - 貢獻指南: contributing-guide.md
+  - API 參考:
     - api-reference/index.md
     - Python ADK: api-reference/python/index.html
     - Java ADK: api-reference/java/index.html
-    - CLI Reference: api-reference/cli/index.html
-    - Agent Config reference: api-reference/agentconfig/index.html
+    - CLI 參考: api-reference/cli/index.html
+    - 代理設定參考: api-reference/agentconfig/index.html
     - REST API: api-reference/rest/index.md
